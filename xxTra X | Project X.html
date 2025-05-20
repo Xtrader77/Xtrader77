@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project X-13 EA | Asymmetrical Compounding System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #800020;
+      --primary-dark: #5c0018;
+      --primary-light: #a30029;
+      --dark: #1a1a1a;
+      --light: #f8f8f8;
+      --gray: #888;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .content {
+      padding: 2.5rem;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    
+    p {
+      margin-bottom: 1rem;
+      color: var(--dark);
+      line-height: 1.7;
+    }
+    
+    ul {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+    
+    ul li {
+      position: relative;
+      padding-left: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    ul li:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+    
+    .highlight {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px #e8e8e8;
+    }
+    
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e8e8e8;
+      background: white;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(128, 0, 32, 0.08);
+    }
+    
+    .contact {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-top: 2rem;
+      border: 1px solid #eee;
+    }
+    
+    .contact p {
+      margin-bottom: 0.5rem;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .badge-success {
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+    }
+    
+    .badge-warning {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+    
+    .badge-danger {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--danger);
+    }
+    
+    .badge-info {
+      background: rgba(128, 0, 32, 0.1);
+      color: var(--primary);
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s ease;
+      border: 1px solid #f0f0f0;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary-light);
+    }
+    
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .header {
+        padding: 1.5rem;
+      }
+      
+      .content {
+        padding: 1.5rem;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1><i class="fas fa-rocket"></i> Project X-13 EA</h1>
+        <p><strong>Asymmetrical Compounding — One Trade at a Time</strong></p>
+        <p>For disciplined traders who understand the power of compounding and patience.</p>
+      </div>
+      
+      <div class="content">
+        <div class="section animate">
+          <h2><i class="fas fa-search"></i> What Is It?</h2>
+          <p>Project X-13 is a custom Expert Advisor (EA) for MT4 on PC — designed to help you grow a small account (as little as $10) into $100,000+ using a strict 11–13 step system based on asymmetrical compounding.</p>
+          <p class="highlight"><i class="fas fa-lightbulb"></i> You don't need to code anything. You don't need to manage risk or track progress. The EA handles it all. Your only job: place a single high-quality trade per day.</p>
+        </div>
+        
+        <div class="section animate delay-1">
+          <h2><i class="fas fa-brain"></i> How It Works</h2>
+          <p>This is not a bot that trades for you.<br>
+          It's a discipline and progress manager that enforces rules, tracks results, and compounds your trades according to a proven model.</p>
+          
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3><i class="fas fa-hand-pointer"></i> Manual Entry</h3>
+              <p>You enter trades manually — either BUY or SELL based on your strategy</p>
+            </div>
+            <div class="feature-card">
+              <h3><i class="fas fa-robot"></i> Automated Management</h3>
+              <p>The EA manages everything else: risk, position sizing, and progression</p>
+            </div>
+            <div class="feature-card">
+              <h3><i class="fas fa-chart-line"></i> Compounding Logic</h3>
+              <p>Win = level up, Loss = level down, Break Even = repeat level</p>
+            </div>
+          </div>
+          
+          <table>
+            <tr>
+              <th>Outcome</th>
+              <th>Action</th>
+              <th>Result</th>
+            </tr>
+            <tr>
+              <td><span class="badge badge-success">Win (TP Hit)</span></td>
+              <td>Move up to next level</td>
+              <td>Bigger lot size next trade</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-danger">Loss (SL Hit)</span></td>
+              <td>Go down one level</td>
+              <td>Smaller lot size next trade</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning">Break Even</span></td>
+              <td>Repeat current level</td>
+              <td>Same lot size next trade</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="section animate delay-2">
+          <h2><i class="fas fa-bullseye"></i> Your Only Focus</h2>
+          <p>One or two high-quality trades per day.<br>
+          No revenge trading. No overtrading.<br>
+          Fixed Stop Loss, fixed Take Profit (the EA handles SL/TP for each trade).</p>
+          
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3><i class="fas fa-ban"></i> No Overtrading</h3>
+              <p>Max 1 trade per day (configurable)</p>
+            </div>
+            <div class="feature-card">
+              <h3><i class="fas fa-lock"></i> Discipline Enforced</h3>
+              <p>EA prevents emotional trading decisions</p>
+            </div>
+            <div class="feature-card">
+              <h3><i class="fas fa-hourglass-half"></i> Patience Required</h3>
+              <p>Let compounding work its magic over time</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section animate delay-3">
+          <h2><i class="fas fa-list-check"></i> Program Rules</h2>
+          <ul>
+            <li><span class="highlight"><i class="fas fa-calendar-day"></i> Max 1 trade per day</span> (configurable — default is 1/day)</li>
+            <li><span class="highlight"><i class="fas fa-wallet"></i> Start with just $10</span> (minimum account size)</li>
+            <li><span class="highlight"><i class="fas fa-trophy"></i> Final Target: $100,000+</span> if completed flawlessly</li>
+            <li><span class="highlight"><i class="fas fa-hand"></i> No interfering</span> with SL, TP, or step logic</li>
+            <li><span class="highlight"><i class="fas fa-key"></i> Account number is your license key</span></li>
+            <li><span class="highlight"><i class="fas fa-link"></i> Must use the linked broker</span> (HFM/HotForex)</li>
+          </ul>
+          
+          <p class="highlight"><i class="fas fa-external-link-alt"></i> <strong>Register your HFM (HotForex) account here:</strong></p>
+          <a href="https://register.hfm.com/sv/en/new-live-account/?refid=335452" target="_blank" class="btn">
+            <i class="fas fa-user-plus"></i> Create HFM Account
+          </a>
+        </div>
+        
+        <div class="section animate delay-4">
+          <h2><i class="fas fa-table"></i> Program Summary</h2>
+          <table>
+            <tr>
+              <th>Feature</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td><i class="fas fa-hand-pointer"></i> Manual Entry</td>
+              <td>You choose trades. EA manages the rest.</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-layer-group"></i> 11–13 Level Structure</td>
+              <td>Lot sizes increase as you win</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-exchange-alt"></i> Outcome Logic</td>
+              <td>Win = level up, Loss = level down, BE = repeat</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-link"></i> Broker Linked</td>
+              <td>Works only with HFM accounts</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-desktop"></i> Platform</td>
+              <td>MT4 for PC Only (not mobile/web)</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-brain"></i> Psychology</td>
+              <td>Removes noise. Forces patience.</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-dollar-sign"></i> Starting Capital</td>
+              <td>Just $10</td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-flag-checkered"></i> Final Target</td>
+              <td>$100,000+ if completed flawlessly</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="section">
+          <h2><i class="fas fa-heart"></i> Why I'm Sharing This</h2>
+          <p>I'm not selling this. Not renting it. Not charging for access.</p>
+          <p>I built this for serious traders who want to win big with discipline. If someone hits the final target, I'd rather hear you say "thank you" — or maybe buy me a BMW M3 Competition <i class="fas fa-smile-wink"></i></p>
+        </div>
+        
+        <div class="contact">
+          <h2><i class="fas fa-envelope"></i> Contact</h2>
+          <p><strong>Trader X</strong></p>
+          <p><i class="fas fa-building"></i> xxTra X </p>
+          <p><i class="fas fa-phone"></i> +2348034848777</p>
+          <p><i class="fas fa-envelope"></i> xxtraxvisionaries@gmail.com</p>
+          <p><i class="fab fa-instagram"></i> @xxtra__x</p>
+          <p><i class="fas fa-map-marker-alt"></i> Northern Nigeria</p>
+          
+          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="https://instagram.com/xxtra__x" target="_blank" class="btn btn-outline">
+              <i class="fab fa-instagram"></i> DM Me on Instagram
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
