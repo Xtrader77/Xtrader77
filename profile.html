@@ -506,15 +506,38 @@ function setupHandlers() {
         const reader = new FileReader();
         reader.onload = async (ev) => {
             try {
-                const data = JSON.parse(ev.target.result);
-                if (!data.journals || !data.cycles) throw new Error('Invalid backup file');
-                if (!confirm('This will overwrite current local data. Continue?')) return;
-                localStorage.setItem(JOURNAL_KEY, typeof data.journals === 'string' ? data.journals : JSON.stringify(data.journals));
-                localStorage.setItem(CYCLE_KEY,   typeof data.cycles   === 'string' ? data.cycles   : JSON.stringify(data.cycles));
-                if (data.improvement) localStorage.setItem('xX_improvement_engine', typeof data.improvement === 'string' ? data.improvement : JSON.stringify(data.improvement));
-                showToast('✓ Restored! Reloading...','success');
-                setTimeout(() => location.reload(), 1000);
-            } catch(err) { showToast('Import failed: ' + err.message,'error'); }
+                const raw = JSON.parse(ev.target.result);
+                // Support both flat and wrapped backup formats
+                const journalRaw = raw.journals || raw;
+                const cycleRaw   = raw.cycles   || {};
+                const improvRaw  = raw.improvement || '[]';
+                const journals   = typeof journalRaw === 'string' ? JSON.parse(journalRaw) : journalRaw;
+                const cycles     = typeof cycleRaw   === 'string' ? JSON.parse(cycleRaw)   : cycleRaw;
+                if (!journals.journals) throw new Error('Invalid backup — no journals found');
+                const tradeCount = Object.keys(journals.journals).length;
+                if (!confirm(`Restore ${tradeCount} trades from backup? Current data will be replaced.`)) return;
+                // Write to localStorage
+                localStorage.setItem(JOURNAL_KEY, JSON.stringify(journals));
+                localStorage.setItem(CYCLE_KEY, JSON.stringify(cycles));
+                localStorage.setItem('xX_improvement_engine', typeof improvRaw === 'string' ? improvRaw : JSON.stringify(improvRaw));
+                // Skip cloud overwrite on next page load
+                sessionStorage.setItem('xX_skip_sync', '1');
+                showToast(`Restored ${tradeCount} trades! Syncing to cloud...`, 'success');
+                // Push back to Supabase
+                try {
+                    const { saveTrade, saveCycles } = await import('/db.js');
+                    const tradeList = Object.values(journals.journals);
+                    for (let i = 0; i < tradeList.length; i++) {
+                        await saveTrade(tradeList[i].tradeId, tradeList[i]);
+                        if ((i+1) % 5 === 0) showToast(`Syncing ${i+1}/${tradeList.length}...`, 'info');
+                    }
+                    await saveCycles(cycles);
+                    showToast(`✓ ${tradeList.length} trades restored & synced!`, 'success');
+                } catch(syncErr) {
+                    showToast('Restored locally. Cloud sync failed: ' + syncErr.message, 'error');
+                }
+                setTimeout(() => location.reload(), 1800);
+            } catch(err) { showToast('Import failed: ' + err.message, 'error'); }
         };
         reader.readAsText(file);
         e.target.value = '';

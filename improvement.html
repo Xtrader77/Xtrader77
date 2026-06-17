@@ -97,9 +97,10 @@
     <div class="stats-grid">
         <div class="stat-card"><div class="stat-value" id="totalTrades">0</div><div class="stat-label">TOTAL TRADES</div></div>
         <div class="stat-card"><div class="stat-value" id="activeMistakes">0</div><div class="stat-label">ACTIVE MISTAKES</div></div>
-        <div class="stat-card"><div class="stat-value" id="topMistake" style="font-size:16px;line-height:1.3;">—</div><div class="stat-label">TOP MISTAKE</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:var(--red,#E22134);font-size:14px;line-height:1.3;" id="topMistake">—</div><div class="stat-label">TOP LOSS MISTAKE</div></div>
         <div class="stat-card"><div class="stat-value" id="recoveryRate">0%</div><div class="stat-label">RECOVERY RATE</div></div>
-        <div class="stat-card" style="grid-column:1/-1;"><div class="stat-value" id="improvScore">0%</div><div class="stat-label">IMPROVEMENT SCORE</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:#1DB954;font-size:14px;line-height:1.3;" id="topWinPattern">—</div><div class="stat-label">TOP WIN PATTERN</div></div>
+        <div class="stat-card" style="grid-column:2"><div class="stat-value" id="improvScore">0%</div><div class="stat-label">MISTAKE RESOLVED</div></div>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:6px;letter-spacing:0.5px;">MISTAKE REDUCTION PROGRESS</div>
     <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
@@ -113,6 +114,22 @@
 <div class="card">
     <div class="card-title">MISTAKE CATEGORIES</div>
     <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+</div>
+
+<!-- WIN Reasons Analysis -->
+<div class="card">
+    <div class="card-title">🟢 WIN TRADE ANALYSIS <span class="badge">WHAT'S WORKING</span></div>
+    <div id="winReasonsContent">
+        <div class="empty-state">No WIN trades reviewed yet. Review your wins to see patterns.</div>
+    </div>
+</div>
+
+<!-- LOSS Reasons Analysis -->
+<div class="card">
+    <div class="card-title">🔴 LOSS MISTAKE BREAKDOWN</div>
+    <div id="lossReasonsContent">
+        <div class="empty-state">No LOSS trades reviewed yet.</div>
+    </div>
 </div>
 
 <!-- Log Review -->
@@ -201,6 +218,7 @@ function loadData() {
 function init() {
     updateStats();
     renderCharts();
+    renderWinLossAnalysis();
     populateTradeDropdown();
     setupForm();
     renderReviews();
@@ -212,14 +230,137 @@ function init() {
     document.getElementById('weekNext').addEventListener('click', () => { weekOffset++; renderWeeklySummary(); });
 }
 
+function renderWinLossAnalysis() {
+    const winReviews  = reviews.filter(r => r.reviewType === 'good');
+    const lossReviews = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
+
+    // ── WIN analysis ──────────────────────────────────────────────────────────
+    const winEl = document.getElementById('winReasonsContent');
+    if (!winReviews.length) {
+        winEl.innerHTML = '<div class="empty-state">No WIN trades reviewed yet. Review your wins to see patterns.</div>';
+    } else {
+        // Pattern frequency
+        const patternCounts = {};
+        winReviews.forEach(r => {
+            const key = r.category && r.category !== 'N/A' ? r.category : 'Untagged';
+            patternCounts[key] = (patternCounts[key] || 0) + 1;
+        });
+        const sortedPatterns = Object.entries(patternCounts).sort((a,b)=>b[1]-a[1]);
+        const total = winReviews.length;
+
+        // Common reasons from actual trade reason field
+        const reasonCounts = {};
+        winReviews.forEach(r => {
+            const t = trades.find(x=>x.tradeId===r.tradeId);
+            if (t?.reason?.trim()) {
+                const key = t.reason.trim();
+                reasonCounts[key] = (reasonCounts[key] || 0) + 1;
+            }
+        });
+        const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+        winEl.innerHTML = `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">WIN PATTERNS (${total} reviewed)</div>
+                ${sortedPatterns.map(([pattern, count]) => {
+                    const pct = Math.round((count/total)*100);
+                    return `<div style="margin-bottom:10px;">
+                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                            <span style="color:rgba(255,255,255,0.8);">${pattern}</span>
+                            <span style="color:#1DB954;font-weight:700;">${count}x · ${pct}%</span>
+                        </div>
+                        <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:#1DB954;border-radius:2px;transition:width 0.4s;"></div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+            ${sortedReasons.length ? `
+            <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MOST COMMON WIN REASONS</div>
+                ${sortedReasons.map(([reason, count]) =>
+                    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(29,185,84,0.06);border:1px solid rgba(29,185,84,0.15);border-radius:7px;margin-bottom:6px;font-size:12px;">
+                        <span style="color:rgba(255,255,255,0.8);">"${esc(reason)}"</span>
+                        <span style="color:#1DB954;font-weight:700;flex-shrink:0;margin-left:10px;">${count}x</span>
+                    </div>`
+                ).join('')}
+            </div>` : ''}
+            <div class="insight-box good" style="margin-top:14px;">
+                🏆 Your strongest edge: <strong>${sortedPatterns[0]?.[0] || '—'}</strong>
+                ${sortedPatterns[0] ? `— appears in <strong>${Math.round((sortedPatterns[0][1]/total)*100)}%</strong> of your reviewed wins.` : ''}
+                ${sortedReasons[0] ? `<br>Most repeated win reason: <em>"${esc(sortedReasons[0][0])}"</em>` : ''}
+            </div>`;
+    }
+
+    // ── LOSS analysis ─────────────────────────────────────────────────────────
+    const lossEl = document.getElementById('lossReasonsContent');
+    if (!lossReviews.length) {
+        lossEl.innerHTML = '<div class="empty-state">No LOSS trades reviewed yet.</div>';
+    } else {
+        const catCounts = {};
+        lossReviews.forEach(r => {
+            const key = r.category && r.category !== 'N/A' ? r.category : 'Untagged';
+            catCounts[key] = (catCounts[key] || 0) + 1;
+        });
+        const sortedCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
+        const total = lossReviews.length;
+        const active = lossReviews.filter(r=>!r.resolved).length;
+
+        // Common loss reasons from trade reason field
+        const lossReasonCounts = {};
+        lossReviews.forEach(r => {
+            const t = trades.find(x=>x.tradeId===r.tradeId);
+            if (t?.reason?.trim()) {
+                const key = t.reason.trim();
+                lossReasonCounts[key] = (lossReasonCounts[key] || 0) + 1;
+            }
+        });
+        const sortedLossReasons = Object.entries(lossReasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+        lossEl.innerHTML = `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MISTAKE CATEGORIES (${active} active · ${total} total)</div>
+                ${sortedCats.map(([cat, count]) => {
+                    const pct = Math.round((count/total)*100);
+                    return `<div style="margin-bottom:10px;">
+                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                            <span style="color:rgba(255,255,255,0.8);">${cat}</span>
+                            <span style="color:#E22134;font-weight:700;">${count}x · ${pct}%</span>
+                        </div>
+                        <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:#E22134;border-radius:2px;transition:width 0.4s;"></div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+            ${sortedLossReasons.length ? `
+            <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MOST REPEATED LOSS REASONS</div>
+                ${sortedLossReasons.map(([reason, count]) =>
+                    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(226,33,52,0.06);border:1px solid rgba(226,33,52,0.15);border-radius:7px;margin-bottom:6px;font-size:12px;">
+                        <span style="color:rgba(255,255,255,0.8);">"${esc(reason)}"</span>
+                        <span style="color:#E22134;font-weight:700;flex-shrink:0;margin-left:10px;">${count}x</span>
+                    </div>`
+                ).join('')}
+            </div>` : ''}
+            <div class="insight-box warning" style="margin-top:14px;">
+                🔴 Biggest pattern to fix: <strong>${sortedCats[0]?.[0] || '—'}</strong>
+                ${sortedCats[0] ? `— accounts for <strong>${Math.round((sortedCats[0][1]/total)*100)}%</strong> of reviewed losses.` : ''}
+            </div>`;
+    }
+}
+
 function updateStats() {
     const total    = trades.length;
     const wins     = trades.filter(t=>t.outcome==='WIN').length;
     const losses   = trades.filter(t=>t.outcome==='LOSS').length;
-    const realMist = reviews.filter(r=>r.reviewType==='mistake'||r.reviewType==='mixed');
-    const active   = realMist.filter(r=>!r.resolved).length;
-    const resolved = realMist.filter(r=>r.resolved).length;
-    const improv   = realMist.length > 0 ? ((resolved/realMist.length)*100).toFixed(1) : 0;
+
+    // Only LOSS/MIXED reviews count as mistakes — not WIN reviews
+    const mistakeReviews = reviews.filter(r => r.reviewType==='mistake' || r.reviewType==='mixed');
+    const goodReviews    = reviews.filter(r => r.reviewType==='good');
+    const active   = mistakeReviews.filter(r=>!r.resolved).length;
+    const resolved = mistakeReviews.filter(r=>r.resolved).length;
+    const improv   = mistakeReviews.length > 0 ? ((resolved/mistakeReviews.length)*100).toFixed(1) : 0;
 
     // Recovery rate
     let recW=0, recT=0;
@@ -227,18 +368,27 @@ function updateStats() {
     for (let i=0;i<sorted.length-1;i++) { if(sorted[i].outcome==='LOSS'){recT++;if(sorted[i+1].outcome==='WIN')recW++;} }
     const recRate = recT > 0 ? ((recW/recT)*100).toFixed(1) : 0;
 
-    // Top mistake
+    // Top LOSS mistake category only
     const catCounts = {};
-    realMist.forEach(r => { if(r.category&&r.category!=='N/A') catCounts[r.category]=(catCounts[r.category]||0)+1; });
+    mistakeReviews.forEach(r => { if(r.category&&r.category!=='N/A') catCounts[r.category]=(catCounts[r.category]||0)+1; });
     const topMist = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0];
 
-    document.getElementById('totalTrades').textContent  = total;
+    // Top WIN pattern
+    const winPatterns = {};
+    goodReviews.forEach(r => { if(r.category&&r.category!=='N/A') winPatterns[r.category]=(winPatterns[r.category]||0)+1; });
+    const topWin = Object.entries(winPatterns).sort((a,b)=>b[1]-a[1])[0];
+
+    document.getElementById('totalTrades').textContent    = total;
     document.getElementById('activeMistakes').textContent = active;
-    document.getElementById('topMistake').textContent   = topMist ? topMist[0] : '—';
-    document.getElementById('recoveryRate').textContent = recRate + '%';
-    document.getElementById('improvScore').textContent  = improv + '%';
-    document.getElementById('progressBar').style.width  = improv + '%';
-    document.getElementById('statusBar').textContent    = `${total} trades loaded · ${reviews.length} reviews logged · ${wins}W ${losses}L`;
+    document.getElementById('topMistake').textContent     = topMist ? topMist[0] : '—';
+    document.getElementById('recoveryRate').textContent   = recRate + '%';
+    document.getElementById('improvScore').textContent    = improv + '%';
+    document.getElementById('progressBar').style.width    = improv + '%';
+    document.getElementById('statusBar').textContent      = `${total} trades · ${mistakeReviews.length} mistakes · ${goodReviews.length} wins reviewed · ${wins}W ${losses}L`;
+
+    // Win pattern card
+    const wpEl = document.getElementById('topWinPattern');
+    if (wpEl) wpEl.textContent = topWin ? topWin[0] : '—';
 }
 
 function renderCharts() {
@@ -423,7 +573,7 @@ function saveReview() {
 
     localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
     showToast('Review saved ✓','success');
-    loadData(); updateStats(); renderCharts(); populateTradeDropdown(); renderReviews(); clearForm();
+    loadData(); updateStats(); renderCharts(); renderWinLossAnalysis(); populateTradeDropdown(); renderReviews(); clearForm();
 }
 
 function clearForm() {

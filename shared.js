@@ -116,12 +116,16 @@ export function downloadFile(content, filename, mimeType) {
 
 // ── Load trades + cycles from Supabase into localStorage cache ────────────────
 export async function syncToLocalStorage() {
+    // If backup was just restored, skip cloud overwrite this session
+    if (sessionStorage.getItem('xX_skip_sync') === '1') {
+        sessionStorage.removeItem('xX_skip_sync');
+        return;
+    }
     const { loadAllTrades, loadCycles } = await import('./db.js');
     try {
         const tradesResult = await loadAllTrades();
         if (tradesResult?.journals) {
             // Preserve screenshot base64 data from existing localStorage cache
-            // (Supabase may return screenshots without data if the column is empty)
             const existing = JSON.parse(localStorage.getItem('xX_journal_data') || '{}');
             const existingJournals = existing.journals || {};
 
@@ -129,13 +133,9 @@ export async function syncToLocalStorage() {
             Object.keys(merged).forEach(id => {
                 const cloudTrade = merged[id];
                 const localTrade = existingJournals[id];
-
-                // If cloud screenshots have data, use them
-                // If cloud screenshots are missing data but local has it, use local
                 if (!cloudTrade.screenshots?.length && localTrade?.screenshots?.length) {
                     cloudTrade.screenshots = localTrade.screenshots;
                 } else if (cloudTrade.screenshots?.length && localTrade?.screenshots?.length) {
-                    // Merge: prefer cloud items with data, fallback to local for missing data
                     cloudTrade.screenshots = cloudTrade.screenshots.map((ss, i) => {
                         if (ss.data) return ss;
                         const localSs = localTrade.screenshots[i];
@@ -149,12 +149,34 @@ export async function syncToLocalStorage() {
                 tradeCounter: tradesResult.tradeCounter || 1,
                 userName: existing.userName || 'Trader'
             }));
+
+            // Recalculate cycles from actual trade count — don't trust stale DB value
+            const allTrades = Object.values(merged).sort((a,b) => new Date(a.timestamp)-new Date(b.timestamp));
+            const allTradeIds = allTrades.map(t => t.tradeId);
+            const totalTrades = allTrades.length;
+            const completedCycles = Math.floor(totalTrades / 20);
+            const tradesInCurrentCycle = totalTrades % 20;
+            const currentCycle = completedCycles + 1;
+
+            const completedCyclesArr = [];
+            for (let i = 0; i < completedCycles; i++) {
+                const lastTradeInCycle = allTrades[(i+1)*20 - 1];
+                completedCyclesArr.push({ cycleNumber: i+1, completedAt: lastTradeInCycle?.timestamp || new Date().toISOString() });
+            }
+
+            const correctedCycles = {
+                currentCycle,
+                tradesInCurrentCycle,
+                completedCycles: completedCyclesArr,
+                allTrades: allTradeIds
+            };
+            localStorage.setItem('xX_cycle_data', JSON.stringify(correctedCycles));
+
+            // Push corrected cycles back to Supabase silently
+            try {
+                const { saveCycles } = await import('./db.js');
+                await saveCycles(correctedCycles);
+            } catch(e) { console.warn('cycle sync back:', e); }
         }
     } catch(e) { console.warn('sync trades:', e); }
-    try {
-        const cyclesResult = await loadCycles();
-        if (cyclesResult) {
-            localStorage.setItem('xX_cycle_data', JSON.stringify(cyclesResult));
-        }
-    } catch(e) { console.warn('sync cycles:', e); }
 }
