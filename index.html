@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xX Trading Journal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; display:flex; flex-direction:column; padding-bottom:80px; }
+        .top-bar { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 0; }
+        .top-left { font-size:12px; font-weight:700; letter-spacing:1.5px; color:rgba(255,255,255,0.25); }
+        .profile-btn { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+        .profile-btn:hover { background:rgba(255,255,255,0.14); }
+        .main { flex:1; display:flex; flex-direction:column; align-items:center; padding:40px 24px 20px; }
+        .logo { font-size:64px; font-weight:800; letter-spacing:-3px; margin-bottom:8px; }
+        .tagline { font-size:14px; color:rgba(255,255,255,0.35); font-style:italic; margin-bottom:10px; }
+        .trader-greeting { font-size:13px; color:rgba(255,255,255,0.25); letter-spacing:0.3px; margin-bottom:50px; }
+        .nav-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:480px; }
+        .nav-card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:14px; padding:24px 16px 20px; text-decoration:none; color:#fff; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; transition:all 0.25s; }
+        .nav-card:hover, .nav-card:active { background:#1a1a1a; border-color:rgba(255,255,255,0.12); transform:translateY(-2px); }
+        .nav-card.full-width { grid-column:1/-1; flex-direction:row; text-align:left; gap:16px; }
+        .nav-icon { font-size:28px; }
+        .nav-title { font-size:11px; font-weight:700; letter-spacing:1.2px; }
+        .nav-desc { font-size:11px; color:rgba(255,255,255,0.35); line-height:1.5; }
+        .cycle-bar { width:100%; max-width:480px; background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:16px 20px; margin-bottom:20px; }
+        .cycle-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .cycle-label { font-size:11px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.4); }
+        .cycle-val   { font-size:14px; font-weight:700; }
+        .cycle-track { height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+        .cycle-fill  { height:100%; background:#fff; border-radius:2px; transition:width 0.4s ease; }
+        .install-banner { width:100%; max-width:480px; background:rgba(74,144,226,0.08); border:1px solid rgba(74,144,226,0.2); border-radius:12px; padding:14px 18px; display:none; align-items:center; gap:14px; margin-bottom:16px; }
+        .install-banner.show { display:flex; }
+        .install-btn { background:#4A90E2; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; }
+        .install-text { flex:1; font-size:12px; color:rgba(255,255,255,0.6); line-height:1.5; }
+        .install-dismiss { background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:18px; }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <div class="top-left">xX TRADING</div>
+    <a href="/profile.html" class="profile-btn" id="profileBtn">👤</a>
+</div>
+
+<div class="main">
+    <div class="logo">xX</div>
+    <div class="tagline">where discipline becomes leverage</div>
+    <div class="trader-greeting" id="greeting">Loading...</div>
+
+    <!-- PWA install banner -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-text">📲 Add to your home screen for the full app experience.</div>
+        <button class="install-btn" id="installBtn">INSTALL</button>
+        <button class="install-dismiss" id="dismissInstall">×</button>
+    </div>
+
+    <!-- Cycle progress bar -->
+    <div class="cycle-bar">
+        <div class="cycle-row">
+            <span class="cycle-label">CYCLE PROGRESS</span>
+            <span class="cycle-val" id="cycleText">Cycle 1 · 0 / 20 trades</span>
+        </div>
+        <div class="cycle-track"><div class="cycle-fill" id="cycleFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Nav grid -->
+    <div class="nav-grid">
+        <a href="/journal.html" class="nav-card full-width">
+            <div class="nav-icon">📝</div>
+            <div>
+                <div class="nav-title">NEW TRADE ENTRY</div>
+                <div class="nav-desc">Record a trade with full analysis</div>
+            </div>
+        </a>
+        <a href="/dashboard.html" class="nav-card">
+            <div class="nav-icon">📊</div>
+            <div class="nav-title">DASHBOARD</div>
+            <div class="nav-desc">Stats &amp; calendar</div>
+        </a>
+        <a href="/analytics.html" class="nav-card">
+            <div class="nav-icon">📈</div>
+            <div class="nav-title">ANALYTICS</div>
+            <div class="nav-desc">Deep dive metrics</div>
+        </a>
+        <a href="/improvement.html" class="nav-card">
+            <div class="nav-icon">🔧</div>
+            <div class="nav-title">IMPROVEMENT</div>
+            <div class="nav-desc">Review &amp; grow</div>
+        </a>
+        <a href="/profile.html" class="nav-card">
+            <div class="nav-icon">👤</div>
+            <div class="nav-title">PROFILE</div>
+            <div class="nav-desc">Settings &amp; PIN</div>
+        </a>
+    </div>
+</div>
+
+<script type="module">
+import { requireAuth, requirePin, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { getCurrentUser, getProfile } from '/db.js';
+
+injectBottomNav('home');
+
+// PWA install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('xX_install_dismissed')) {
+        document.getElementById('installBanner').classList.add('show');
+    }
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('show');
+});
+document.getElementById('dismissInstall').addEventListener('click', () => {
+    document.getElementById('installBanner').classList.remove('show');
+    localStorage.setItem('xX_install_dismissed', '1');
+});
+
+(async () => {
+    const user = await requireAuth('/');
+    if (!user) return;
+    await requirePin();
+
+    // Sync cloud data
+    await syncToLocalStorage();
+
+    // Greeting
+    try {
+        const profile = await getProfile();
+        const name = profile?.name?.split(' ')[0] || user.email?.split('@')[0] || 'Trader';
+        const hour = new Date().getHours();
+        const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('greeting').textContent = `${greet}, ${name}`;
+
+        // Update profile btn emoji
+        if (profile?.emoji) document.getElementById('profileBtn').textContent = profile.emoji;
+
+        // Cache profile for lock screen
+        localStorage.setItem('xX_trader_profile', JSON.stringify({ name, emoji: profile?.emoji || '👤' }));
+    } catch(e) {
+        document.getElementById('greeting').textContent = 'Ready to trade?';
+    }
+
+    // Cycle bar
+    try {
+        const cycles = JSON.parse(localStorage.getItem('xX_cycle_data') || '{}');
+        const current   = cycles.currentCycle || 1;
+        const tradesIn  = cycles.tradesInCurrentCycle || 0;
+        const pct = Math.min((tradesIn / 20) * 100, 100);
+        document.getElementById('cycleText').textContent  = `Cycle ${current} · ${tradesIn} / 20 trades`;
+        document.getElementById('cycleFill').style.width  = pct + '%';
+    } catch(e) {}
+})();
+</script>
+</body>
+</html>

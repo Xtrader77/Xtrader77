@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | xX Trading Journal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg:#060608; --surface:#0e0e12; --card:#13131a;
+            --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+            --muted:rgba(255,255,255,0.35); --accent:#4A90E2;
+            --green:#1DB954; --red:#E22134; --gold:#F5A623;
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:#fff; min-height:100vh; padding:16px 16px 90px; }
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+        h1 { font-size:20px; font-weight:800; }
+        .back-btn { background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:50px; font-size:13px; cursor:pointer; text-decoration:none; font-family:'Inter',sans-serif; }
+
+        /* Hero */
+        .hero { display:flex; align-items:center; gap:16px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:14px; }
+        .avatar-wrap { position:relative; width:64px; height:64px; flex-shrink:0; }
+        .avatar-ring { position:absolute; inset:-3px; border-radius:50%; background:conic-gradient(var(--accent),var(--green),var(--accent)); animation:spin-slow 8s linear infinite; }
+        @keyframes spin-slow { to { transform:rotate(360deg); } }
+        .avatar { position:relative; width:64px; height:64px; border-radius:50%; background:#1a1a2e; border:3px solid var(--bg); display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; z-index:1; }
+        .hero-info { flex:1; min-width:0; }
+        .hero-name  { font-size:18px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .hero-email { font-size:12px; color:var(--muted); margin:3px 0 8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .cloud-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(74,144,226,0.12); border:1px solid rgba(74,144,226,0.22); color:var(--accent); border-radius:20px; padding:3px 10px; font-size:10px; font-weight:700; }
+
+        /* Stats row */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+        .s-stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 10px; text-align:center; }
+        .s-stat-val { font-size:18px; font-weight:800; }
+        .s-stat-label { font-size:9px; color:var(--muted); letter-spacing:0.8px; font-weight:600; margin-top:3px; }
+
+        /* Cards */
+        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:14px; }
+        .card-title { font-size:10px; font-weight:700; letter-spacing:1.5px; color:rgba(255,255,255,0.3); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+        .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* Form */
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .form-group { margin-bottom:14px; }
+        .form-group.full { grid-column:1/-1; }
+        label { display:block; font-size:10px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.4); margin-bottom:7px; }
+        input[type="text"], input[type="password"], select, textarea {
+            width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+            border-radius:10px; padding:12px 14px; color:#fff; font-size:14px;
+            font-family:'Inter',sans-serif; transition:all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:rgba(74,144,226,0.5); background:rgba(74,144,226,0.04); }
+        input::placeholder { color:rgba(255,255,255,0.18); }
+        option { background:#111; }
+        textarea { min-height:80px; resize:vertical; }
+        input[type="password"].pin-text { font-size:22px; letter-spacing:8px; text-align:center; }
+
+        /* Buttons */
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:11px 20px; border-radius:10px; font-size:13px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.18s; border:none; letter-spacing:0.3px; }
+        .btn-primary { background:var(--accent); color:#fff; }
+        .btn-primary:hover { background:#5a9fe8; }
+        .btn-ghost { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); }
+        .btn-ghost:hover { background:rgba(255,255,255,0.09); color:#fff; }
+        .btn-danger { background:rgba(226,33,52,0.1); border:1px solid rgba(226,33,52,0.2); color:var(--red); }
+        .btn-danger:hover { background:rgba(226,33,52,0.18); }
+        .btn-danger-solid { background:var(--red); color:#fff; }
+        .btn-green { background:rgba(29,185,84,0.12); border:1px solid rgba(29,185,84,0.22); color:var(--green); }
+        .btn-blue  { background:rgba(74,144,226,0.12); border:1px solid rgba(74,144,226,0.22); color:var(--accent); }
+        .btn:disabled { opacity:0.35; cursor:not-allowed; }
+        .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+        .btn-full { width:100%; }
+
+        /* PIN */
+        .pin-status-row { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+        .pin-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:50px; font-size:12px; font-weight:700; }
+        .pin-badge.active   { background:rgba(29,185,84,0.1); border:1px solid rgba(29,185,84,0.2); color:var(--green); }
+        .pin-badge.inactive { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--muted); }
+        .pin-note { font-size:12px; color:var(--muted); line-height:1.7; margin-bottom:18px; }
+        .pin-input-row { display:flex; gap:10px; align-items:flex-end; }
+        .pin-input-row .form-group { flex:1; margin-bottom:0; }
+
+        /* Danger zone */
+        .danger-card { background:rgba(226,33,52,0.03); border:1px solid rgba(226,33,52,0.12); border-radius:14px; padding:20px; margin-bottom:14px; margin-top:24px; }
+        .danger-title { font-size:10px; font-weight:700; letter-spacing:1.5px; color:rgba(226,33,52,0.5); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+        .danger-title::after { content:''; flex:1; height:1px; background:rgba(226,33,52,0.12); }
+        .danger-item { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid rgba(226,33,52,0.06); }
+        .danger-item:last-child { border-bottom:none; padding-bottom:0; }
+        .danger-item-info h4 { font-size:13px; font-weight:600; margin-bottom:4px; }
+        .danger-item-info p  { font-size:12px; color:var(--muted); line-height:1.6; }
+
+        /* Modals */
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; justify-content:center; align-items:center; backdrop-filter:blur(4px); padding:16px; }
+        .modal.open { display:flex; }
+        .modal-content { background:#111; border-radius:14px; padding:28px; max-width:380px; width:100%; border:1px solid rgba(255,255,255,0.1); }
+        .modal-title { font-size:18px; font-weight:700; margin-bottom:14px; text-align:center; }
+        .modal-text  { font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:16px; }
+        .modal-input { width:100%; padding:12px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; font-size:14px; font-family:'Inter',sans-serif; text-align:center; margin-bottom:16px; }
+        .modal-input:focus { outline:none; border-color:#E22134; }
+        .modal-btns { display:flex; gap:10px; justify-content:center; }
+        .modal-btn { padding:11px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; min-width:110px; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .modal-btn.confirm { background:#E22134; color:#fff; }
+        .modal-btn.confirm:disabled { background:rgba(226,33,52,0.3); cursor:not-allowed; }
+        .modal-btn.cancel  { background:rgba(255,255,255,0.1); color:#fff; }
+
+        /* Sign out row */
+        .signout-row { text-align:center; padding:20px 0 0; }
+        .signout-btn { background:transparent; border:1px solid rgba(226,33,52,0.25); color:rgba(226,33,52,0.7); padding:10px 24px; border-radius:50px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .signout-btn:hover { background:rgba(226,33,52,0.08); color:var(--red); }
+
+        .spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,0.2); border-top-color:currentColor; border-radius:50%; animation:spin 0.7s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>PROFILE</h1>
+    <a href="/" class="back-btn">← HOME</a>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar" id="avatarEl">X</div>
+    </div>
+    <div class="hero-info">
+        <div class="hero-name"  id="displayName">Loading…</div>
+        <div class="hero-email" id="displayEmail"></div>
+        <div class="cloud-badge">☁ CLOUD SYNCED</div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="s-stat"><div class="s-stat-val" id="statTrades">—</div><div class="s-stat-label">TRADES</div></div>
+    <div class="s-stat"><div class="s-stat-val" style="color:var(--green)" id="statWR">—</div><div class="s-stat-label">WIN RATE</div></div>
+    <div class="s-stat"><div class="s-stat-val" style="color:var(--gold)" id="statStreak">—</div><div class="s-stat-label">W STREAK</div></div>
+    <div class="s-stat"><div class="s-stat-val" id="statCycle">—</div><div class="s-stat-label">CYCLE</div></div>
+</div>
+
+<!-- Identity -->
+<div class="card">
+    <div class="card-title">IDENTITY</div>
+    <div class="form-grid">
+        <div class="form-group">
+            <label>DISPLAY NAME</label>
+            <input type="text" id="traderName" placeholder="Your name or alias">
+        </div>
+        <div class="form-group">
+            <label>AVATAR EMOJI</label>
+            <input type="text" id="avatarEmoji" placeholder="🦅" maxlength="4">
+        </div>
+        <div class="form-group full">
+            <label>TRADING STYLE</label>
+            <select id="tradingStyle">
+                <option value="">Select style</option>
+                <option>Scalper</option>
+                <option>Day Trader</option>
+                <option>Swing Trader</option>
+                <option>Position Trader</option>
+            </select>
+        </div>
+        <div class="form-group full">
+            <label>BIO / TRADING GOALS</label>
+            <textarea id="traderBio" placeholder="e.g. Building consistency on XAUUSD — focused on discipline and psychology."></textarea>
+        </div>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+    </div>
+</div>
+
+<!-- PIN Lock -->
+<div class="card">
+    <div class="card-title">APP LOCK</div>
+    <div class="pin-status-row">
+        <div class="pin-badge inactive" id="pinStatus">🔓 No PIN set</div>
+    </div>
+    <p class="pin-note">Set a 4-digit PIN for extra protection. Synced to your cloud account — works across devices.</p>
+    <div class="pin-input-row">
+        <div class="form-group">
+            <label>ENTER 4-DIGIT PIN</label>
+            <input type="password" class="pin-text" id="pinInput" inputmode="numeric" maxlength="4" placeholder="••••">
+        </div>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-primary" id="setPinBtn" disabled>Set PIN</button>
+        <button class="btn btn-danger"  id="removePinBtn" style="display:none;">Remove PIN</button>
+    </div>
+
+    <!-- Recovery question (shown when PIN active) -->
+    <div id="recoverySection" style="margin-top:22px;display:none;">
+        <div class="card-title" style="margin-bottom:12px;">RECOVERY QUESTION</div>
+        <p class="pin-note">If you forget your PIN, this lets you reset it from the lock screen.</p>
+        <div class="form-group">
+            <label>QUESTION</label>
+            <select id="recoveryQuestion">
+                <option value="">Select a question…</option>
+                <option>What city were you born in?</option>
+                <option>What is your mother's maiden name?</option>
+                <option>What was the name of your first pet?</option>
+                <option>What primary school did you attend?</option>
+                <option>What is your oldest sibling's middle name?</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>ANSWER</label>
+            <input type="text" id="recoveryAnswer" placeholder="Your answer (case-insensitive)" autocomplete="off">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-blue" id="saveRecoveryBtn">Save Recovery Question</button>
+            <span id="recoveryStatus" style="font-size:12px;color:var(--green);align-self:center;"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Data Management -->
+<div class="card">
+    <div class="card-title">DATA MANAGEMENT</div>
+    <p class="pin-note" style="margin-bottom:16px;">Backup your trade data to a local JSON file, or restore from a previous backup.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-green" id="exportBtn">💾 Backup Data</button>
+        <button class="btn btn-blue"  id="importBtn">📂 Restore Backup</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+</div>
+
+<!-- Danger Zone -->
+<div class="danger-card">
+    <div class="danger-title">DANGER ZONE</div>
+    <div class="danger-item">
+        <div class="danger-item-info">
+            <h4>Reset All Local Data</h4>
+            <p>Clears localStorage — does not delete cloud data.</p>
+        </div>
+        <button class="btn btn-danger" id="resetLocalBtn" style="flex-shrink:0;">Reset</button>
+    </div>
+    <div class="danger-item">
+        <div class="danger-item-info">
+            <h4>Delete All Trade Data</h4>
+            <p>Permanently removes all trades, screenshots, and cycle history. Account stays active.</p>
+        </div>
+        <button class="btn btn-danger" id="clearDataBtn" style="flex-shrink:0;">Clear Data</button>
+    </div>
+    <div class="danger-item">
+        <div class="danger-item-info">
+            <h4>Delete Account</h4>
+            <p>Permanently deletes your account and <strong>all associated data</strong>. Cannot be undone.</p>
+        </div>
+        <button class="btn btn-danger-solid" id="deleteAccountBtn" style="flex-shrink:0;">Delete Account</button>
+    </div>
+</div>
+
+<div class="signout-row">
+    <button class="signout-btn" id="signOutBtn">🚪 Sign Out</button>
+</div>
+
+<!-- Reset Local Modal -->
+<div class="modal" id="resetModal">
+    <div class="modal-content">
+        <div class="modal-title">⚠️ RESET ALL LOCAL DATA</div>
+        <div class="modal-text">Clears all local storage — cloud data remains safe.<br><br><strong>Type RESET to confirm:</strong></div>
+        <input type="text" class="modal-input" id="resetInput" placeholder="Type RESET to confirm" autocomplete="off">
+        <div class="modal-btns">
+            <button class="modal-btn confirm" id="resetConfirmBtn" disabled>CONFIRM</button>
+            <button class="modal-btn cancel" id="resetCancelBtn">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Data Modal -->
+<div class="modal" id="clearDataModal">
+    <div class="modal-content">
+        <div class="modal-title">⚠️ CLEAR ALL TRADE DATA</div>
+        <div class="modal-text">Permanently deletes all trades, journals, cycles and screenshots.<br>Account stays active.<br><br><strong>Type CLEAR to confirm:</strong></div>
+        <input type="text" class="modal-input" id="clearDataInput" placeholder="Type CLEAR to confirm" autocomplete="off">
+        <div class="modal-btns">
+            <button class="modal-btn confirm" id="clearDataConfirmBtn" disabled>DELETE DATA</button>
+            <button class="modal-btn cancel" id="clearDataCancelBtn">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal" id="deleteAccountModal">
+    <div class="modal-content">
+        <div class="modal-title">⚠️ DELETE ACCOUNT</div>
+        <div class="modal-text">This is irreversible. Your account and ALL data will be permanently deleted.<br><br><strong>Type DELETE to confirm:</strong></div>
+        <input type="text" class="modal-input" id="deleteAccountInput" placeholder="Type DELETE to confirm" autocomplete="off">
+        <div class="modal-btns">
+            <button class="modal-btn confirm" id="deleteAccountConfirmBtn" disabled>DELETE ACCOUNT</button>
+            <button class="modal-btn cancel" id="deleteAccountCancelBtn">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { requireAuth, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import {
+    getCurrentUser, getProfile, saveProfile as dbSaveProfile,
+    savePinHash, removePinHash, saveRecovery as dbSaveRecovery,
+    hashPin, signOut, supabase
+} from '/db.js';
+
+injectBottomNav('profile');
+
+const JOURNAL_KEY = 'xX_journal_data';
+const CYCLE_KEY   = 'xX_cycle_data';
+const PIN_KEY     = 'xX_app_pin';
+const RECOVERY_KEY= 'xX_recovery';
+
+let currentUser = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async () => {
+    currentUser = await requireAuth('/profile.html');
+    if (!currentUser) return;
+    await requirePin();
+    await syncToLocalStorage();
+    await loadCloudProfile();
+    loadStats();
+    setupHandlers();
+})();
+
+async function loadCloudProfile() {
+    document.getElementById('displayEmail').textContent = currentUser.email || '';
+
+    const profile = await getProfile();
+    if (profile) {
+        document.getElementById('traderName').value    = profile.name           || '';
+        document.getElementById('tradingStyle').value  = profile.trading_style  || '';
+        document.getElementById('traderBio').value     = profile.bio            || '';
+        document.getElementById('avatarEmoji').value   = profile.emoji          || '';
+        updateAvatarDisplay(profile.name, profile.emoji);
+
+        if (profile.pin_hash) {
+            localStorage.setItem(PIN_KEY, profile.pin_hash);
+            updatePinStatus(true);
+        } else {
+            localStorage.removeItem(PIN_KEY);
+            updatePinStatus(false);
+        }
+        if (profile.recovery_question) {
+            const sel = document.getElementById('recoveryQuestion');
+            const opt = Array.from(sel.options).find(o => o.value === profile.recovery_question);
+            if (opt) sel.value = profile.recovery_question;
+            if (profile.recovery_answer_hash) {
+                localStorage.setItem(RECOVERY_KEY, JSON.stringify({
+                    question: profile.recovery_question,
+                    answerHash: profile.recovery_answer_hash
+                }));
+            }
+        }
+    }
+}
+
+function updateAvatarDisplay(name, emoji) {
+    document.getElementById('avatarEl').textContent   = emoji || (name ? name.charAt(0).toUpperCase() : 'X');
+    document.getElementById('displayName').textContent = name || currentUser?.email?.split('@')[0] || 'Trader';
+    localStorage.setItem('xX_trader_profile', JSON.stringify({ name, emoji: emoji || '👤' }));
+}
+
+function loadStats() {
+    try {
+        const data   = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '{}');
+        const trades = Object.values(data.journals || {});
+        const total  = trades.length;
+        const wins   = trades.filter(t => t.outcome === 'WIN').length;
+        const wr     = total > 0 ? Math.round((wins/total)*100) : 0;
+        let streak   = 0;
+        [...trades].sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp)).forEach(t => {
+            if (t.outcome === 'WIN') streak++; else if (streak === 0) return;
+        });
+        const cycles = JSON.parse(localStorage.getItem(CYCLE_KEY) || '{}');
+        document.getElementById('statTrades').textContent  = total;
+        document.getElementById('statWR').textContent      = wr + '%';
+        document.getElementById('statStreak').textContent  = streak;
+        document.getElementById('statCycle').textContent   = cycles.currentCycle || '—';
+    } catch(e) {}
+}
+
+// ── PIN helpers ───────────────────────────────────────────────────────────────
+function updatePinStatus(active) {
+    const badge   = document.getElementById('pinStatus');
+    const rmBtn   = document.getElementById('removePinBtn');
+    const recSec  = document.getElementById('recoverySection');
+    if (active) {
+        badge.className   = 'pin-badge active';
+        badge.textContent = '🔒 PIN active — app is protected';
+        rmBtn.style.display  = 'inline-flex';
+        recSec.style.display = 'block';
+    } else {
+        badge.className   = 'pin-badge inactive';
+        badge.textContent = '🔓 No PIN set';
+        rmBtn.style.display  = 'none';
+        recSec.style.display = 'none';
+    }
+}
+
+// ── Setup all event handlers ──────────────────────────────────────────────────
+function setupHandlers() {
+    // Profile save
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+        const name  = document.getElementById('traderName').value.trim();
+        const style = document.getElementById('tradingStyle').value;
+        const bio   = document.getElementById('traderBio').value.trim();
+        const emoji = document.getElementById('avatarEmoji').value.trim();
+        const result = await dbSaveProfile({ name, trading_style: style, bio, emoji });
+        if (result.success) {
+            updateAvatarDisplay(name, emoji);
+            showToast('Profile saved ✓', 'success');
+        } else {
+            showToast('Save failed: ' + result.error, 'error');
+        }
+    });
+
+    // PIN input
+    document.getElementById('pinInput').addEventListener('input', function() {
+        const clean = this.value.replace(/\D/g,'').slice(0,4);
+        if (this.value !== clean) this.value = clean;
+        document.getElementById('setPinBtn').disabled = clean.length !== 4;
+    });
+
+    // Set PIN
+    document.getElementById('setPinBtn').addEventListener('click', async () => {
+        const pin = document.getElementById('pinInput').value.replace(/\D/g,'');
+        if (pin.length !== 4) { showToast('PIN must be 4 digits','error'); return; }
+        const hash = hashPin(pin);
+        const result = await savePinHash(hash);
+        if (result.success) {
+            localStorage.setItem(PIN_KEY, hash);
+            document.getElementById('pinInput').value = '';
+            document.getElementById('setPinBtn').disabled = true;
+            updatePinStatus(true);
+            showToast('PIN set ✓ App is now protected','success');
+        } else {
+            showToast('Could not save PIN: ' + result.error,'error');
+        }
+    });
+
+    // Remove PIN
+    document.getElementById('removePinBtn').addEventListener('click', async () => {
+        if (!confirm('Remove PIN protection?')) return;
+        const result = await removePinHash();
+        if (result.success) {
+            localStorage.removeItem(PIN_KEY);
+            sessionStorage.removeItem('xX_unlocked');
+            document.getElementById('pinInput').value = '';
+            document.getElementById('setPinBtn').disabled = true;
+            updatePinStatus(false);
+            showToast('PIN removed','success');
+        } else {
+            showToast('Could not remove PIN: ' + result.error,'error');
+        }
+    });
+
+    // Recovery question
+    document.getElementById('saveRecoveryBtn').addEventListener('click', async () => {
+        const question = document.getElementById('recoveryQuestion').value;
+        const answer   = document.getElementById('recoveryAnswer').value.trim().toLowerCase();
+        if (!question) { showToast('Select a question','error'); return; }
+        if (!answer)   { showToast('Enter your answer','error'); return; }
+        const answerHash = hashPin(answer);
+        const result = await dbSaveRecovery(question, answerHash);
+        if (result.success) {
+            localStorage.setItem(RECOVERY_KEY, JSON.stringify({ question, answerHash }));
+            document.getElementById('recoveryAnswer').value = '';
+            document.getElementById('recoveryStatus').textContent = '✓ Saved';
+            setTimeout(() => document.getElementById('recoveryStatus').textContent = '', 3000);
+            showToast('Recovery question saved ✓','success');
+        } else {
+            showToast('Failed: ' + result.error,'error');
+        }
+    });
+
+    // Backup data
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        try {
+            const data = {
+                version: '3.0-web', exportDate: new Date().toISOString(),
+                journals:    localStorage.getItem(JOURNAL_KEY) || '{}',
+                cycles:      localStorage.getItem(CYCLE_KEY)   || '{}',
+                improvement: localStorage.getItem('xX_improvement_engine') || '[]'
+            };
+            const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `xX_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('✓ Backup downloaded','success');
+        } catch(e) { showToast('Export failed: ' + e.message,'error'); }
+    });
+
+    // Restore backup
+    document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (!data.journals || !data.cycles) throw new Error('Invalid backup file');
+                if (!confirm('This will overwrite current local data. Continue?')) return;
+                localStorage.setItem(JOURNAL_KEY, typeof data.journals === 'string' ? data.journals : JSON.stringify(data.journals));
+                localStorage.setItem(CYCLE_KEY,   typeof data.cycles   === 'string' ? data.cycles   : JSON.stringify(data.cycles));
+                if (data.improvement) localStorage.setItem('xX_improvement_engine', typeof data.improvement === 'string' ? data.improvement : JSON.stringify(data.improvement));
+                showToast('✓ Restored! Reloading...','success');
+                setTimeout(() => location.reload(), 1000);
+            } catch(err) { showToast('Import failed: ' + err.message,'error'); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    });
+
+    // Sign out
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+        if (!confirm('Sign out of xX Journal?')) return;
+        await signOut();
+        sessionStorage.clear();
+        location.href = '/login.html';
+    });
+
+    // Reset local
+    document.getElementById('resetLocalBtn').addEventListener('click', () => {
+        document.getElementById('resetModal').classList.add('open');
+        document.getElementById('resetInput').value = '';
+        document.getElementById('resetConfirmBtn').disabled = true;
+        setTimeout(() => document.getElementById('resetInput').focus(), 100);
+    });
+    document.getElementById('resetInput').addEventListener('input', function() {
+        document.getElementById('resetConfirmBtn').disabled = this.value.trim() !== 'RESET';
+    });
+    document.getElementById('resetConfirmBtn').addEventListener('click', () => {
+        if (document.getElementById('resetInput').value.trim() !== 'RESET') return;
+        [JOURNAL_KEY, CYCLE_KEY, 'xX_improvement_engine', PIN_KEY, RECOVERY_KEY, 'xX_trader_profile', 'xX_cycle_data'].forEach(k => localStorage.removeItem(k));
+        localStorage.setItem(JOURNAL_KEY, JSON.stringify({journals:{},tradeCounter:1}));
+        localStorage.setItem(CYCLE_KEY,   JSON.stringify({currentCycle:1,tradesInCurrentCycle:0,completedCycles:[],allTrades:[]}));
+        document.getElementById('resetModal').classList.remove('open');
+        showToast('✓ Local data reset','success');
+        setTimeout(() => location.reload(), 800);
+    });
+    document.getElementById('resetCancelBtn').addEventListener('click', () => document.getElementById('resetModal').classList.remove('open'));
+
+    // Clear cloud data
+    document.getElementById('clearDataBtn').addEventListener('click', () => {
+        document.getElementById('clearDataModal').classList.add('open');
+        document.getElementById('clearDataInput').value = '';
+        document.getElementById('clearDataConfirmBtn').disabled = true;
+        setTimeout(() => document.getElementById('clearDataInput').focus(), 100);
+    });
+    document.getElementById('clearDataInput').addEventListener('input', function() {
+        document.getElementById('clearDataConfirmBtn').disabled = this.value.trim() !== 'CLEAR';
+    });
+    document.getElementById('clearDataConfirmBtn').addEventListener('click', async () => {
+        if (document.getElementById('clearDataInput').value.trim() !== 'CLEAR') return;
+        document.getElementById('clearDataModal').classList.remove('open');
+        showToast('Deleting cloud data...','info');
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('screenshots').delete().eq('user_id', user.id);
+                await supabase.from('trades').delete().eq('user_id', user.id);
+                await supabase.from('cycles').delete().eq('user_id', user.id);
+            }
+            localStorage.setItem(JOURNAL_KEY, JSON.stringify({journals:{},tradeCounter:1}));
+            localStorage.setItem(CYCLE_KEY, JSON.stringify({currentCycle:1,tradesInCurrentCycle:0,completedCycles:[],allTrades:[]}));
+            localStorage.setItem('xX_improvement_engine', '[]');
+            loadStats();
+            showToast('✓ All trade data deleted','success');
+        } catch(e) { showToast('Delete failed: ' + e.message,'error'); }
+    });
+    document.getElementById('clearDataCancelBtn').addEventListener('click', () => document.getElementById('clearDataModal').classList.remove('open'));
+
+    // Delete account
+    document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+        document.getElementById('deleteAccountModal').classList.add('open');
+        document.getElementById('deleteAccountInput').value = '';
+        document.getElementById('deleteAccountConfirmBtn').disabled = true;
+        setTimeout(() => document.getElementById('deleteAccountInput').focus(), 100);
+    });
+    document.getElementById('deleteAccountInput').addEventListener('input', function() {
+        document.getElementById('deleteAccountConfirmBtn').disabled = this.value.trim() !== 'DELETE';
+    });
+    document.getElementById('deleteAccountConfirmBtn').addEventListener('click', async () => {
+        if (document.getElementById('deleteAccountInput').value.trim() !== 'DELETE') return;
+        document.getElementById('deleteAccountModal').classList.remove('open');
+        showToast('Deleting account...','info');
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('screenshots').delete().eq('user_id', user.id);
+                await supabase.from('trades').delete().eq('user_id', user.id);
+                await supabase.from('cycles').delete().eq('user_id', user.id);
+                await supabase.from('profiles').delete().eq('id', user.id);
+                await supabase.auth.admin?.deleteUser(user.id).catch(() => {});
+            }
+            await signOut();
+            localStorage.clear(); sessionStorage.clear();
+            location.href = '/login.html';
+        } catch(e) { showToast('Delete failed: ' + e.message,'error'); }
+    });
+    document.getElementById('deleteAccountCancelBtn').addEventListener('click', () => document.getElementById('deleteAccountModal').classList.remove('open'));
+
+    // Close modals on backdrop click
+    document.querySelectorAll('.modal').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    });
+}
+</script>
+</body>
+</html>

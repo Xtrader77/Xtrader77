@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | xX Trading</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; padding:16px 16px 90px; }
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        h1 { font-size:20px; font-weight:800; }
+        .back-btn { background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:50px; font-size:13px; cursor:pointer; text-decoration:none; font-family:'Inter',sans-serif; }
+        .card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:20px; margin-bottom:14px; }
+        .card-title { font-size:13px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.5); margin-bottom:16px; }
+        .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+        .stat-card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:16px 14px; }
+        .stat-value { font-size:28px; font-weight:800; }
+        .stat-label { font-size:10px; font-weight:600; letter-spacing:0.8px; color:rgba(255,255,255,0.4); margin-top:4px; }
+        .chart-wrap { position:relative; height:240px; }
+        .perf-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; }
+        .perf-item:last-child { border-bottom:none; }
+        .perf-label { color:rgba(255,255,255,0.65); }
+        .perf-val { font-weight:600; }
+        .positive { color:#1DB954; }
+        .negative { color:#E22134; }
+        .neutral { color:rgba(255,255,255,0.8); }
+        .export-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+        .exp-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.7); padding:8px 14px; border-radius:50px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .exp-btn:hover { background:rgba(255,255,255,0.12); color:#fff; }
+        .chart-toggle-row { display:flex; gap:8px; margin-bottom:12px; }
+        .chart-toggle { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); padding:6px 12px; border-radius:20px; font-size:12px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .chart-toggle.active { background:rgba(29,185,84,0.15); color:#1DB954; border-color:#1DB954; }
+        .insight-box { background:rgba(74,144,226,0.08); border:1px solid rgba(74,144,226,0.2); border-radius:8px; padding:12px 14px; font-size:12px; color:rgba(255,255,255,0.8); line-height:1.6; margin-top:14px; }
+        .tc-row { display:grid; grid-template-columns:60px 1fr 1fr 40px; gap:6px; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12px; }
+        .tc-col-head { font-size:9px; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:0.5px; margin-bottom:2px; }
+        .empty-state { text-align:center; padding:30px 20px; color:rgba(255,255,255,0.35); font-size:13px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>ANALYTICS</h1>
+    <a href="/" class="back-btn">← HOME</a>
+</div>
+
+<div class="export-row">
+    <button class="exp-btn" id="xlsxBtn">📊 Excel</button>
+    <button class="exp-btn" id="pdfBtn">📄 PDF</button>
+    <button class="exp-btn" id="csvBtn">📋 CSV</button>
+</div>
+
+<!-- Key Stats -->
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-value" id="totalTrades">0</div><div class="stat-label">TOTAL TRADES</div></div>
+    <div class="stat-card"><div class="stat-value" id="winRate">0%</div><div class="stat-label">WIN RATE</div></div>
+    <div class="stat-card"><div class="stat-value" id="profitFactor">—</div><div class="stat-label">PROFIT FACTOR</div></div>
+    <div class="stat-card"><div class="stat-value" id="maxWinStreak">0</div><div class="stat-label">MAX WIN STREAK</div></div>
+    <div class="stat-card"><div class="stat-value" id="avgWinStreak">0</div><div class="stat-label">AVG WIN STREAK</div></div>
+    <div class="stat-card"><div class="stat-value" id="avgLossStreak">0</div><div class="stat-label">AVG LOSS STREAK</div></div>
+</div>
+
+<!-- Performance Chart -->
+<div class="card">
+    <div class="card-title">WIN/LOSS PERFORMANCE</div>
+    <div class="chart-toggle-row">
+        <button class="chart-toggle active" data-type="bar">Bars</button>
+        <button class="chart-toggle" data-type="line">Line</button>
+    </div>
+    <div class="chart-wrap"><canvas id="perfChart"></canvas></div>
+</div>
+
+<!-- Execution + Session -->
+<div class="card">
+    <div class="card-title">EXECUTION WIN RATE</div>
+    <div class="chart-wrap"><canvas id="execChart"></canvas></div>
+</div>
+<div class="card">
+    <div class="card-title">SESSION WIN RATE</div>
+    <div class="chart-wrap"><canvas id="sessChart"></canvas></div>
+</div>
+
+<!-- Pair / Execution / Session tables -->
+<div class="card">
+    <div class="card-title">PAIR PERFORMANCE</div>
+    <div id="pairPerf"></div>
+</div>
+<div class="card">
+    <div class="card-title">EXECUTION TYPE</div>
+    <div id="execPerf"></div>
+</div>
+<div class="card">
+    <div class="card-title">SESSION BREAKDOWN</div>
+    <div id="sessPerf"></div>
+</div>
+
+<!-- HTF + Refined -->
+<div class="card">
+    <div class="card-title">HTF + REFINED WIN RATES</div>
+    <div class="chart-wrap"><canvas id="htfChart"></canvas></div>
+</div>
+<div class="card">
+    <div class="card-title">HTF + REFINED PERFORMANCE</div>
+    <div id="htfTable"></div>
+</div>
+
+<!-- TC + Entry -->
+<div class="card">
+    <div class="card-title">TC + ENTRY WIN RATES</div>
+    <div class="chart-wrap"><canvas id="tcEntryChart"></canvas></div>
+</div>
+<div class="card">
+    <div class="card-title">TC PERFORMANCE TABLE</div>
+    <div id="tcEntryTable"></div>
+</div>
+
+<!-- TC Alone vs TC + Entry -->
+<div class="card">
+    <div class="card-title">TC ALONE vs TC + ENTRY</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;">H4 + Refined + TC with and without Entry TF</div>
+    <div class="chart-wrap"><canvas id="tcAloneChart"></canvas></div>
+    <div id="tcAloneTable" style="margin-top:14px;"></div>
+</div>
+
+<script type="module">
+import { requireAuth, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+
+injectBottomNav('analytics');
+
+let trades = [];
+let perfChartInstance = null;
+let currentChartType = 'bar';
+
+(async () => {
+    const user = await requireAuth('/analytics.html');
+    if (!user) return;
+    await requirePin();
+    await syncToLocalStorage();
+    loadLocal();
+    init();
+})();
+
+function loadLocal() {
+    try {
+        const j = JSON.parse(localStorage.getItem('xX_journal_data') || '{}');
+        trades = Object.values(j.journals || {});
+    } catch(e) {}
+}
+
+function init() {
+    updateStats();
+    renderPerfChart();
+    renderExecChart();
+    renderSessChart();
+    renderTables();
+    renderHTFRefined();
+    renderTCEntry();
+    renderTCAlone();
+    setupExports();
+    setupToggles();
+}
+
+function calcStreaks(outcomes) {
+    let cur = null, len = 0, wins = [], losses = [], maxW = 0;
+    outcomes.forEach(o => {
+        if (o === cur) { len++; }
+        else {
+            if (cur==='WIN' && len) { wins.push(len); maxW = Math.max(maxW,len); }
+            if (cur==='LOSS' && len) losses.push(len);
+            cur = o; len = 1;
+        }
+    });
+    if (cur==='WIN' && len) { wins.push(len); maxW = Math.max(maxW,len); }
+    if (cur==='LOSS' && len) losses.push(len);
+    const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '0';
+    return { avgW: avg(wins), maxW, avgL: avg(losses) };
+}
+
+function updateStats() {
+    const total = trades.length;
+    const wins  = trades.filter(t=>t.outcome==='WIN').length;
+    const losses= trades.filter(t=>t.outcome==='LOSS').length;
+    const wr    = total > 0 ? ((wins/total)*100).toFixed(1) : 0;
+    const pf    = losses > 0 ? (wins/losses).toFixed(2) : '∞';
+    const s     = calcStreaks(trades.map(t=>t.outcome));
+    document.getElementById('totalTrades').textContent   = total;
+    document.getElementById('winRate').textContent       = wr + '%';
+    document.getElementById('profitFactor').textContent  = pf;
+    document.getElementById('avgWinStreak').textContent  = s.avgW;
+    document.getElementById('maxWinStreak').textContent  = s.maxW;
+    document.getElementById('avgLossStreak').textContent = s.avgL;
+}
+
+function renderPerfChart() {
+    const ctx = document.getElementById('perfChart');
+    if (perfChartInstance) { perfChartInstance.destroy(); perfChartInstance = null; }
+    if (!trades.length) { ctx.parentElement.innerHTML = '<div class="empty-state">No trades yet</div>'; return; }
+
+    const byDate = {};
+    trades.forEach(t => {
+        const d = (t.tradeDate || t.timestamp.split('T')[0]);
+        if (!byDate[d]) byDate[d] = { wins:0, losses:0, bes:0 };
+        if (t.outcome==='WIN') byDate[d].wins++;
+        else if (t.outcome==='LOSS') byDate[d].losses++;
+        else byDate[d].bes++;
+    });
+    const dates = Object.keys(byDate).sort();
+
+    let cW = 0, cT = 0;
+    const cumWR = dates.map(d => { cW += byDate[d].wins; cT += byDate[d].wins+byDate[d].losses+byDate[d].bes; return cT > 0 ? parseFloat(((cW/cT)*100).toFixed(1)) : 0; });
+
+    const datasets = currentChartType === 'bar' ? [
+        { label:'Wins',       data:dates.map(d=>byDate[d].wins),   backgroundColor:'#1DB954', borderWidth:0 },
+        { label:'Losses',     data:dates.map(d=>byDate[d].losses), backgroundColor:'#E22134', borderWidth:0 },
+        { label:'Breakevens', data:dates.map(d=>byDate[d].bes),    backgroundColor:'#555',    borderWidth:0 }
+    ] : [
+        { label:'Cumulative Win Rate', data:cumWR, borderColor:'#1DB954', backgroundColor:'rgba(29,185,84,0.1)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#1DB954' }
+    ];
+
+    perfChartInstance = new Chart(ctx, {
+        type: currentChartType === 'bar' ? 'bar' : 'line',
+        data: { labels: dates, datasets },
+        options: {
+            responsive:true, maintainAspectRatio:false,
+            scales: {
+                x: { grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'rgba(255,255,255,0.6)',maxRotation:45,font:{size:9}} },
+                y: { beginAtZero:true, max: currentChartType==='line'?100:undefined, grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'rgba(255,255,255,0.6)',callback:v=>currentChartType==='line'?v+'%':v} }
+            },
+            plugins: { legend:{labels:{color:'rgba(255,255,255,0.7)',font:{size:11}}} }
+        }
+    });
+}
+
+function setupToggles() {
+    document.querySelectorAll('.chart-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.chart-toggle').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentChartType = btn.dataset.type;
+            renderPerfChart();
+        });
+    });
+}
+
+function barChart(canvasId, labels, data, colors) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    if (ctx._chart) ctx._chart.destroy();
+    ctx._chart = new Chart(ctx, {
+        type:'bar',
+        data:{ labels, datasets:[{ label:'Win Rate %', data, backgroundColor:colors, borderWidth:0 }] },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            scales:{
+                y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.6)',callback:v=>v+'%'}},
+                x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.6)',font:{size:10}}}
+            },
+            plugins:{legend:{display:false}}
+        }
+    });
+}
+
+function wr(wins, total) { return total > 0 ? parseFloat(((wins/total)*100).toFixed(1)) : 0; }
+function color(rate) {
+    if (rate >= 70) return '#1DB954';
+    if (rate >= 50) return '#4A90E2';
+    if (rate >= 30) return '#FFD700';
+    if (rate > 0)   return '#E22134';
+    return 'rgba(255,255,255,0.1)';
+}
+function perfHtml(items) {
+    if (!items.length) return '<div class="empty-state">No data</div>';
+    return items.map(({label,wins,total}) => {
+        const rate = wr(wins,total);
+        return `<div class="perf-item"><span class="perf-label">${label}</span><span class="perf-val ${rate>=50?'positive':'negative'}">${rate}% (${wins}/${total})</span></div>`;
+    }).join('');
+}
+
+function renderExecChart() {
+    const types = [{id:'limit',label:'Limit'},{id:'instant',label:'Instant'}];
+    const data = types.map(({id}) => { const t=trades.filter(x=>x.execution===id); return wr(t.filter(x=>x.outcome==='WIN').length,t.length); });
+    barChart('execChart', types.map(t=>t.label), data, ['#1DB954','#4A90E2']);
+}
+
+function renderSessChart() {
+    const sess = [{id:'asia',label:'Asia'},{id:'london',label:'London'},{id:'newyork',label:'New York'}];
+    const data = sess.map(({id}) => { const t=trades.filter(x=>x.tradeSession?.session===id); return wr(t.filter(x=>x.outcome==='WIN').length,t.length); });
+    barChart('sessChart', sess.map(s=>s.label), data, ['#1DB954','#4A90E2','#E22134']);
+}
+
+function renderTables() {
+    // Pairs
+    const pairMap = {};
+    trades.forEach(t => { const p=t.pair||'N/A'; if(!pairMap[p]) pairMap[p]={wins:0,total:0}; pairMap[p].total++; if(t.outcome==='WIN') pairMap[p].wins++; });
+    document.getElementById('pairPerf').innerHTML = perfHtml(Object.entries(pairMap).map(([label,{wins,total}])=>({label,wins,total})));
+
+    // Exec
+    const execItems = [{id:'limit',label:'Limit'},{id:'instant',label:'Instant'}].map(({id,label}) => {
+        const t = trades.filter(x=>x.execution===id);
+        return { label, wins:t.filter(x=>x.outcome==='WIN').length, total:t.length };
+    }).filter(x=>x.total);
+    document.getElementById('execPerf').innerHTML = perfHtml(execItems);
+
+    // Session
+    const sessItems = [{id:'asia',label:'Asia'},{id:'london',label:'London'},{id:'newyork',label:'New York'}].map(({id,label}) => {
+        const t = trades.filter(x=>x.tradeSession?.session===id);
+        return { label, wins:t.filter(x=>x.outcome==='WIN').length, total:t.length };
+    }).filter(x=>x.total);
+    document.getElementById('sessPerf').innerHTML = perfHtml(sessItems);
+}
+
+function renderHTFRefined() {
+    const refined = ['H1EF','H1EG','M30EF','M30EG'];
+    const withH4  = trades.filter(t=>(t.checklist||[]).includes('H4'));
+    if (!withH4.length) { document.getElementById('htfTable').innerHTML='<div class="empty-state">No trades with H4 yet</div>'; return; }
+
+    const combos = refined.map(r => {
+        const t = withH4.filter(x=>(x.checklist||[]).includes(r));
+        return { label:`H4 + ${r}`, wins:t.filter(x=>x.outcome==='WIN').length, total:t.length, rate: wr(t.filter(x=>x.outcome==='WIN').length, t.length) };
+    }).filter(c=>c.total).sort((a,b)=>b.rate-a.rate);
+
+    barChart('htfChart', combos.map(c=>c.label), combos.map(c=>c.rate), combos.map(c=>color(c.rate)));
+    document.getElementById('htfTable').innerHTML = perfHtml(combos.map(c=>({label:c.label,wins:c.wins,total:c.total})));
+}
+
+function renderTCEntry() {
+    const tcItems    = ['M15EF','M15EG','M5EF','M5EG'];
+    const entryItems = ['ENTRY-M5EG','ENTRY-M1EF'];
+    const allCombos  = tcItems.flatMap(tc => entryItems.map(e => ({ key:`${tc} + ${e}`, tc, entry:e })));
+
+    const results = allCombos.map(({key,tc,entry}) => {
+        const t = trades.filter(x => (x.checklist||[]).includes(tc) && (x.checklist||[]).includes(entry));
+        const rate = wr(t.filter(x=>x.outcome==='WIN').length, t.length);
+        return { label:key, wins:t.filter(x=>x.outcome==='WIN').length, total:t.length, rate };
+    });
+
+    const valid = results.filter(r=>r.total).sort((a,b)=>b.rate-a.rate);
+    barChart('tcEntryChart', results.map(r=>r.label), results.map(r=>r.rate), results.map(r=>color(r.rate)));
+    document.getElementById('tcEntryTable').innerHTML = valid.length ? perfHtml(valid.map(v=>({label:v.label,wins:v.wins,total:v.total}))) : '<div class="empty-state">Use TC + Entry items in your checklist to see data</div>';
+}
+
+function renderTCAlone() {
+    const tcItems    = ['M15EF','M15EG','M5EF','M5EG'];
+    const entryItems = ['ENTRY-M5EG','ENTRY-M1EF'];
+    const refined    = ['H1EF','H1EG','M30EF','M30EG'];
+
+    const data = tcItems.map(tc => {
+        const base = trades.filter(t => (t.checklist||[]).includes('H4') && refined.some(r=>(t.checklist||[]).includes(r)) && (t.checklist||[]).includes(tc));
+        const alone    = base.filter(t => !entryItems.some(e=>(t.checklist||[]).includes(e)));
+        const withEntry= base.filter(t =>  entryItems.some(e=>(t.checklist||[]).includes(e)));
+        return {
+            tc,
+            aloneRate:  wr(alone.filter(x=>x.outcome==='WIN').length, alone.length),
+            aloneTotal: alone.length, aloneWins: alone.filter(x=>x.outcome==='WIN').length,
+            withRate:   wr(withEntry.filter(x=>x.outcome==='WIN').length, withEntry.length),
+            withTotal:  withEntry.length, withWins: withEntry.filter(x=>x.outcome==='WIN').length
+        };
+    }).filter(d=>d.aloneTotal||d.withTotal);
+
+    if (!data.length) {
+        document.getElementById('tcAloneTable').innerHTML = '<div class="empty-state">Record trades with H4 + Refined + TC checklist items to see this breakdown</div>';
+        return;
+    }
+
+    const ctx = document.getElementById('tcAloneChart');
+    if (ctx._chart) ctx._chart.destroy();
+    ctx._chart = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: data.map(d=>d.tc),
+            datasets:[
+                { label:'TC Alone', data:data.map(d=>d.aloneRate), backgroundColor:data.map(d=>color(d.aloneRate)), borderWidth:0, borderRadius:4 },
+                { label:'TC + Entry', data:data.map(d=>d.withRate), backgroundColor:data.map(d=>color(d.withRate)+'99'), borderWidth:0, borderRadius:4 }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            scales:{
+                y:{beginAtZero:true,max:100,ticks:{color:'rgba(255,255,255,0.6)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.05)'}},
+                x:{ticks:{color:'rgba(255,255,255,0.7)'},grid:{color:'rgba(255,255,255,0.04)'}}
+            },
+            plugins:{ legend:{labels:{color:'rgba(255,255,255,0.7)',font:{size:11},padding:14}} }
+        }
+    });
+
+    // Table
+    let html = data.map(d => {
+        const aloneStr = d.aloneTotal > 0 ? `<span style="color:${color(d.aloneRate)};font-weight:700;">${d.aloneRate}%</span> <span style="color:rgba(255,255,255,0.35);font-size:10px;">${d.aloneWins}W/${d.aloneTotal}T</span>` : '<span style="color:rgba(255,255,255,0.25);">—</span>';
+        const withStr  = d.withTotal  > 0 ? `<span style="color:${color(d.withRate)};font-weight:700;">${d.withRate}%</span> <span style="color:rgba(255,255,255,0.35);font-size:10px;">${d.withWins}W/${d.withTotal}T</span>` : '<span style="color:rgba(255,255,255,0.25);">—</span>';
+        const delta    = (d.aloneTotal > 0 && d.withTotal > 0) ? (d.withRate - d.aloneRate).toFixed(1) : null;
+        const deltaHtml= delta !== null ? `<span style="color:${parseFloat(delta)>0?'#1DB954':parseFloat(delta)<0?'#E22134':'rgba(255,255,255,0.4)'};font-size:11px;font-weight:600;">${parseFloat(delta)>0?'+':''}${delta}%</span>` : '<span style="color:rgba(255,255,255,0.2);">—</span>';
+        return `<div class="tc-row">
+            <span style="font-weight:700;font-size:13px;">${d.tc}</span>
+            <div style="text-align:center;"><div class="tc-col-head">TC ALONE</div>${aloneStr}</div>
+            <div style="text-align:center;"><div class="tc-col-head">+ ENTRY</div>${withStr}</div>
+            <div style="text-align:center;"><div class="tc-col-head">ΔENTRY</div>${deltaHtml}</div>
+        </div>`;
+    }).join('');
+
+    const best = data.filter(d=>d.aloneTotal).sort((a,b)=>b.aloneRate-a.aloneRate)[0];
+    if (best) {
+        const entryHelps = best.withTotal && best.withRate > best.aloneRate;
+        html += `<div class="insight-box">🏆 <strong>${best.tc}</strong> is your strongest TC item alone (${best.aloneRate}% on ${best.aloneTotal} trades). ${entryHelps ? `Adding Entry TF <strong style="color:#1DB954;">boosts it to ${best.withRate}%</strong> — worth waiting for.` : best.withTotal ? `TC alone performing ${best.aloneRate > best.withRate ? 'better' : 'similarly'} to TC + Entry.` : 'No data yet for TC + Entry version.'}</div>`;
+    }
+
+    document.getElementById('tcAloneTable').innerHTML = html;
+}
+
+// ── Exports ───────────────────────────────────────────────────────────────────
+function setupExports() {
+    document.getElementById('xlsxBtn').addEventListener('click', exportXLSX);
+    document.getElementById('pdfBtn').addEventListener('click', exportPDF);
+    document.getElementById('csvBtn').addEventListener('click', exportCSV);
+}
+
+function buildRows() {
+    const allItems = ['H4','H1EF','H1EG','M30EF','M30EG','M15EF','M15EG','M5EF','M5EG','ENTRY-M5EG','ENTRY-M1EF'];
+    const mL = v => (['','Frustrated','Off','Neutral','Focused','In zone'][v]||'N/A');
+    const rL = v => (['','Poor','Below avg','Average','Good','Perfect'][v]||'N/A');
+    return trades.sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp)).map(t => {
+        const row = {
+            'ID':t.tradeId, 'Date':new Date(t.timestamp).toLocaleDateString(),
+            'Time':new Date(t.timestamp).toLocaleTimeString(),
+            'Pair':t.pair||'N/A', 'Direction':t.direction||'N/A', 'Outcome':t.outcome,
+            'Session':t.tradeSession?.session?.toUpperCase()||'N/A', 'Exec':t.execution||'N/A',
+            'Mindset':mL(t.mindset), 'Exec Rating':rL(t.executionRating),
+            'Rule Breaks':(t.ruleBreaks||[]).join(', ')||'None',
+            'CL Score':`${(t.checklist||[]).length}/11`,
+            'Reason':t.reason||'', 'Notes':t.text||''
+        };
+        allItems.forEach(item => { row[item] = (t.checklist||[]).includes(item)?'1':'0'; });
+        return row;
+    });
+}
+
+function exportCSV() {
+    const rows = buildRows();
+    if (!rows.length) { showToast('No trades to export','error'); return; }
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(','), ...rows.map(r=>headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = `xX_Analytics_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    showToast('CSV exported ✓','success');
+}
+
+function exportXLSX() {
+    if (!window.XLSX) { showToast('XLSX library loading...','error'); return; }
+    const rows = buildRows();
+    if (!rows.length) { showToast('No trades to export','error'); return; }
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'All Trades');
+    XLSX.writeFile(wb, `xX_Analytics_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Excel exported ✓','success');
+}
+
+function exportPDF() {
+    if (!window.jspdf) { showToast('PDF library loading...','error'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const total = trades.length;
+    const wins  = trades.filter(t=>t.outcome==='WIN').length;
+    const losses= trades.filter(t=>t.outcome==='LOSS').length;
+    doc.setFontSize(18); doc.setFont(undefined,'bold');
+    doc.text('xX Trading Journal — Analytics', 14, 20);
+    doc.setFontSize(10); doc.setFont(undefined,'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()} | Trades: ${total} | Win Rate: ${total?((wins/total)*100).toFixed(1):0}%`, 14, 30);
+    const rows = buildRows();
+    if (rows.length) {
+        const cols = ['Date','Pair','Direction','Outcome','Session','Exec Rating','CL Score'];
+        doc.autoTable({
+            startY:36, head:[cols], body:rows.map(r=>cols.map(c=>r[c]||'')),
+            theme:'grid',
+            headStyles:{fillColor:[10,10,10],textColor:255,fontSize:8},
+            bodyStyles:{fontSize:8}
+        });
+    }
+    doc.save(`xX_Analytics_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast('PDF exported ✓','success');
+}
+</script>
+</body>
+</html>

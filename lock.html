@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock | xX Trading</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .lock-screen { text-align:center; width:320px; padding:20px; }
+        .logo { font-size:40px; margin-bottom:10px; }
+        .app-name { font-size:22px; font-weight:800; letter-spacing:-0.5px; margin-bottom:4px; }
+        .trader-name { font-size:14px; color:rgba(255,255,255,0.4); margin-bottom:40px; }
+        .pin-dots { display:flex; gap:14px; justify-content:center; margin-bottom:30px; }
+        .pin-dot { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,0.15); transition:all 0.15s; }
+        .pin-dot.filled { background:#fff; transform:scale(1.1); }
+        .pin-dot.error { background:#E22134 !important; animation:shake 0.3s; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        .pin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .pin-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); color:#fff; border-radius:14px; padding:18px; font-size:20px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.15s; }
+        .pin-btn:hover { background:rgba(255,255,255,0.14); }
+        .pin-btn:active { transform:scale(0.94); }
+        .pin-btn.del { font-size:16px; background:transparent; border-color:transparent; color:rgba(255,255,255,0.5); }
+        .error-msg { font-size:13px; color:#E22134; margin-top:20px; height:18px; transition:opacity 0.3s; }
+        .error-msg.hidden { opacity:0; }
+        .forgot { font-size:12px; color:rgba(255,255,255,0.25); margin-top:24px; cursor:pointer; }
+        .forgot:hover { color:rgba(255,255,255,0.5); }
+        .panel { display:none; text-align:left; margin-top:28px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; }
+        .panel.visible { display:block; }
+        .panel-title { font-size:13px; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:14px; letter-spacing:0.5px; }
+        .panel input { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:11px 13px; color:#fff; font-size:14px; font-family:'Inter',sans-serif; margin-bottom:10px; }
+        .panel input:focus { outline:none; border-color:rgba(255,255,255,0.3); }
+        .panel-btn { width:100%; background:#fff; color:#000; border:none; border-radius:8px; padding:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; margin-top:4px; }
+        .panel-err { font-size:12px; color:#E22134; margin-top:6px; min-height:16px; }
+        .panel-ok  { font-size:12px; color:#1DB954; margin-top:6px; min-height:16px; }
+        .back-link { font-size:12px; color:rgba(255,255,255,0.25); margin-top:12px; cursor:pointer; display:block; text-align:center; }
+        .back-link:hover { color:rgba(255,255,255,0.5); }
+        .new-pin-dots { display:flex; gap:14px; justify-content:flex-start; margin-bottom:14px; }
+    </style>
+</head>
+<body>
+<div class="lock-screen">
+    <div class="logo" id="lockLogo">🔒</div>
+    <div class="app-name">xX TRADING</div>
+    <div class="trader-name" id="lockTraderName">Enter PIN to unlock</div>
+
+    <div class="pin-dots">
+        <div class="pin-dot" id="ld0"></div>
+        <div class="pin-dot" id="ld1"></div>
+        <div class="pin-dot" id="ld2"></div>
+        <div class="pin-dot" id="ld3"></div>
+    </div>
+
+    <div class="pin-grid">
+        <button class="pin-btn" data-digit="1">1</button>
+        <button class="pin-btn" data-digit="2">2</button>
+        <button class="pin-btn" data-digit="3">3</button>
+        <button class="pin-btn" data-digit="4">4</button>
+        <button class="pin-btn" data-digit="5">5</button>
+        <button class="pin-btn" data-digit="6">6</button>
+        <button class="pin-btn" data-digit="7">7</button>
+        <button class="pin-btn" data-digit="8">8</button>
+        <button class="pin-btn" data-digit="9">9</button>
+        <button class="pin-btn" data-digit="0" style="grid-column:2">0</button>
+        <button class="pin-btn del" id="delBtn">⌫</button>
+    </div>
+
+    <div class="error-msg hidden" id="errorMsg">Incorrect PIN. Try again.</div>
+    <div class="forgot" id="forgotBtn">Forgot PIN?</div>
+
+    <!-- Forgot PIN panel -->
+    <div class="panel" id="forgotPanel">
+        <div class="panel-title" id="forgotPanelTitle">RECOVERY QUESTION</div>
+
+        <div id="forgotStep1">
+            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:12px;" id="questionDisplay"></div>
+            <input type="text" id="recoveryAnswer" placeholder="Your answer..." autocomplete="off">
+            <div class="panel-err" id="forgotErr"></div>
+            <button class="panel-btn" id="verifyAnswerBtn">VERIFY ANSWER</button>
+        </div>
+
+        <div id="forgotStep2" style="display:none;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:12px;">Answer correct. Enter your new PIN:</div>
+            <div class="new-pin-dots">
+                <div class="pin-dot" id="npd0"></div>
+                <div class="pin-dot" id="npd1"></div>
+                <div class="pin-dot" id="npd2"></div>
+                <div class="pin-dot" id="npd3"></div>
+            </div>
+            <div class="pin-grid">
+                <button class="pin-btn" data-newpin="1">1</button>
+                <button class="pin-btn" data-newpin="2">2</button>
+                <button class="pin-btn" data-newpin="3">3</button>
+                <button class="pin-btn" data-newpin="4">4</button>
+                <button class="pin-btn" data-newpin="5">5</button>
+                <button class="pin-btn" data-newpin="6">6</button>
+                <button class="pin-btn" data-newpin="7">7</button>
+                <button class="pin-btn" data-newpin="8">8</button>
+                <button class="pin-btn" data-newpin="9">9</button>
+                <button class="pin-btn" data-newpin="0" style="grid-column:2">0</button>
+                <button class="pin-btn del" id="newDelBtn">⌫</button>
+            </div>
+            <div class="panel-ok" id="newPinOk"></div>
+        </div>
+
+        <div id="forgotNoRecovery" style="display:none;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;">
+                No recovery question set.<br>
+                Go to <strong>Profile → Security</strong> after logging in to set up PIN recovery.
+            </div>
+        </div>
+
+        <span class="back-link" id="backFromForgot">← Back to PIN entry</span>
+    </div>
+</div>
+
+<script type="module">
+import { hashPin, getProfile, savePinHash } from '/db.js';
+
+const PIN_KEY      = 'xX_app_pin';
+const RECOVERY_KEY = 'xX_recovery';
+const SESSION_KEY  = 'xX_unlocked';
+const REDIRECT     = sessionStorage.getItem('xX_redirect') || '/';
+
+let currentPin = '';
+let attempts   = 0;
+let cloudPinHash  = null;
+let cloudRecovery = null;
+
+async function init() {
+    // Try cloud profile for PIN
+    try {
+        const profile = await getProfile();
+        if (profile?.pin_hash) {
+            cloudPinHash = profile.pin_hash;
+            localStorage.setItem(PIN_KEY, profile.pin_hash);
+        }
+        if (profile?.recovery_question && profile?.recovery_answer_hash) {
+            cloudRecovery = { question: profile.recovery_question, answerHash: profile.recovery_answer_hash };
+            localStorage.setItem(RECOVERY_KEY, JSON.stringify(cloudRecovery));
+        }
+    } catch(e) {}
+
+    const storedPin = cloudPinHash || localStorage.getItem(PIN_KEY);
+    if (!storedPin) { location.href = REDIRECT; return; }
+    if (sessionStorage.getItem(SESSION_KEY) === '1') { location.href = REDIRECT; return; }
+
+    try {
+        const profile = JSON.parse(localStorage.getItem('xX_trader_profile') || '{}');
+        if (profile.name) document.getElementById('lockTraderName').textContent = 'Welcome back, ' + profile.name;
+        if (profile.emoji) document.getElementById('lockLogo').textContent = profile.emoji;
+    } catch(e) {}
+}
+
+function pinInput(digit) {
+    if (currentPin.length < 4) {
+        currentPin += digit;
+        updateDots();
+        if (currentPin.length === 4) setTimeout(checkPin, 120);
+    }
+}
+function pinDelete() { currentPin = currentPin.slice(0, -1); updateDots(); hideError(); }
+function updateDots() {
+    for (let i = 0; i < 4; i++) {
+        const d = document.getElementById('ld' + i);
+        d.className = 'pin-dot' + (i < currentPin.length ? ' filled' : '');
+    }
+}
+function checkPin() {
+    const stored = cloudPinHash || localStorage.getItem(PIN_KEY);
+    if (hashPin(currentPin) === stored) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        location.href = REDIRECT;
+    } else {
+        attempts++;
+        for (let i = 0; i < 4; i++) document.getElementById('ld' + i).className = 'pin-dot error';
+        setTimeout(() => {
+            currentPin = ''; updateDots();
+            showError(attempts >= 3 ? `Incorrect PIN. ${attempts} failed attempts.` : 'Incorrect PIN. Try again.');
+        }, 400);
+    }
+}
+function showError(msg) { const el = document.getElementById('errorMsg'); el.textContent = msg; el.classList.remove('hidden'); }
+function hideError() { document.getElementById('errorMsg').classList.add('hidden'); }
+
+// Digit buttons
+document.querySelectorAll('[data-digit]').forEach(btn => {
+    btn.addEventListener('click', () => pinInput(btn.dataset.digit));
+});
+document.getElementById('delBtn').addEventListener('click', pinDelete);
+document.addEventListener('keydown', (e) => {
+    if (e.key >= '0' && e.key <= '9') pinInput(e.key);
+    if (e.key === 'Backspace') pinDelete();
+});
+
+// Forgot PIN
+document.getElementById('forgotBtn').addEventListener('click', () => {
+    const localRaw = localStorage.getItem(RECOVERY_KEY);
+    const recovery = cloudRecovery || (localRaw ? JSON.parse(localRaw) : null);
+
+    document.getElementById('forgotPanel').classList.add('visible');
+    document.querySelector('.pin-dots').style.display = 'none';
+    document.querySelector('.pin-grid').style.display = 'none';
+    document.querySelector('.forgot').style.display = 'none';
+
+    if (!recovery) {
+        document.getElementById('forgotStep1').style.display      = 'none';
+        document.getElementById('forgotStep2').style.display      = 'none';
+        document.getElementById('forgotNoRecovery').style.display = 'block';
+        return;
+    }
+    document.getElementById('questionDisplay').textContent   = recovery.question;
+    document.getElementById('forgotStep1').style.display     = 'block';
+    document.getElementById('forgotStep2').style.display     = 'none';
+    document.getElementById('forgotNoRecovery').style.display= 'none';
+    setTimeout(() => document.getElementById('recoveryAnswer').focus(), 100);
+});
+
+document.getElementById('backFromForgot').addEventListener('click', () => {
+    document.getElementById('forgotPanel').classList.remove('visible');
+    document.querySelector('.pin-dots').style.display = 'flex';
+    document.querySelector('.pin-grid').style.display = 'grid';
+    document.querySelector('.forgot').style.display = 'block';
+    document.getElementById('forgotErr').textContent = '';
+    document.getElementById('recoveryAnswer').value = '';
+    newPinBuffer = ''; updateNewPinDots();
+});
+
+document.getElementById('verifyAnswerBtn').addEventListener('click', () => {
+    const localRaw = localStorage.getItem(RECOVERY_KEY);
+    const recovery = cloudRecovery || (localRaw ? JSON.parse(localRaw) : null);
+    const answer   = document.getElementById('recoveryAnswer').value.trim().toLowerCase();
+    if (!answer) { document.getElementById('forgotErr').textContent = 'Please enter your answer'; return; }
+    if (!recovery) { document.getElementById('forgotErr').textContent = 'No recovery data found'; return; }
+    if (hashPin(answer) === recovery.answerHash) {
+        document.getElementById('forgotStep1').style.display    = 'none';
+        document.getElementById('forgotStep2').style.display    = 'block';
+        document.getElementById('forgotPanelTitle').textContent = 'SET NEW PIN';
+    } else {
+        document.getElementById('forgotErr').textContent = 'Wrong answer. Try again.';
+        document.getElementById('recoveryAnswer').value  = '';
+    }
+});
+
+// New PIN entry
+let newPinBuffer = '';
+function updateNewPinDots() {
+    for (let i = 0; i < 4; i++) {
+        const d = document.getElementById('npd' + i);
+        if (d) d.classList.toggle('filled', i < newPinBuffer.length);
+    }
+}
+document.querySelectorAll('[data-newpin]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (newPinBuffer.length < 4) {
+            newPinBuffer += btn.dataset.newpin;
+            updateNewPinDots();
+            if (newPinBuffer.length === 4) setTimeout(saveNewPin, 150);
+        }
+    });
+});
+document.getElementById('newDelBtn').addEventListener('click', () => {
+    newPinBuffer = newPinBuffer.slice(0, -1); updateNewPinDots();
+});
+async function saveNewPin() {
+    const newHash = hashPin(newPinBuffer);
+    localStorage.setItem(PIN_KEY, newHash);
+    cloudPinHash = newHash;
+    try { await savePinHash(newHash); } catch(e) {}
+    document.getElementById('newPinOk').textContent = '✅ PIN updated! Unlocking...';
+    sessionStorage.setItem(SESSION_KEY, '1');
+    setTimeout(() => location.href = REDIRECT, 1000);
+}
+
+init();
+</script>
+</body>
+</html>

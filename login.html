@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | xX Trading Journal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+        .card { width:100%; max-width:420px; background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:40px 36px; }
+        .logo { font-size:48px; font-weight:800; letter-spacing:-2px; text-align:center; margin-bottom:6px; }
+        .tagline { text-align:center; font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:1px; margin-bottom:36px; }
+        .form-title { font-size:18px; font-weight:700; margin-bottom:24px; }
+        .form-group { margin-bottom:16px; }
+        label { display:block; font-size:11px; font-weight:600; letter-spacing:0.8px; color:rgba(255,255,255,0.45); margin-bottom:7px; }
+        input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:13px 14px; color:#fff; font-size:14px; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        input:focus { outline:none; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.07); }
+        input::placeholder { color:rgba(255,255,255,0.2); }
+        .forgot-link { display:block; text-align:right; font-size:12px; color:rgba(255,255,255,0.35); margin-top:6px; cursor:pointer; text-decoration:none; transition:color 0.2s; }
+        .forgot-link:hover { color:rgba(255,255,255,0.7); }
+        .btn-primary { width:100%; background:#fff; color:#000; border:none; border-radius:8px; padding:14px; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; margin-top:8px; transition:all 0.2s; letter-spacing:0.5px; }
+        .btn-primary:hover { background:rgba(255,255,255,0.88); }
+        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+        .divider { display:flex; align-items:center; gap:12px; margin:24px 0; color:rgba(255,255,255,0.2); font-size:12px; }
+        .divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.08); }
+        .switch-link { text-align:center; font-size:13px; color:rgba(255,255,255,0.4); }
+        .switch-link a { color:#fff; font-weight:600; text-decoration:none; cursor:pointer; }
+        .switch-link a:hover { text-decoration:underline; }
+        .error-box { background:rgba(226,33,52,0.1); border:1px solid rgba(226,33,52,0.3); border-radius:8px; padding:12px 14px; font-size:13px; color:#ff6b6b; margin-bottom:16px; display:none; }
+        .success-box { background:rgba(29,185,84,0.1); border:1px solid rgba(29,185,84,0.25); border-radius:8px; padding:12px 14px; font-size:13px; color:#1DB954; margin-bottom:16px; display:none; }
+        .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(0,0,0,0.3); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo">xX</div>
+    <div class="tagline">TRADING JOURNAL</div>
+    <div class="error-box"   id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+
+    <!-- Login form -->
+    <div id="loginForm">
+        <div class="form-title">Sign in to your account</div>
+        <div class="form-group">
+            <label>EMAIL</label>
+            <input type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+            <label>PASSWORD</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+            <span class="forgot-link" id="forgotLink">Forgot password?</span>
+        </div>
+        <button class="btn-primary" id="loginBtn">SIGN IN</button>
+        <div class="divider">or</div>
+        <div class="switch-link">Don't have an account? <a href="/register.html">Create one</a></div>
+    </div>
+
+    <!-- Forgot password form -->
+    <div id="forgotForm" style="display:none;">
+        <div class="form-title">Reset your password</div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:20px;line-height:1.6;">Enter your email and we'll send you a reset link.</p>
+        <div class="form-group">
+            <label>EMAIL</label>
+            <input type="email" id="resetEmail" placeholder="you@email.com">
+        </div>
+        <button class="btn-primary" id="resetBtn">SEND RESET LINK</button>
+        <div class="divider">or</div>
+        <div class="switch-link"><a id="backToLogin">Back to sign in</a></div>
+    </div>
+</div>
+
+<script type="module">
+import { signIn, getCurrentUser, resetPassword } from '/db.js';
+
+function showError(msg) {
+    const el = document.getElementById('errorBox');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('successBox').style.display = 'none';
+}
+function showSuccess(msg) {
+    const el = document.getElementById('successBox');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('errorBox').style.display = 'none';
+}
+function setLoading(btnId, loading, label) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading ? `<span class="spinner"></span> Please wait…` : label;
+}
+
+async function handleLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showError('Please enter email and password.'); return; }
+    setLoading('loginBtn', true, 'SIGN IN');
+    const result = await signIn(email, password);
+    setLoading('loginBtn', false, 'SIGN IN');
+    if (result.success) {
+        const redirect = sessionStorage.getItem('xX_redirect') || '/';
+        sessionStorage.removeItem('xX_redirect');
+        location.href = redirect;
+    } else {
+        showError(result.error || 'Sign in failed. Please try again.');
+    }
+}
+
+async function handleReset() {
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) { showError('Please enter your email.'); return; }
+    setLoading('resetBtn', true, 'SEND RESET LINK');
+    const result = await resetPassword(email);
+    setLoading('resetBtn', false, 'SEND RESET LINK');
+    if (result.success) {
+        showSuccess('Reset link sent! Check your email inbox.');
+    } else {
+        showError(result.error || 'Could not send reset link.');
+    }
+}
+
+document.getElementById('loginBtn').addEventListener('click', handleLogin);
+document.getElementById('resetBtn').addEventListener('click', handleReset);
+document.getElementById('forgotLink').addEventListener('click', () => {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('forgotForm').style.display = 'block';
+});
+document.getElementById('backToLogin').addEventListener('click', () => {
+    document.getElementById('forgotForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('loginForm').style.display !== 'none') handleLogin();
+    else handleReset();
+});
+
+// Already logged in? Redirect
+(async () => {
+    const user = await getCurrentUser();
+    if (user) {
+        const redirect = sessionStorage.getItem('xX_redirect') || '/';
+        sessionStorage.removeItem('xX_redirect');
+        location.href = redirect;
+    }
+})();
+</script>
+</body>
+</html>
