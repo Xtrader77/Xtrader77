@@ -3,184 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Improvement Engine | xX Trading</title>
+    <title>Improvement | xX Trading</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#000000">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter',sans-serif; background:#000; color:#fff; min-height:100vh; padding:16px 16px 90px; }
-        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); }
-        h1 { font-size:20px; font-weight:800; }
-        .back-btn { background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:50px; font-size:13px; cursor:pointer; text-decoration:none; font-family:'Inter',sans-serif; }
-        .card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:20px; margin-bottom:14px; }
-        .card-title { font-size:13px; font-weight:700; letter-spacing:1px; color:rgba(255,255,255,0.5); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
-        .badge { background:rgba(74,144,226,0.15); color:#4A90E2; padding:3px 9px; border-radius:12px; font-size:10px; font-weight:700; }
-        .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-        .stat-card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:16px 14px; }
-        .stat-value { font-size:26px; font-weight:800; }
-        .stat-label { font-size:10px; font-weight:600; letter-spacing:0.8px; color:rgba(255,255,255,0.4); margin-top:4px; }
-        .chart-wrap { position:relative; height:220px; }
-        .export-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-        .exp-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.7); padding:8px 14px; border-radius:50px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
-        .exp-btn:hover { background:rgba(255,255,255,0.12); }
-        .progress-track { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; margin-top:8px; }
-        .progress-fill { height:100%; background:linear-gradient(90deg,#E22134,#FF9800,#1DB954); border-radius:3px; transition:width 0.5s; }
-        /* Form styles */
-        label { display:block; font-size:11px; font-weight:600; letter-spacing:0.8px; color:rgba(255,255,255,0.45); margin-bottom:7px; }
-        label.required::after { content:" *"; color:#E22134; }
-        select, input, textarea { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px 13px; color:#fff; font-size:13px; font-family:'Inter',sans-serif; transition:all 0.2s; margin-bottom:12px; }
-        select:focus, input:focus, textarea:focus { outline:none; border-color:rgba(255,255,255,0.3); }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg:#060608; --surface:#0e0e12; --card:#111116;
+            --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.11);
+            --muted:rgba(255,255,255,0.35); --dim:rgba(255,255,255,0.5);
+            --green:#1DB954; --red:#E22134; --blue:#4A90E2; --gold:#F5A623;
+            --green-bg:rgba(29,185,84,0.08); --red-bg:rgba(226,33,52,0.08);
+            --blue-bg:rgba(74,144,226,0.08); --gold-bg:rgba(245,166,35,0.08);
+        }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:#fff; min-height:100vh; padding:16px 16px 90px; }
+
+        /* ── Header ── */
+        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+        .header-left h1 { font-size:22px; font-weight:900; letter-spacing:-0.5px; }
+        .header-left p  { font-size:11px; color:var(--muted); margin-top:2px; }
+        .header-right { display:flex; gap:8px; align-items:center; }
+        .sync-btn { background:var(--blue-bg); border:1px solid rgba(74,144,226,0.25); color:var(--blue); padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
+        .back-btn { background:transparent; border:1px solid var(--border2); color:var(--dim); padding:7px 14px; border-radius:20px; font-size:12px; text-decoration:none; }
+
+        /* ── Section tabs ── */
+        .tabs { display:flex; gap:0; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:16px; overflow-x:auto; }
+        .tab { flex:1; min-width:60px; padding:8px 10px; text-align:center; font-size:11px; font-weight:700; letter-spacing:0.5px; color:var(--muted); border-radius:7px; cursor:pointer; white-space:nowrap; transition:all 0.18s; border:none; background:none; font-family:'Inter',sans-serif; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+        .tab.active { background:#fff; color:#000; }
+
+        /* ── Cards ── */
+        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:12px; }
+        .card-title { font-size:10px; font-weight:700; letter-spacing:1.5px; color:rgba(255,255,255,0.28); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
+        .card-title::before { content:''; display:none; }
+        .badge { background:var(--blue-bg); color:var(--blue); padding:3px 9px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:0.5px; }
+        .badge.green { background:var(--green-bg); color:var(--green); }
+        .badge.red   { background:var(--red-bg);   color:var(--red); }
+        .badge.gold  { background:var(--gold-bg);   color:var(--gold); }
+
+        /* ── Score cards ── */
+        .score-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+        .score-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 10px; text-align:center; }
+        .score-val  { font-size:24px; font-weight:800; line-height:1; }
+        .score-lbl  { font-size:9px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-top:5px; }
+        .score-sub  { font-size:10px; color:var(--muted); margin-top:2px; }
+
+        /* ── Progress bar ── */
+        .prog-row { margin-bottom:14px; }
+        .prog-label { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-bottom:6px; }
+        .prog-track { height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+        .prog-fill  { height:100%; border-radius:3px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .prog-fill.green { background:linear-gradient(90deg,#0d7a35,var(--green)); }
+        .prog-fill.red   { background:linear-gradient(90deg,#8b0000,var(--red)); }
+        .prog-fill.blue  { background:linear-gradient(90deg,#1a3d6e,var(--blue)); }
+        .prog-fill.multi { background:linear-gradient(90deg,var(--red),#FF9800,var(--green)); }
+
+        /* ── Bar items ── */
+        .bar-item { margin-bottom:10px; }
+        .bar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:12px; }
+        .bar-label { color:rgba(255,255,255,0.8); font-weight:500; }
+        .bar-val   { font-weight:700; font-size:12px; }
+        .bar-track { height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+        .bar-fill  { height:100%; border-radius:3px; transition:width 0.5s; }
+
+        /* ── Reason pills ── */
+        .reason-item { display:flex; justify-content:space-between; align-items:center; padding:10px 13px; border-radius:8px; margin-bottom:7px; font-size:12px; border:1px solid; }
+        .reason-item.win  { background:var(--green-bg); border-color:rgba(29,185,84,0.18); }
+        .reason-item.loss { background:var(--red-bg);   border-color:rgba(226,33,52,0.18); }
+        .reason-text  { color:rgba(255,255,255,0.85); flex:1; margin-right:10px; }
+        .reason-count { font-weight:800; font-size:13px; flex-shrink:0; }
+
+        /* ── Insight boxes ── */
+        .insight { border-radius:10px; padding:12px 14px; font-size:12px; line-height:1.7; margin-bottom:8px; border:1px solid; }
+        .insight.blue  { background:var(--blue-bg);  border-color:rgba(74,144,226,0.2); }
+        .insight.green { background:var(--green-bg); border-color:rgba(29,185,84,0.2); }
+        .insight.red   { background:var(--red-bg);   border-color:rgba(226,33,52,0.2); }
+        .insight.gold  { background:var(--gold-bg);  border-color:rgba(245,166,35,0.2); }
+
+        /* ── Chart ── */
+        .chart-wrap { position:relative; height:200px; }
+
+        /* ── Log Review Form ── */
+        .form-label { font-size:10px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-bottom:7px; display:block; }
+        .form-label.req::after { content:' *'; color:var(--red); }
+        select, input[type=text], textarea {
+            width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+            border-radius:9px; padding:12px 13px; color:#fff; font-size:13px;
+            font-family:'Inter',sans-serif; transition:border-color 0.2s; margin-bottom:12px; appearance:none;
+            background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:36px;
+        }
+        input[type=text], textarea { background-image:none; padding-right:13px; }
+        select:focus, input:focus, textarea:focus { outline:none; border-color:rgba(74,144,226,0.5); }
         option { background:#111; }
-        textarea { min-height:90px; resize:vertical; }
-        select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 12px center; background-size:18px; padding-right:36px; }
-        .trade-info { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px; color:rgba(255,255,255,0.7); line-height:1.6; min-height:36px; }
-        .btn-primary { width:100%; background:#4A90E2; color:#fff; border:none; border-radius:8px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; margin-bottom:8px; transition:all 0.2s; }
-        .btn-secondary { width:100%; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
-        .btn-primary:hover { background:#3a80d2; }
-        /* Review cards */
-        .review-card { border-radius:10px; padding:16px; margin-bottom:12px; border-left:4px solid #E22134; background:rgba(226,33,52,0.05); position:relative; }
-        .review-card.good { border-left-color:#1DB954; background:rgba(29,185,84,0.05); }
-        .review-card.mixed { border-left-color:#ffd600; background:rgba(255,214,0,0.05); }
-        .review-card.be { border-left-color:#888; background:rgba(136,136,136,0.05); }
-        .review-card.resolved { opacity:0.65; border-left-color:#1DB954; }
-        .review-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
-        .review-title { font-size:13px; font-weight:700; }
-        .review-meta { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
-        .review-section { margin-bottom:10px; }
-        .review-section-label { font-size:10px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.35); margin-bottom:4px; }
-        .review-text { font-size:12px; line-height:1.6; background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:6px; color:rgba(255,255,255,0.8); }
-        .review-action-text { font-size:12px; line-height:1.6; background:rgba(74,144,226,0.08); padding:10px 12px; border-radius:6px; color:rgba(255,255,255,0.8); }
-        .review-btns { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-        .resolve-btn, .del-btn { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
-        .resolve-btn { background:rgba(29,185,84,0.1); border:1px solid rgba(29,185,84,0.3); color:#1DB954; }
-        .del-btn { background:rgba(226,33,52,0.1); border:1px solid rgba(226,33,52,0.25); color:#E22134; }
-        .filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-        .filter-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); padding:6px 12px; border-radius:20px; font-size:11px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
-        .filter-btn.active { background:rgba(74,144,226,0.15); border-color:rgba(74,144,226,0.4); color:#4A90E2; }
-        .pattern-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-        .pattern-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; }
-        .pattern-card-title { font-size:9px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.3); margin-bottom:6px; }
-        .pattern-card-value { font-size:20px; font-weight:800; }
-        .pattern-card-sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:3px; }
-        .insight-box { background:rgba(74,144,226,0.08); border:1px solid rgba(74,144,226,0.2); border-radius:8px; padding:12px 14px; font-size:12px; color:rgba(255,255,255,0.8); line-height:1.7; margin-bottom:10px; }
-        .insight-box.warning { background:rgba(226,33,52,0.08); border-color:rgba(226,33,52,0.25); }
-        .insight-box.good { background:rgba(29,185,84,0.08); border-color:rgba(29,185,84,0.25); }
+        textarea { min-height:85px; resize:vertical; }
+        .trade-preview { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:9px; padding:12px 13px; margin-bottom:12px; font-size:12px; color:var(--dim); line-height:1.7; min-height:40px; }
+        .btn-save { width:100%; background:var(--blue); color:#fff; border:none; border-radius:10px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; margin-bottom:8px; transition:background 0.2s; touch-action:manipulation; }
+        .btn-save:hover { background:#5a9fe8; }
+        .btn-clear { width:100%; background:transparent; border:1px solid var(--border2); color:var(--muted); border-radius:10px; padding:12px; font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
+
+        /* ── Review cards ── */
+        .review-card { border-radius:12px; padding:16px; margin-bottom:10px; border-left:3px solid; position:relative; }
+        .review-card.mistake { border-left-color:var(--red);   background:rgba(226,33,52,0.04); }
+        .review-card.good    { border-left-color:var(--green); background:rgba(29,185,84,0.04); }
+        .review-card.mixed   { border-left-color:var(--gold);  background:rgba(245,166,35,0.04); }
+        .review-card.be      { border-left-color:#666;         background:rgba(100,100,100,0.04); }
+        .review-card.resolved { opacity:0.55; }
+        .review-head { margin-bottom:10px; }
+        .review-trade { font-size:13px; font-weight:700; margin-bottom:3px; }
+        .review-meta  { font-size:11px; color:var(--muted); }
+        .review-lbl   { font-size:9px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.3); margin-bottom:4px; margin-top:10px; }
+        .review-body  { font-size:12px; line-height:1.6; color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.02); border-radius:7px; padding:9px 11px; }
+        .review-action-body { font-size:12px; line-height:1.6; color:rgba(255,255,255,0.8); background:var(--blue-bg); border-radius:7px; padding:9px 11px; }
+        .review-btns { display:flex; gap:7px; margin-top:10px; }
+        .rbtn { padding:6px 14px; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; border:1px solid; touch-action:manipulation; }
+        .rbtn.resolve { background:var(--green-bg); border-color:rgba(29,185,84,0.3); color:var(--green); }
+        .rbtn.delete  { background:var(--red-bg);   border-color:rgba(226,33,52,0.25); color:var(--red); }
+
+        /* ── Filters ── */
+        .filter-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
+        .filter-btn { background:transparent; border:1px solid var(--border2); color:var(--muted); padding:6px 12px; border-radius:20px; font-size:11px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+        .filter-btn.active { background:rgba(74,144,226,0.15); border-color:rgba(74,144,226,0.4); color:var(--blue); }
+
+        /* ── Weekly summary ── */
         .week-nav { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-        .week-nav button { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; }
-        .week-label { flex:1; text-align:center; font-size:13px; font-weight:700; }
-        .empty-state { text-align:center; padding:30px 20px; color:rgba(255,255,255,0.35); font-size:13px; }
-        .sync-btn { background:rgba(74,144,226,0.12); border:1px solid rgba(74,144,226,0.3); color:#4A90E2; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+        .week-nav-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+        .week-label { flex:1; text-align:center; font-size:14px; font-weight:700; }
+        .week-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+        .week-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; }
+        .week-card-title { font-size:9px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-bottom:6px; }
+        .week-card-val   { font-size:20px; font-weight:800; line-height:1.1; }
+        .week-card-sub   { font-size:10px; color:var(--muted); margin-top:3px; }
+
+        /* ── Export row ── */
+        .export-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+        .exp-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:var(--dim); padding:8px 14px; border-radius:50px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
+
+        /* ── Section pages ── */
+        .section-page { display:none; }
+        .section-page.active { display:block; }
+
+        .empty-state { text-align:center; padding:28px 16px; color:var(--muted); font-size:13px; line-height:1.7; }
+        .divider { height:1px; background:var(--border); margin:14px 0; }
+        .status-bar { font-size:11px; color:var(--muted); margin-bottom:14px; padding:10px 13px; background:var(--surface); border-radius:8px; line-height:1.6; }
     </style>
 </head>
 <body>
+
 <div class="header">
-    <h1>IMPROVEMENT</h1>
-    <a href="/" class="back-btn">← HOME</a>
-</div>
-
-<div class="export-row">
-    <button class="exp-btn" id="xlsxBtn">📊 Excel</button>
-    <button class="exp-btn" id="pdfBtn">📄 PDF</button>
-    <button class="exp-btn" id="csvBtn">📋 CSV</button>
-</div>
-
-<!-- Stats -->
-<div class="card">
-    <div class="card-title">📈 PERFORMANCE DASHBOARD <button class="sync-btn" id="syncBtn">↺ SYNC</button></div>
-    <div id="statusBar" style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:14px;">Loading...</div>
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="totalTrades">0</div><div class="stat-label">TOTAL TRADES</div></div>
-        <div class="stat-card"><div class="stat-value" id="activeMistakes">0</div><div class="stat-label">ACTIVE MISTAKES</div></div>
-        <div class="stat-card"><div class="stat-value" style="color:var(--red,#E22134);font-size:14px;line-height:1.3;" id="topMistake">—</div><div class="stat-label">TOP LOSS MISTAKE</div></div>
-        <div class="stat-card"><div class="stat-value" id="recoveryRate">0%</div><div class="stat-label">RECOVERY RATE</div></div>
-        <div class="stat-card"><div class="stat-value" style="color:#1DB954;font-size:14px;line-height:1.3;" id="topWinPattern">—</div><div class="stat-label">TOP WIN PATTERN</div></div>
-        <div class="stat-card" style="grid-column:2"><div class="stat-value" id="improvScore">0%</div><div class="stat-label">MISTAKE RESOLVED</div></div>
+    <div class="header-left">
+        <h1>IMPROVEMENT</h1>
+        <p>Track. Learn. Get better.</p>
     </div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:6px;letter-spacing:0.5px;">MISTAKE REDUCTION PROGRESS</div>
-    <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
-</div>
-
-<!-- Charts -->
-<div class="card">
-    <div class="card-title">EXECUTION MISTAKES (LOSSES)</div>
-    <div class="chart-wrap"><canvas id="execMistakesChart"></canvas></div>
-</div>
-<div class="card">
-    <div class="card-title">MISTAKE CATEGORIES</div>
-    <div class="chart-wrap"><canvas id="catChart"></canvas></div>
-</div>
-
-<!-- WIN Reasons Analysis -->
-<div class="card">
-    <div class="card-title">🟢 WIN TRADE ANALYSIS <span class="badge">WHAT'S WORKING</span></div>
-    <div id="winReasonsContent">
-        <div class="empty-state">No WIN trades reviewed yet. Review your wins to see patterns.</div>
+    <div class="header-right">
+        <button class="sync-btn" id="syncBtn">↺ SYNC</button>
+        <a href="/" class="back-btn">← HOME</a>
     </div>
 </div>
 
-<!-- LOSS Reasons Analysis -->
-<div class="card">
-    <div class="card-title">🔴 LOSS MISTAKE BREAKDOWN</div>
-    <div id="lossReasonsContent">
-        <div class="empty-state">No LOSS trades reviewed yet.</div>
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="wins">🟢 Wins</button>
+    <button class="tab" data-tab="losses">🔴 Losses</button>
+    <button class="tab" data-tab="log">Log Review</button>
+    <button class="tab" data-tab="tracker">Tracker</button>
+    <button class="tab" data-tab="weekly">Weekly</button>
+</div>
+
+<!-- ══ OVERVIEW ══════════════════════════════════════════════════════════ -->
+<div class="section-page active" id="tab-overview">
+    <div class="status-bar" id="statusBar">Loading...</div>
+
+    <!-- Score cards -->
+    <div class="score-row">
+        <div class="score-card">
+            <div class="score-val" id="ovTotalTrades">—</div>
+            <div class="score-lbl">TRADES</div>
+        </div>
+        <div class="score-card">
+            <div class="score-val" style="color:var(--green)" id="ovWinRate">—</div>
+            <div class="score-lbl">WIN RATE</div>
+        </div>
+        <div class="score-card">
+            <div class="score-val" style="color:var(--blue)" id="ovReviewed">—</div>
+            <div class="score-lbl">REVIEWED</div>
+        </div>
+    </div>
+    <div class="score-row">
+        <div class="score-card">
+            <div class="score-val" style="color:var(--red)" id="ovActiveMistakes">—</div>
+            <div class="score-lbl">ACTIVE MISTAKES</div>
+        </div>
+        <div class="score-card">
+            <div class="score-val" style="color:var(--gold)" id="ovRecovery">—</div>
+            <div class="score-lbl">RECOVERY RATE</div>
+        </div>
+        <div class="score-card">
+            <div class="score-val" style="color:var(--green)" id="ovResolved">—</div>
+            <div class="score-lbl">RESOLVED</div>
+        </div>
+    </div>
+
+    <!-- Mistake reduction progress -->
+    <div class="card">
+        <div class="card-title">MISTAKE RESOLUTION PROGRESS</div>
+        <div class="prog-row">
+            <div class="prog-label"><span>Mistakes resolved</span><span id="ovProgLabel">0 / 0</span></div>
+            <div class="prog-track"><div class="prog-fill multi" id="ovProgFill" style="width:0%"></div></div>
+        </div>
+        <div class="prog-row" style="margin-bottom:0;">
+            <div class="prog-label"><span>Trades reviewed</span><span id="ovRevProgLabel">0 / 0</span></div>
+            <div class="prog-track"><div class="prog-fill blue" id="ovRevProgFill" style="width:0%"></div></div>
+        </div>
+    </div>
+
+    <!-- Top patterns -->
+    <div class="card">
+        <div class="card-title">TOP WIN PATTERN <span class="badge green">REPEAT THIS</span></div>
+        <div id="ovTopWin"><div class="empty-state">Review your WIN trades to see patterns</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title">TOP LOSS MISTAKE <span class="badge red">FIX THIS</span></div>
+        <div id="ovTopLoss"><div class="empty-state">Review your LOSS trades to see patterns</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="card">
+        <div class="card-title">MISTAKE CATEGORIES</div>
+        <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-title">LOSSES BY EXECUTION TYPE</div>
+        <div class="chart-wrap"><canvas id="execChart"></canvas></div>
+    </div>
+
+    <div class="export-row">
+        <button class="exp-btn" id="xlsxBtn">📊 Excel</button>
+        <button class="exp-btn" id="pdfBtn">📄 PDF</button>
+        <button class="exp-btn" id="csvBtn">📋 CSV</button>
     </div>
 </div>
 
-<!-- Log Review -->
-<div class="card">
-    <div class="card-title">📝 LOG TRADE REVIEW <span class="badge">EVERY TRADE TEACHES</span></div>
-    <label class="required">ASSOCIATED TRADE</label>
-    <select id="tradePicker"></select>
-    <div class="trade-info" id="tradeInfo"></div>
-    <label class="required">REVIEW TYPE</label>
-    <select id="reviewType"></select>
-    <div id="rootCauseWrap">
-        <label class="required" id="catLabel">ROOT CAUSE CATEGORY</label>
-        <select id="mistakeCat"></select>
+<!-- ══ WIN ANALYSIS ══════════════════════════════════════════════════════ -->
+<div class="section-page" id="tab-wins">
+    <div class="card">
+        <div class="card-title">WIN TRADE PATTERNS <span class="badge green">WHAT'S WORKING</span></div>
+        <div id="winPatternsContent"><div class="empty-state">No WIN trades reviewed yet.<br>Go to "Log Review" tab and review your wins.</div></div>
     </div>
-    <div id="severityWrap">
-        <label id="severityLabel">SEVERITY</label>
-        <select id="severity"></select>
+    <div class="card">
+        <div class="card-title">MOST COMMON WIN REASONS</div>
+        <div id="winReasonsContent"><div class="empty-state">Win reasons will appear here after logging reviews.</div></div>
     </div>
-    <label class="required" id="descLabel">REVIEW NOTES</label>
-    <textarea id="reviewDesc" placeholder="Be specific and honest..."></textarea>
-    <label class="required" id="actionLabel">WHAT TO DO NEXT TIME</label>
-    <textarea id="reviewAction" placeholder="Exact action to take next time..."></textarea>
-    <button class="btn-primary" id="saveBtn">SAVE TRADE REVIEW</button>
-    <button class="btn-secondary" id="clearBtn">CLEAR FORM</button>
+    <div class="card">
+        <div class="card-title">WIN CHECKLIST ANALYSIS</div>
+        <div id="winChecklistContent"><div class="empty-state">Tracks which checklist items appear most in your wins.</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title">WIN SESSION BREAKDOWN</div>
+        <div id="winSessionContent"><div class="empty-state">Session data will appear here.</div></div>
+    </div>
+    <div id="winInsightBox"></div>
 </div>
 
-<!-- Review Tracker -->
-<div class="card">
-    <div class="card-title">📋 TRADE REVIEW TRACKER</div>
+<!-- ══ LOSS ANALYSIS ═════════════════════════════════════════════════════ -->
+<div class="section-page" id="tab-losses">
+    <div class="card">
+        <div class="card-title">MISTAKE CATEGORIES <span class="badge red">ROOT CAUSES</span></div>
+        <div id="lossCatContent"><div class="empty-state">No LOSS trades reviewed yet.<br>Go to "Log Review" and review your losses.</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title">MOST REPEATED LOSS REASONS</div>
+        <div id="lossReasonsContent"><div class="empty-state">Loss reasons appear after logging reviews.</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title">SEVERITY BREAKDOWN</div>
+        <div id="lossSeverityContent"><div class="empty-state">Severity data will appear here.</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title">LOSS RULE BREAK PATTERNS</div>
+        <div id="lossRuleContent"><div class="empty-state">Tracks rule breaks across your loss trades.</div></div>
+    </div>
+    <div id="lossInsightBox"></div>
+</div>
+
+<!-- ══ LOG REVIEW ════════════════════════════════════════════════════════ -->
+<div class="section-page" id="tab-log">
+    <div class="card">
+        <div class="card-title">LOG A TRADE REVIEW <span class="badge">EVERY TRADE TEACHES</span></div>
+
+        <label class="form-label req">SELECT TRADE</label>
+        <select id="tradePicker"></select>
+        <div class="trade-preview" id="tradePreview"></div>
+
+        <label class="form-label req">REVIEW TYPE</label>
+        <select id="reviewType"></select>
+
+        <div id="catWrap">
+            <label class="form-label req" id="catLabel">ROOT CAUSE / PATTERN</label>
+            <select id="mistakeCat"></select>
+        </div>
+
+        <div id="sevWrap">
+            <label class="form-label" id="sevLabel">SEVERITY / CONFIDENCE</label>
+            <select id="severity"></select>
+        </div>
+
+        <label class="form-label req" id="descLabel">REVIEW NOTES</label>
+        <textarea id="reviewDesc" placeholder="Be specific and honest..."></textarea>
+
+        <label class="form-label req" id="actionLabel">WHAT TO DO NEXT TIME</label>
+        <textarea id="reviewAction" placeholder="Exact action to repeat or avoid..."></textarea>
+
+        <button class="btn-save" id="saveBtn">SAVE REVIEW</button>
+        <button class="btn-clear" id="clearBtn">CLEAR FORM</button>
+    </div>
+</div>
+
+<!-- ══ TRACKER ═══════════════════════════════════════════════════════════ -->
+<div class="section-page" id="tab-tracker">
     <div class="filter-row">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="mistake">🔴 Mistakes</button>
-        <button class="filter-btn" data-filter="good">🟢 Good</button>
+        <button class="filter-btn" data-filter="good">🟢 Wins</button>
         <button class="filter-btn" data-filter="mixed">🟡 Mixed</button>
         <button class="filter-btn" data-filter="be">⚪ BE</button>
-        <button class="filter-btn" data-filter="resolved">✅ Resolved</button>
         <button class="filter-btn" data-filter="active">⏳ Active</button>
+        <button class="filter-btn" data-filter="resolved">✅ Resolved</button>
     </div>
     <div id="reviewsContainer"></div>
 </div>
 
-<!-- Weekly Summary -->
-<div class="card">
-    <div class="card-title">📅 WEEKLY PATTERN SUMMARY <span class="badge">PSYCHOLOGY EDGE</span></div>
+<!-- ══ WEEKLY ════════════════════════════════════════════════════════════ -->
+<div class="section-page" id="tab-weekly">
     <div class="week-nav">
-        <button id="weekPrev">◀ Prev</button>
+        <button class="week-nav-btn" id="weekPrev">‹</button>
         <div class="week-label" id="weekLabel">This Week</div>
-        <button id="weekNext">Next ▶</button>
+        <button class="week-nav-btn" id="weekNext">›</button>
     </div>
-    <div class="pattern-grid" id="weeklyGrid"></div>
-    <div id="weeklyInsights"></div>
+
+    <div class="card">
+        <div class="card-title">WEEK AT A GLANCE</div>
+        <div class="week-grid" id="weekGrid"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">MINDSET vs WIN RATE</div>
+        <div class="chart-wrap"><canvas id="weekMindChart"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">CHECKLIST COMPLIANCE</div>
+        <div id="weekCLContent"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">RULE BREAKS THIS WEEK</div>
+        <div id="weekRBContent"></div>
+    </div>
+
+    <div id="weekInsights"></div>
 </div>
 
 <script type="module">
@@ -191,13 +378,11 @@ injectBottomNav('improvement');
 const IMPROVE_KEY = 'xX_improvement_engine';
 const JOURNAL_KEY = 'xX_journal_data';
 
-let reviews  = [];
-let trades   = [];
-let tradeOptions = [];
-let currentFilter = 'all';
-let weekOffset = 0;
-let execChart = null, catChartInst = null;
+let reviews = [], trades = [], tradeOptions = [];
+let currentFilter = 'all', weekOffset = 0;
+let catChartInst = null, execChartInst = null, weekMindChartInst = null;
 
+// ── Boot ──────────────────────────────────────────────────────────────────────
 (async () => {
     const user = await requireAuth('/improvement.html');
     if (!user) return;
@@ -209,247 +394,286 @@ let execChart = null, catChartInst = null;
 
 function loadData() {
     try { reviews = JSON.parse(localStorage.getItem(IMPROVE_KEY) || '[]'); if (!Array.isArray(reviews)) reviews = []; } catch(e) { reviews = []; }
-    try {
-        const j = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '{}');
-        trades = Object.values(j.journals || {});
-    } catch(e) { trades = []; }
+    try { const j = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '{}'); trades = Object.values(j.journals || {}); } catch(e) { trades = []; }
 }
 
 function init() {
-    updateStats();
-    renderCharts();
-    renderWinLossAnalysis();
+    setupTabs();
+    renderOverview();
+    renderWinAnalysis();
+    renderLossAnalysis();
     populateTradeDropdown();
     setupForm();
     renderReviews();
-    renderWeeklySummary();
+    renderWeekly();
     setupFilters();
     setupExports();
     document.getElementById('syncBtn').addEventListener('click', () => { loadData(); init(); showToast('Synced ✓','success'); });
-    document.getElementById('weekPrev').addEventListener('click', () => { weekOffset--; renderWeeklySummary(); });
-    document.getElementById('weekNext').addEventListener('click', () => { weekOffset++; renderWeeklySummary(); });
+    document.getElementById('weekPrev').addEventListener('click', () => { weekOffset--; renderWeekly(); });
+    document.getElementById('weekNext').addEventListener('click', () => { weekOffset++; renderWeekly(); });
 }
 
-function renderWinLossAnalysis() {
-    const winReviews  = reviews.filter(r => r.reviewType === 'good');
-    const lossReviews = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
-
-    // ── WIN analysis ──────────────────────────────────────────────────────────
-    const winEl = document.getElementById('winReasonsContent');
-    if (!winReviews.length) {
-        winEl.innerHTML = '<div class="empty-state">No WIN trades reviewed yet. Review your wins to see patterns.</div>';
-    } else {
-        // Pattern frequency
-        const patternCounts = {};
-        winReviews.forEach(r => {
-            const key = r.category && r.category !== 'N/A' ? r.category : 'Untagged';
-            patternCounts[key] = (patternCounts[key] || 0) + 1;
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function setupTabs() {
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
         });
-        const sortedPatterns = Object.entries(patternCounts).sort((a,b)=>b[1]-a[1]);
-        const total = winReviews.length;
-
-        // Common reasons from actual trade reason field
-        const reasonCounts = {};
-        winReviews.forEach(r => {
-            const t = trades.find(x=>x.tradeId===r.tradeId);
-            if (t?.reason?.trim()) {
-                const key = t.reason.trim();
-                reasonCounts[key] = (reasonCounts[key] || 0) + 1;
-            }
-        });
-        const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-
-        winEl.innerHTML = `
-            <div style="margin-bottom:16px;">
-                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">WIN PATTERNS (${total} reviewed)</div>
-                ${sortedPatterns.map(([pattern, count]) => {
-                    const pct = Math.round((count/total)*100);
-                    return `<div style="margin-bottom:10px;">
-                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
-                            <span style="color:rgba(255,255,255,0.8);">${pattern}</span>
-                            <span style="color:#1DB954;font-weight:700;">${count}x · ${pct}%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;">
-                            <div style="height:100%;width:${pct}%;background:#1DB954;border-radius:2px;transition:width 0.4s;"></div>
-                        </div>
-                    </div>`;
-                }).join('')}
-            </div>
-            ${sortedReasons.length ? `
-            <div>
-                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MOST COMMON WIN REASONS</div>
-                ${sortedReasons.map(([reason, count]) =>
-                    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(29,185,84,0.06);border:1px solid rgba(29,185,84,0.15);border-radius:7px;margin-bottom:6px;font-size:12px;">
-                        <span style="color:rgba(255,255,255,0.8);">"${esc(reason)}"</span>
-                        <span style="color:#1DB954;font-weight:700;flex-shrink:0;margin-left:10px;">${count}x</span>
-                    </div>`
-                ).join('')}
-            </div>` : ''}
-            <div class="insight-box good" style="margin-top:14px;">
-                🏆 Your strongest edge: <strong>${sortedPatterns[0]?.[0] || '—'}</strong>
-                ${sortedPatterns[0] ? `— appears in <strong>${Math.round((sortedPatterns[0][1]/total)*100)}%</strong> of your reviewed wins.` : ''}
-                ${sortedReasons[0] ? `<br>Most repeated win reason: <em>"${esc(sortedReasons[0][0])}"</em>` : ''}
-            </div>`;
-    }
-
-    // ── LOSS analysis ─────────────────────────────────────────────────────────
-    const lossEl = document.getElementById('lossReasonsContent');
-    if (!lossReviews.length) {
-        lossEl.innerHTML = '<div class="empty-state">No LOSS trades reviewed yet.</div>';
-    } else {
-        const catCounts = {};
-        lossReviews.forEach(r => {
-            const key = r.category && r.category !== 'N/A' ? r.category : 'Untagged';
-            catCounts[key] = (catCounts[key] || 0) + 1;
-        });
-        const sortedCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
-        const total = lossReviews.length;
-        const active = lossReviews.filter(r=>!r.resolved).length;
-
-        // Common loss reasons from trade reason field
-        const lossReasonCounts = {};
-        lossReviews.forEach(r => {
-            const t = trades.find(x=>x.tradeId===r.tradeId);
-            if (t?.reason?.trim()) {
-                const key = t.reason.trim();
-                lossReasonCounts[key] = (lossReasonCounts[key] || 0) + 1;
-            }
-        });
-        const sortedLossReasons = Object.entries(lossReasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-
-        lossEl.innerHTML = `
-            <div style="margin-bottom:16px;">
-                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MISTAKE CATEGORIES (${active} active · ${total} total)</div>
-                ${sortedCats.map(([cat, count]) => {
-                    const pct = Math.round((count/total)*100);
-                    return `<div style="margin-bottom:10px;">
-                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
-                            <span style="color:rgba(255,255,255,0.8);">${cat}</span>
-                            <span style="color:#E22134;font-weight:700;">${count}x · ${pct}%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;">
-                            <div style="height:100%;width:${pct}%;background:#E22134;border-radius:2px;transition:width 0.4s;"></div>
-                        </div>
-                    </div>`;
-                }).join('')}
-            </div>
-            ${sortedLossReasons.length ? `
-            <div>
-                <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:rgba(255,255,255,0.35);margin-bottom:10px;">MOST REPEATED LOSS REASONS</div>
-                ${sortedLossReasons.map(([reason, count]) =>
-                    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(226,33,52,0.06);border:1px solid rgba(226,33,52,0.15);border-radius:7px;margin-bottom:6px;font-size:12px;">
-                        <span style="color:rgba(255,255,255,0.8);">"${esc(reason)}"</span>
-                        <span style="color:#E22134;font-weight:700;flex-shrink:0;margin-left:10px;">${count}x</span>
-                    </div>`
-                ).join('')}
-            </div>` : ''}
-            <div class="insight-box warning" style="margin-top:14px;">
-                🔴 Biggest pattern to fix: <strong>${sortedCats[0]?.[0] || '—'}</strong>
-                ${sortedCats[0] ? `— accounts for <strong>${Math.round((sortedCats[0][1]/total)*100)}%</strong> of reviewed losses.` : ''}
-            </div>`;
-    }
+    });
 }
 
-function updateStats() {
-    const total    = trades.length;
-    const wins     = trades.filter(t=>t.outcome==='WIN').length;
-    const losses   = trades.filter(t=>t.outcome==='LOSS').length;
+// ── Overview ──────────────────────────────────────────────────────────────────
+function renderOverview() {
+    const total   = trades.length;
+    const wins    = trades.filter(t => t.outcome === 'WIN').length;
+    const losses  = trades.filter(t => t.outcome === 'LOSS').length;
+    const wr      = total > 0 ? Math.round((wins/total)*100) : 0;
 
-    // Only LOSS/MIXED reviews count as mistakes — not WIN reviews
-    const mistakeReviews = reviews.filter(r => r.reviewType==='mistake' || r.reviewType==='mixed');
-    const goodReviews    = reviews.filter(r => r.reviewType==='good');
-    const active   = mistakeReviews.filter(r=>!r.resolved).length;
-    const resolved = mistakeReviews.filter(r=>r.resolved).length;
-    const improv   = mistakeReviews.length > 0 ? ((resolved/mistakeReviews.length)*100).toFixed(1) : 0;
+    const mistakeRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
+    const goodRevs    = reviews.filter(r => r.reviewType === 'good');
+    const active   = mistakeRevs.filter(r => !r.resolved).length;
+    const resolved = mistakeRevs.filter(r =>  r.resolved).length;
+    const improvPct = mistakeRevs.length ? Math.round((resolved/mistakeRevs.length)*100) : 0;
+    const reviewedPct = total ? Math.round((reviews.length/total)*100) : 0;
 
     // Recovery rate
-    let recW=0, recT=0;
-    const sorted = [...trades].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
-    for (let i=0;i<sorted.length-1;i++) { if(sorted[i].outcome==='LOSS'){recT++;if(sorted[i+1].outcome==='WIN')recW++;} }
-    const recRate = recT > 0 ? ((recW/recT)*100).toFixed(1) : 0;
+    let recW = 0, recT = 0;
+    const sorted = [...trades].sort((a,b) => new Date(a.timestamp)-new Date(b.timestamp));
+    for (let i=0;i<sorted.length-1;i++) { if (sorted[i].outcome==='LOSS'){recT++;if(sorted[i+1].outcome==='WIN')recW++;} }
+    const recRate = recT > 0 ? Math.round((recW/recT)*100) : 0;
 
-    // Top LOSS mistake category only
-    const catCounts = {};
-    mistakeReviews.forEach(r => { if(r.category&&r.category!=='N/A') catCounts[r.category]=(catCounts[r.category]||0)+1; });
-    const topMist = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0];
+    // Top win pattern
+    const winPats = {}; goodRevs.forEach(r => { if (r.category && r.category !== 'N/A') winPats[r.category] = (winPats[r.category]||0)+1; });
+    const topWin = Object.entries(winPats).sort((a,b)=>b[1]-a[1])[0];
 
-    // Top WIN pattern
-    const winPatterns = {};
-    goodReviews.forEach(r => { if(r.category&&r.category!=='N/A') winPatterns[r.category]=(winPatterns[r.category]||0)+1; });
-    const topWin = Object.entries(winPatterns).sort((a,b)=>b[1]-a[1])[0];
+    // Top loss mistake
+    const lossCats = {}; mistakeRevs.forEach(r => { if (r.category && r.category !== 'N/A') lossCats[r.category] = (lossCats[r.category]||0)+1; });
+    const topLoss = Object.entries(lossCats).sort((a,b)=>b[1]-a[1])[0];
 
-    document.getElementById('totalTrades').textContent    = total;
-    document.getElementById('activeMistakes').textContent = active;
-    document.getElementById('topMistake').textContent     = topMist ? topMist[0] : '—';
-    document.getElementById('recoveryRate').textContent   = recRate + '%';
-    document.getElementById('improvScore').textContent    = improv + '%';
-    document.getElementById('progressBar').style.width    = improv + '%';
-    document.getElementById('statusBar').textContent      = `${total} trades · ${mistakeReviews.length} mistakes · ${goodReviews.length} wins reviewed · ${wins}W ${losses}L`;
+    document.getElementById('ovTotalTrades').textContent   = total;
+    document.getElementById('ovWinRate').textContent       = wr + '%';
+    document.getElementById('ovReviewed').textContent      = reviews.length;
+    document.getElementById('ovActiveMistakes').textContent= active;
+    document.getElementById('ovRecovery').textContent      = recRate + '%';
+    document.getElementById('ovResolved').textContent      = resolved;
+    document.getElementById('ovProgLabel').textContent     = `${resolved} / ${mistakeRevs.length}`;
+    document.getElementById('ovProgFill').style.width      = improvPct + '%';
+    document.getElementById('ovRevProgLabel').textContent  = `${reviews.length} / ${total}`;
+    document.getElementById('ovRevProgFill').style.width   = reviewedPct + '%';
+    document.getElementById('statusBar').innerHTML =
+        `${total} total trades &nbsp;·&nbsp; ${wins}W ${losses}L &nbsp;·&nbsp; ${wr}% win rate &nbsp;·&nbsp; ${reviews.length} reviews logged`;
 
-    // Win pattern card
-    const wpEl = document.getElementById('topWinPattern');
-    if (wpEl) wpEl.textContent = topWin ? topWin[0] : '—';
+    // Top win card
+    const topWinEl = document.getElementById('ovTopWin');
+    if (topWin) {
+        topWinEl.innerHTML = `
+            <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:4px;">${topWin[0]}</div>
+            <div style="font-size:12px;color:var(--muted);">Appears in ${topWin[1]} of your reviewed wins</div>`;
+    } else topWinEl.innerHTML = '<div class="empty-state">Review WIN trades to see your edge</div>';
+
+    // Top loss card
+    const topLossEl = document.getElementById('ovTopLoss');
+    if (topLoss) {
+        topLossEl.innerHTML = `
+            <div style="font-size:20px;font-weight:800;color:var(--red);margin-bottom:4px;">${topLoss[0]}</div>
+            <div style="font-size:12px;color:var(--muted);">Root cause in ${topLoss[1]} reviewed losses · ${active} still unresolved</div>`;
+    } else topLossEl.innerHTML = '<div class="empty-state">Review LOSS trades to expose your weaknesses</div>';
+
+    renderCharts();
 }
 
 function renderCharts() {
-    // Execution breakdown of LOSSES
-    const losses = trades.filter(t=>t.outcome==='LOSS');
-    const lim  = losses.filter(t=>t.execution==='limit').length;
-    const inst = losses.filter(t=>t.execution==='instant').length;
-    const other= losses.length - lim - inst;
-    const exCtx = document.getElementById('execMistakesChart');
-    if (execChart) { execChart.destroy(); execChart = null; }
-    if (losses.length) {
-        execChart = new Chart(exCtx, {
-            type:'doughnut',
-            data:{ labels:['Limit','Instant','Other'], datasets:[{data:[lim,inst,other],backgroundColor:['#4A90E2','#E22134','#555'],borderWidth:0,hoverOffset:4}] },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#fff',font:{size:11},padding:16}}}, cutout:'70%' }
-        });
-    } else {
-        exCtx.parentElement.innerHTML = '<div class="empty-state">No losses recorded yet</div>';
-    }
-
-    // Category breakdown
-    const catCounts = {};
-    reviews.forEach(r => { if(r.category&&r.category!=='N/A') catCounts[r.category]=(catCounts[r.category]||0)+1; });
-    const cats = Object.keys(catCounts), counts = Object.values(catCounts);
-    const ccCtx = document.getElementById('catChart');
+    // Category chart
+    const mistakeRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
+    const catCounts = {}; mistakeRevs.forEach(r => { if (r.category && r.category !== 'N/A') catCounts[r.category] = (catCounts[r.category]||0)+1; });
+    const cats = Object.keys(catCounts).sort((a,b) => catCounts[b]-catCounts[a]);
+    const catCtx = document.getElementById('catChart');
     if (catChartInst) { catChartInst.destroy(); catChartInst = null; }
     if (cats.length) {
-        catChartInst = new Chart(ccCtx, {
+        catChartInst = new Chart(catCtx, {
             type:'bar',
-            data:{ labels:cats, datasets:[{data:counts, backgroundColor:cats.map((_,i)=>`hsl(${i*50},70%,60%)`), borderWidth:0, borderRadius:4}] },
-            options:{
-                responsive:true, maintainAspectRatio:false,
-                scales:{y:{beginAtZero:true,ticks:{color:'rgba(255,255,255,0.6)',stepSize:1},grid:{color:'rgba(255,255,255,0.06)'}},x:{ticks:{color:'rgba(255,255,255,0.6)',maxRotation:45,font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}},
-                plugins:{legend:{display:false}}
-            }
+            data:{ labels:cats, datasets:[{ data:cats.map(c=>catCounts[c]), backgroundColor:cats.map((_,i)=>`hsl(${i*40+0},65%,55%)`), borderWidth:0, borderRadius:4 }] },
+            options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',stepSize:1}}, x:{ticks:{color:'rgba(255,255,255,0.6)',maxRotation:40,font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}} }, plugins:{legend:{display:false}} }
         });
-    } else {
-        ccCtx.parentElement.innerHTML = '<div class="empty-state">No mistake categories logged yet</div>';
-    }
+    } else { catCtx.parentElement.innerHTML = '<div class="empty-state">No mistake categories logged yet</div>'; }
+
+    // Exec chart
+    const losses = trades.filter(t => t.outcome === 'LOSS');
+    const lim = losses.filter(t=>t.execution==='limit').length;
+    const ins = losses.filter(t=>t.execution==='instant').length;
+    const oth = losses.length - lim - ins;
+    const exCtx = document.getElementById('execChart');
+    if (execChartInst) { execChartInst.destroy(); execChartInst = null; }
+    if (losses.length) {
+        execChartInst = new Chart(exCtx, {
+            type:'doughnut',
+            data:{ labels:['Limit','Instant','Other'], datasets:[{ data:[lim,ins,oth], backgroundColor:['#4A90E2','#E22134','#666'], borderWidth:0, hoverOffset:6 }] },
+            options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.7)', font:{size:11}, padding:16 } } } }
+        });
+    } else { exCtx.parentElement.innerHTML = '<div class="empty-state">No losses recorded yet</div>'; }
 }
 
+// ── WIN Analysis ──────────────────────────────────────────────────────────────
+function renderWinAnalysis() {
+    const winRevs = reviews.filter(r => r.reviewType === 'good');
+    const winTrades = trades.filter(t => t.outcome === 'WIN');
+
+    // Patterns
+    const patCounts = {}; winRevs.forEach(r => { const k = r.category && r.category !== 'N/A' ? r.category : 'Untagged'; patCounts[k] = (patCounts[k]||0)+1; });
+    const sortedPats = Object.entries(patCounts).sort((a,b)=>b[1]-a[1]);
+    const patEl = document.getElementById('winPatternsContent');
+    if (!sortedPats.length) {
+        patEl.innerHTML = '<div class="empty-state">Review WIN trades to see your patterns</div>';
+    } else {
+        const max = sortedPats[0][1];
+        patEl.innerHTML = sortedPats.map(([pat, count]) => {
+            const pct = Math.round((count/winRevs.length)*100);
+            return `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${pat}</span><span class="bar-val" style="color:var(--green)">${count}x · ${pct}%</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/max)*100)}%;background:var(--green);"></div></div>
+            </div>`;
+        }).join('');
+    }
+
+    // Reasons
+    const reasonCounts = {}; winRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) { const k=t.reason.trim(); reasonCounts[k]=(reasonCounts[k]||0)+1; } });
+    const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const reasonEl = document.getElementById('winReasonsContent');
+    reasonEl.innerHTML = sortedReasons.length
+        ? sortedReasons.map(([r,c]) => `<div class="reason-item win"><span class="reason-text">"${esc(r)}"</span><span class="reason-count" style="color:var(--green)">${c}x</span></div>`).join('')
+        : '<div class="empty-state">Trade reasons from your WIN entries appear here</div>';
+
+    // Checklist items in wins
+    const clCounts = {}; winTrades.forEach(t => (t.checklist||[]).forEach(item => { clCounts[item]=(clCounts[item]||0)+1; }));
+    const sortedCL = Object.entries(clCounts).sort((a,b)=>b[1]-a[1]);
+    const clEl = document.getElementById('winChecklistContent');
+    if (!sortedCL.length || !winTrades.length) {
+        clEl.innerHTML = '<div class="empty-state">No checklist data found in win trades</div>';
+    } else {
+        const maxCL = winTrades.length;
+        clEl.innerHTML = sortedCL.slice(0,8).map(([item, count]) => {
+            const pct = Math.round((count/maxCL)*100);
+            return `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${item}</span><span class="bar-val" style="color:var(--blue)">${pct}% of wins</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
+            </div>`;
+        }).join('');
+    }
+
+    // Session breakdown for wins
+    const sessCounts = { asia:0, london:0, newyork:0 };
+    const sessWins   = { asia:0, london:0, newyork:0 };
+    trades.forEach(t => { const s=t.tradeSession?.session; if(s&&sessCounts[s]!==undefined) { sessCounts[s]++; if(t.outcome==='WIN') sessWins[s]++; } });
+    const sessEl = document.getElementById('winSessionContent');
+    const sessRows = [['asia','Asia'],['london','London'],['newyork','New York']].filter(([k])=>sessCounts[k]).map(([k,label]) => {
+        const wr2 = sessCounts[k] ? Math.round((sessWins[k]/sessCounts[k])*100) : 0;
+        return `<div class="bar-item">
+            <div class="bar-header"><span class="bar-label">${label}</span><span class="bar-val" style="color:${wr2>=50?'var(--green)':'var(--red)'}">${wr2}% (${sessWins[k]}W/${sessCounts[k]}T)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${wr2}%;background:${wr2>=50?'var(--green)':'var(--red)'};"></div></div>
+        </div>`;
+    });
+    sessEl.innerHTML = sessRows.length ? sessRows.join('') : '<div class="empty-state">No session data</div>';
+
+    // Insight
+    const insEl = document.getElementById('winInsightBox');
+    if (sortedPats[0]) {
+        insEl.innerHTML = `<div class="insight green">🏆 <strong>${sortedPats[0][0]}</strong> is your strongest edge — shows up in <strong>${Math.round((sortedPats[0][1]/winRevs.length)*100)}%</strong> of your reviewed wins.${sortedReasons[0]?`<br>Most repeated win reason: <em>"${esc(sortedReasons[0][0])}"</em>`:''}  Keep doing this.</div>`;
+    } else insEl.innerHTML = '';
+}
+
+// ── LOSS Analysis ─────────────────────────────────────────────────────────────
+function renderLossAnalysis() {
+    const lossRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
+    const lossTrades = trades.filter(t => t.outcome === 'LOSS');
+    const active = lossRevs.filter(r=>!r.resolved).length;
+
+    // Categories
+    const catCounts = {}; lossRevs.forEach(r => { const k = r.category && r.category !== 'N/A' ? r.category : 'Untagged'; catCounts[k] = (catCounts[k]||0)+1; });
+    const sortedCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
+    const catEl = document.getElementById('lossCatContent');
+    if (!sortedCats.length) {
+        catEl.innerHTML = '<div class="empty-state">No LOSS trades reviewed yet</div>';
+    } else {
+        const max = sortedCats[0][1];
+        catEl.innerHTML = sortedCats.map(([cat,count]) => {
+            const pct = Math.round((count/lossRevs.length)*100);
+            return `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${cat}</span><span class="bar-val" style="color:var(--red)">${count}x · ${pct}%</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/max)*100)}%;background:var(--red);"></div></div>
+            </div>`;
+        }).join('');
+    }
+
+    // Loss reasons
+    const reasonCounts = {}; lossRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) { const k=t.reason.trim(); reasonCounts[k]=(reasonCounts[k]||0)+1; } });
+    const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const reasonEl = document.getElementById('lossReasonsContent');
+    reasonEl.innerHTML = sortedReasons.length
+        ? sortedReasons.map(([r,c]) => `<div class="reason-item loss"><span class="reason-text">"${esc(r)}"</span><span class="reason-count" style="color:var(--red)">${c}x</span></div>`).join('')
+        : '<div class="empty-state">Trade reasons from LOSS entries appear here</div>';
+
+    // Severity
+    const sevCounts = { High:0, Medium:0, Low:0 }; lossRevs.forEach(r => { if(r.severity&&sevCounts[r.severity]!==undefined) sevCounts[r.severity]++; });
+    const sevEl = document.getElementById('lossSeverityContent');
+    const totalSev = lossRevs.length;
+    sevEl.innerHTML = totalSev ? [['High','🔥',var_c('--red')],['Medium','⚠️','#FF9800'],['Low','💡',var_c('--blue')]].map(([k,icon,col]) => {
+        const c = sevCounts[k]; const pct = totalSev ? Math.round((c/totalSev)*100) : 0;
+        return `<div class="bar-item">
+            <div class="bar-header"><span class="bar-label">${icon} ${k}</span><span class="bar-val" style="color:${col}">${c}x · ${pct}%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col};"></div></div>
+        </div>`;
+    }).join('') : '<div class="empty-state">No severity data</div>';
+
+    // Rule breaks in loss trades
+    const rbCounts = {}; lossTrades.forEach(t => (t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(rb=>{ rbCounts[rb]=(rbCounts[rb]||0)+1; }));
+    const sortedRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1]);
+    const rbEl = document.getElementById('lossRuleContent');
+    if (!sortedRB.length) { rbEl.innerHTML = '<div class="empty-state">No rule break data in loss trades</div>'; }
+    else {
+        const maxRB = sortedRB[0][1];
+        rbEl.innerHTML = sortedRB.slice(0,8).map(([rb,count]) => {
+            return `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${rb}</span><span class="bar-val" style="color:var(--red)">${count}x</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/maxRB)*100)}%;background:var(--red);"></div></div>
+            </div>`;
+        }).join('');
+    }
+
+    // Insight
+    const insEl = document.getElementById('lossInsightBox');
+    if (sortedCats[0]) {
+        insEl.innerHTML = `<div class="insight red" style="margin-top:0;">🔴 Fix <strong>${sortedCats[0][0]}</strong> first — it's your #1 mistake, accounting for <strong>${Math.round((sortedCats[0][1]/lossRevs.length)*100)}%</strong> of reviewed losses. ${active} still unresolved.</div>`;
+    } else insEl.innerHTML = '';
+}
+
+function var_c(v) { return getComputedStyle(document.documentElement).getPropertyValue(v) || '#888'; }
+
+// ── Form ──────────────────────────────────────────────────────────────────────
 function populateTradeDropdown() {
     const reviewed = new Set(reviews.map(r=>r.tradeId));
-    const unreviewed = [...trades].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).filter(t=>!reviewed.has(t.tradeId));
+    const unreviewed = [...trades].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
     const sel = document.getElementById('tradePicker');
-    sel.innerHTML = '<option value="">Select trade to review</option>';
+    sel.innerHTML = '<option value="">— Select a trade to review —</option>';
     tradeOptions = [];
 
     const groups = { WIN:[], LOSS:[], BREAKEVEN:[] };
-    unreviewed.forEach(t => (groups[t.outcome]||groups['LOSS']).push(t));
+    unreviewed.forEach(t => { (groups[t.outcome]||groups.LOSS).push(t); });
 
-    const outcomeLabels = { WIN:'🟢 WINS', LOSS:'🔴 LOSSES', BREAKEVEN:'⚪ BREAKEVEN' };
-    Object.entries(groups).forEach(([out, group]) => {
-        if (!group.length) return;
+    const labels = { WIN:'🟢 WINS', LOSS:'🔴 LOSSES', BREAKEVEN:'⚪ BREAKEVEN' };
+    ['LOSS','WIN','BREAKEVEN'].forEach(out => {
+        const group = groups[out]; if (!group.length) return;
         const og = document.createElement('optgroup');
-        og.label = `${outcomeLabels[out]} (${group.length})`;
+        og.label = `${labels[out]} (${group.length}) ${reviewed.has ? '' : ''}`;
         group.forEach(t => {
             const d = new Date(t.timestamp);
             const opt = document.createElement('option');
             opt.value = t.tradeId;
-            opt.textContent = `${t.pair} ${t.direction} — ${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+            const rev = reviewed.has(t.tradeId) ? ' ✓' : '';
+            opt.textContent = `${t.pair} ${t.direction} — ${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${rev}`;
             og.appendChild(opt);
             tradeOptions.push(t);
         });
@@ -462,79 +686,70 @@ function setupForm() {
     document.getElementById('reviewType').addEventListener('change', onTypeChange);
     document.getElementById('saveBtn').addEventListener('click', saveReview);
     document.getElementById('clearBtn').addEventListener('click', clearForm);
-    // Init form state
     onTypeChange();
 }
 
 function onTradeChange() {
-    const id   = document.getElementById('tradePicker').value;
-    const t    = tradeOptions.find(x=>x.tradeId===id);
-    const info = document.getElementById('tradeInfo');
-    const rtEl = document.getElementById('reviewType');
+    const id = document.getElementById('tradePicker').value;
+    const t  = tradeOptions.find(x => x.tradeId === id);
+    const preview = document.getElementById('tradePreview');
+    const rtEl    = document.getElementById('reviewType');
+    if (!t) { preview.innerHTML = ''; setReviewOptions('all'); return; }
 
-    if (!t) { info.textContent = ''; setReviewOptions('all'); return; }
+    const ocColor = t.outcome==='WIN'?'var(--green)':t.outcome==='LOSS'?'var(--red)':'#aaa';
+    const mEmoji  = ['','😤','😟','😐','😊','🔥'][t.mindset] || '';
+    preview.innerHTML = `
+        <div style="margin-bottom:6px;"><strong style="color:${ocColor}">${t.outcome}</strong> — <strong>${t.pair} ${t.direction}</strong> · ${new Date(t.timestamp).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+        <div style="color:var(--muted);">${mEmoji}${t.mindset?` Mindset ${t.mindset}/5`:''} ${t.executionRating?`· Exec ${t.executionRating}/5`:''} ${(t.ruleBreaks||[]).length?`· Breaks: ${t.ruleBreaks.join(', ')}`:''}</div>
+        ${t.reason?`<div style="margin-top:5px;font-style:italic;color:var(--dim);">"${esc(t.reason)}"</div>`:''}`;
 
-    const mindEmoji = ['','😤','😟','😐','😊','🔥'][t.mindset] || '';
-    info.innerHTML = `<strong style="color:${t.outcome==='WIN'?'#1DB954':t.outcome==='LOSS'?'#E22134':'#aaa'}">${t.outcome}</strong> — <strong>${t.pair} ${t.direction}</strong> · ${new Date(t.timestamp).toLocaleDateString()}<br>
-        ${mindEmoji} Mindset: ${t.mindset||'—'}/5 · Exec: ${t.executionRating||'—'}/5 · Rule breaks: ${(t.ruleBreaks||[]).join(', ')||'—'}<br>
-        ${t.outcome!=='WIN'&&t.reason?`<em style="color:rgba(255,255,255,0.55);">"${t.reason}"</em>`:''}`;
-
-    if (t.outcome==='WIN') { setReviewOptions('win'); rtEl.value='good'; }
+    if (t.outcome==='WIN')       { setReviewOptions('win'); rtEl.value='good'; }
     else if (t.outcome==='LOSS') { setReviewOptions('loss'); rtEl.value='mistake'; }
-    else { setReviewOptions('be'); rtEl.value='be'; }
+    else                         { setReviewOptions('be');  rtEl.value='be'; }
     onTypeChange();
 }
 
 function setReviewOptions(mode) {
     const el = document.getElementById('reviewType');
-    if (mode==='win') {
-        el.innerHTML = '<option value="good">🟢 Good trade — what worked well</option>';
-    } else if (mode==='loss') {
-        el.innerHTML = '<option value="mistake">🔴 Had a mistake / rule break</option><option value="mixed">🟡 Mixed — some good, some bad</option>';
-    } else if (mode==='be') {
-        el.innerHTML = '<option value="be">⚪ Breakeven — what would have changed outcome</option><option value="mixed">🟡 Mixed</option>';
-    } else {
-        el.innerHTML = '<option value="mistake">🔴 Mistake</option><option value="good">🟢 Good Trade</option><option value="mixed">🟡 Mixed</option><option value="be">⚪ Breakeven</option>';
-    }
+    if      (mode==='win')  el.innerHTML = '<option value="good">🟢 Good trade — what worked well</option>';
+    else if (mode==='loss') el.innerHTML = '<option value="mistake">🔴 Mistake / rule break</option><option value="mixed">🟡 Mixed — some good, some bad</option>';
+    else if (mode==='be')   el.innerHTML = '<option value="be">⚪ Breakeven review</option><option value="mixed">🟡 Mixed</option>';
+    else                    el.innerHTML = '<option value="mistake">🔴 Mistake</option><option value="good">🟢 Good Trade</option><option value="mixed">🟡 Mixed</option><option value="be">⚪ Breakeven</option>';
 }
 
 function onTypeChange() {
-    const type = document.getElementById('reviewType').value || 'mistake';
-    const catWrap = document.getElementById('rootCauseWrap');
-    const sevWrap = document.getElementById('severityWrap');
-    const catEl   = document.getElementById('mistakeCat');
-    const sevEl   = document.getElementById('severity');
-    const catLbl  = document.getElementById('catLabel');
-    const sevLbl  = document.getElementById('severityLabel');
-    const descLbl = document.getElementById('descLabel');
-    const actLbl  = document.getElementById('actionLabel');
-    const descTA  = document.getElementById('reviewDesc');
-    const actTA   = document.getElementById('reviewAction');
+    const type  = document.getElementById('reviewType').value || 'mistake';
+    const catEl = document.getElementById('mistakeCat');
+    const sevEl = document.getElementById('severity');
+    document.getElementById('catWrap').style.display = type === 'be' ? 'none' : 'block';
 
     if (type === 'good') {
-        catWrap.style.display = 'block'; sevWrap.style.display = 'block';
-        catLbl.textContent = 'WIN PATTERN'; catLbl.className = '';
-        catEl.innerHTML = '<option value="">Select pattern (optional)</option><option>Clean Setup</option><option>Patience Paid</option><option>Good RR</option><option>Trend Follow</option><option>Level Respect</option><option>Session Edge</option><option>Confirmation Entry</option><option>Checklist Full</option><option>Mindset Peak</option><option>Plan Followed</option>';
-        sevLbl.textContent = 'CONFIDENCE LEVEL';
-        sevEl.innerHTML = '<option value="High">🔥 High — A+ setup</option><option value="Medium">✅ Medium — solid trade</option><option value="Low">💡 Low — win but hesitation</option>';
-        descLbl.textContent = 'WHAT WENT WELL'; actLbl.textContent = 'HOW TO REPEAT THIS';
-        descTA.placeholder = 'What made this trade work?'; actTA.placeholder = 'What to look for to repeat this win?';
+        document.getElementById('catLabel').textContent = 'WIN PATTERN';
+        document.getElementById('catLabel').classList.remove('req');
+        catEl.innerHTML = '<option value="">Select pattern (optional)</option><option>Clean Setup</option><option>Patience Paid</option><option>Good RR</option><option>Trend Follow</option><option>Level Respect</option><option>Session Edge</option><option>Confirmation Entry</option><option>Full Checklist</option><option>Mindset Peak</option><option>Plan Followed</option><option>Disciplined Hold</option>';
+        document.getElementById('sevLabel').textContent = 'CONFIDENCE LEVEL';
+        sevEl.innerHTML = '<option value="High">🔥 A+ — textbook setup</option><option value="Medium">✅ Solid — good execution</option><option value="Low">💡 Won but hesitated</option>';
+        document.getElementById('descLabel').textContent = 'WHAT WENT WELL';
+        document.getElementById('actionLabel').textContent = 'HOW TO REPEAT THIS';
+        document.getElementById('reviewDesc').placeholder = 'What made this trade work? Be specific.';
+        document.getElementById('reviewAction').placeholder = 'What exact conditions to look for to repeat this win?';
     } else if (type === 'be') {
-        catWrap.style.display = 'none'; sevWrap.style.display = 'block';
-        sevLbl.textContent = 'TRADE QUALITY';
-        sevEl.innerHTML = '<option value="High">🔍 Could have been a win</option><option value="Medium">⚖️ Correct to exit at BE</option><option value="Low">💡 Should have been avoided</option>';
-        descLbl.textContent = 'WHAT HAPPENED'; actLbl.textContent = 'WHAT WOULD HAVE CHANGED OUTCOME';
-        descTA.placeholder = 'Walk through the trade...'; actTA.placeholder = 'What would you need to see to hold longer or enter better?';
+        document.getElementById('sevLabel').textContent = 'TRADE QUALITY';
+        sevEl.innerHTML = '<option value="High">🔍 Should have been a win</option><option value="Medium">⚖️ Correct exit at BE</option><option value="Low">💡 Should have been avoided</option>';
+        document.getElementById('descLabel').textContent = 'WHAT HAPPENED';
+        document.getElementById('actionLabel').textContent = 'WHAT WOULD CHANGE THE OUTCOME';
+        document.getElementById('reviewDesc').placeholder = 'Walk through the trade in detail...';
+        document.getElementById('reviewAction').placeholder = 'What would you need to hold longer or enter better?';
     } else {
-        catWrap.style.display = 'block'; sevWrap.style.display = 'block';
-        catLbl.textContent = 'ROOT CAUSE CATEGORY'; catLbl.className = 'required';
-        catEl.innerHTML = '<option value="">Select Category</option><option>Overtrading</option><option>FOMO</option><option>Early Entry</option><option>Late Entry</option><option>Risk Violation</option><option>Plan Deviation</option><option>Emotional Execution</option><option>Revenge Trading</option><option>Ignoring SL</option><option>Poor RR</option><option>Wrong Setup</option><option>Patience</option><option>Overtrust</option><option>Distraction</option>';
-        sevLbl.textContent = 'SEVERITY'; sevLbl.className = 'required';
-        sevEl.innerHTML = '<option value="High">🔥 High — costly mistake</option><option value="Medium">⚠️ Medium — need correction</option><option value="Low">💡 Low — awareness needed</option>';
-        descLbl.textContent = type === 'mixed' ? 'WHAT HAPPENED (GOOD & BAD)' : 'REVIEW NOTES';
-        actLbl.textContent  = 'WHAT TO DO NEXT TIME';
-        descTA.placeholder  = 'Be specific and honest...';
-        actTA.placeholder   = 'Exact action to take next time...';
+        document.getElementById('catLabel').textContent = 'ROOT CAUSE CATEGORY';
+        document.getElementById('catLabel').classList.add('req');
+        catEl.innerHTML = '<option value="">Select Root Cause</option><option>Overtrading</option><option>FOMO</option><option>Early Entry</option><option>Late Entry</option><option>Risk Violation</option><option>Plan Deviation</option><option>Emotional Execution</option><option>Revenge Trading</option><option>Ignoring SL</option><option>Poor RR</option><option>Wrong Setup</option><option>Lack of Patience</option><option>Distraction</option><option>Overconfidence</option>';
+        document.getElementById('sevLabel').textContent = 'SEVERITY';
+        sevEl.innerHTML = '<option value="High">🔥 High — costly, must fix</option><option value="Medium">⚠️ Medium — needs correction</option><option value="Low">💡 Low — awareness needed</option>';
+        document.getElementById('descLabel').textContent = type === 'mixed' ? 'WHAT HAPPENED (GOOD & BAD)' : 'WHAT WENT WRONG';
+        document.getElementById('actionLabel').textContent = 'WHAT TO DO NEXT TIME';
+        document.getElementById('reviewDesc').placeholder = 'Be brutally honest. What exactly happened?';
+        document.getElementById('reviewAction').placeholder = 'Specific rule or action to apply next time.';
     }
 }
 
@@ -546,103 +761,103 @@ function saveReview() {
     const desc       = document.getElementById('reviewDesc').value.trim();
     const action     = document.getElementById('reviewAction').value.trim();
 
-    if (!tradeId)  { showToast('Select a trade','error'); return; }
-    if (!desc)     { showToast('Fill in review notes','error'); return; }
-    if (!action)   { showToast('Fill in action plan','error'); return; }
-    if ((reviewType==='mistake'||reviewType==='mixed') && !category) { showToast('Select root cause category','error'); return; }
+    if (!tradeId) { showToast('Select a trade','error'); return; }
+    if (!desc)    { showToast('Fill in review notes','error'); return; }
+    if (!action)  { showToast('Fill in action plan','error'); return; }
+    if ((reviewType==='mistake'||reviewType==='mixed') && !category) { showToast('Select a root cause category','error'); return; }
 
     const t = tradeOptions.find(x=>x.tradeId===tradeId);
     if (t?.outcome==='WIN' && reviewType==='mistake') { showToast('WIN trades cannot be logged as mistakes','error'); return; }
+    if (t?.outcome==='LOSS' && reviewType==='good')   { showToast('LOSS trades cannot be logged as good trades','error'); return; }
 
     const existing = reviews.findIndex(r=>r.tradeId===tradeId);
     const review = {
-        id: `REVIEW_${Date.now()}`,
-        tradeId, reviewType, category: category||'N/A', severity, description: desc, action,
-        resolved: false, timestamp: new Date().toISOString(),
+        id: existing > -1 ? reviews[existing].id : `REV_${Date.now()}`,
+        tradeId, reviewType, category:category||'N/A', severity, description:desc, action,
+        resolved: existing > -1 ? reviews[existing].resolved : false,
+        timestamp: new Date().toISOString(),
         date: new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}),
-        tradeReason: t?.reason||'N/A', tradePair: t?.pair||'N/A',
-        tradeDirection: t?.direction||'N/A', tradeOutcome: t?.outcome||'N/A'
+        tradeReason: t?.reason||'N/A', tradePair:t?.pair||'N/A',
+        tradeDirection:t?.direction||'N/A', tradeOutcome:t?.outcome||'N/A'
     };
 
     if (existing > -1) {
         if (!confirm(`Trade ${tradeId} already reviewed. Update it?`)) return;
-        reviews[existing] = { ...reviews[existing], ...review, id: reviews[existing].id };
+        reviews[existing] = review;
     } else {
         reviews.unshift(review);
     }
 
     localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
     showToast('Review saved ✓','success');
-    loadData(); updateStats(); renderCharts(); renderWinLossAnalysis(); populateTradeDropdown(); renderReviews(); clearForm();
+    loadData(); renderOverview(); renderWinAnalysis(); renderLossAnalysis(); populateTradeDropdown(); renderReviews(); clearForm();
 }
 
 function clearForm() {
     document.getElementById('tradePicker').value  = '';
-    document.getElementById('tradeInfo').innerHTML= '';
-    setReviewOptions('all');
-    document.getElementById('reviewType').value   = 'mistake';
+    document.getElementById('tradePreview').innerHTML = '';
     document.getElementById('reviewDesc').value   = '';
     document.getElementById('reviewAction').value = '';
+    setReviewOptions('all');
+    document.getElementById('reviewType').value = 'mistake';
     onTypeChange();
-    document.getElementById('mistakeCat').value   = '';
-    document.getElementById('severity').value     = 'High';
+    if (document.getElementById('mistakeCat')) document.getElementById('mistakeCat').value = '';
+    document.getElementById('severity').value = 'High';
 }
 
+// ── Tracker ───────────────────────────────────────────────────────────────────
 function renderReviews() {
-    const filter  = currentFilter;
-    let filtered  = [...reviews];
+    let filtered = [...reviews];
+    if (currentFilter === 'active')   filtered = filtered.filter(r=>!r.resolved);
+    else if (currentFilter === 'resolved') filtered = filtered.filter(r=>r.resolved);
+    else if (['mistake','good','mixed','be'].includes(currentFilter)) filtered = filtered.filter(r=>(r.reviewType||'mistake')===currentFilter);
 
-    if (filter==='mistake'||filter==='good'||filter==='mixed'||filter==='be') {
-        filtered = filtered.filter(r=>(r.reviewType||'mistake')===filter);
-    } else if (filter==='resolved') {
-        filtered = filtered.filter(r=>r.resolved);
-    } else if (filter==='active') {
-        filtered = filtered.filter(r=>!r.resolved);
-    }
+    const container = document.getElementById('reviewsContainer');
+    if (!filtered.length) { container.innerHTML = '<div class="empty-state">No reviews match this filter</div>'; return; }
 
-    const c = document.getElementById('reviewsContainer');
-    if (!filtered.length) { c.innerHTML = '<div class="empty-state">No reviews match this filter</div>'; return; }
+    const typeLabels = { mistake:'🔴 MISTAKE', good:'🟢 GOOD TRADE', mixed:'🟡 MIXED', be:'⚪ BREAKEVEN' };
+    const ocColor = o => o==='WIN'?'var(--green)':o==='LOSS'?'var(--red)':'#aaa';
 
-    const rtClass  = {mistake:'',good:'good',mixed:'mixed',be:'be'};
-    const rtLabels = {mistake:'🔴 MISTAKE',good:'🟢 GOOD TRADE',mixed:'🟡 MIXED',be:'⚪ BREAKEVEN'};
-    c.innerHTML = filtered.map(r => {
-        const cls = r.resolved ? 'resolved' : (rtClass[r.reviewType||'mistake']||'');
-        const ocColor = r.tradeOutcome==='WIN'?'#1DB954':r.tradeOutcome==='LOSS'?'#E22134':'#aaa';
+    container.innerHTML = filtered.map(r => {
+        const cls = r.resolved ? r.reviewType+' resolved' : r.reviewType||'mistake';
         return `<div class="review-card ${cls}">
             <div class="review-head">
-                <div>
-                    <div class="review-title">${r.tradeId} — <span style="color:${ocColor};">${r.tradeOutcome}</span> ${r.tradePair} ${r.tradeDirection}</div>
-                    <div class="review-meta">${rtLabels[r.reviewType||'mistake']} · ${r.category!=='N/A'?r.category+' · ':''}${r.severity} · ${r.date} ${r.resolved?'· ✅ RESOLVED':''}</div>
-                </div>
+                <div class="review-trade">${r.tradeId} — <span style="color:${ocColor(r.tradeOutcome)}">${r.tradeOutcome}</span> ${r.tradePair} ${r.tradeDirection}</div>
+                <div class="review-meta">${typeLabels[r.reviewType||'mistake']} ${r.category!=='N/A'?'· '+r.category:''} · ${r.severity} · ${r.date}${r.resolved?' · ✅ RESOLVED':''}</div>
             </div>
-            ${r.reviewType!=='good'&&r.tradeReason&&r.tradeReason!=='N/A'?`<div class="review-section"><div class="review-section-label">TRADE REASON</div><div class="review-text" style="font-style:italic;">"${esc(r.tradeReason)}"</div></div>`:''}
-            <div class="review-section"><div class="review-section-label">${r.reviewType==='good'?'WHAT WENT WELL':r.reviewType==='be'?'WHAT HAPPENED':'REVIEW NOTES'}</div><div class="review-text">${esc(r.description)}</div></div>
-            <div class="review-section"><div class="review-section-label">${r.reviewType==='good'?'HOW TO REPEAT':r.reviewType==='be'?'WHAT WOULD CHANGE OUTCOME':'ACTION PLAN'}</div><div class="review-action-text">${esc(r.action)}</div></div>
+            ${r.reviewType!=='good'&&r.tradeReason&&r.tradeReason!=='N/A'?`<div class="review-lbl">TRADE REASON</div><div class="review-body" style="font-style:italic;">"${esc(r.tradeReason)}"</div>`:''}
+            <div class="review-lbl">${r.reviewType==='good'?'WHAT WENT WELL':r.reviewType==='be'?'WHAT HAPPENED':'WHAT WENT WRONG'}</div>
+            <div class="review-body">${esc(r.description)}</div>
+            <div class="review-lbl">${r.reviewType==='good'?'HOW TO REPEAT':r.reviewType==='be'?'WHAT WOULD CHANGE IT':'ACTION PLAN'}</div>
+            <div class="review-action-body">${esc(r.action)}</div>
             <div class="review-btns">
-                <button class="resolve-btn" onclick="toggleResolve('${r.id}')">${r.resolved?'Mark Active':'Mark Resolved'}</button>
-                <button class="del-btn" onclick="deleteReview('${r.id}')">Delete</button>
+                <button class="rbtn resolve" onclick="toggleResolve('${r.id}')">${r.resolved?'Mark Active':'Mark Resolved'}</button>
+                <button class="rbtn delete"  onclick="delReview('${r.id}')">Delete</button>
             </div>
         </div>`;
     }).join('');
 }
 
-function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
-
-window.toggleResolve = (id) => {
+window.toggleResolve = id => {
     const r = reviews.find(x=>x.id===id);
-    if (r) { r.resolved = !r.resolved; localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews)); updateStats(); renderReviews(); }
+    if (!r) return;
+    r.resolved = !r.resolved;
+    localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
+    renderOverview(); renderReviews();
+    showToast(r.resolved ? 'Marked resolved ✓' : 'Marked active','success');
 };
-window.deleteReview = (id) => {
+window.delReview = id => {
     if (!confirm('Delete this review?')) return;
     reviews = reviews.filter(x=>x.id!==id);
     localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
-    loadData(); updateStats(); renderCharts(); populateTradeDropdown(); renderReviews();
-    showToast('Review deleted','success');
+    loadData(); renderOverview(); renderWinAnalysis(); renderLossAnalysis(); populateTradeDropdown(); renderReviews();
+    showToast('Deleted','success');
 };
 
 function setupFilters() {
     document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('pointerdown', e => {
+            e.preventDefault();
             document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
             btn.classList.add('active');
             currentFilter = btn.dataset.filter;
@@ -651,57 +866,120 @@ function setupFilters() {
     });
 }
 
-function renderWeeklySummary() {
-    const now = new Date();
-    const day = now.getDay();
-    const start = new Date(now); start.setDate(now.getDate()-day+(weekOffset*7)); start.setHours(0,0,0,0);
+// ── Weekly ────────────────────────────────────────────────────────────────────
+function renderWeekly() {
+    const now   = new Date();
+    const start = new Date(now); start.setDate(now.getDate()-now.getDay()+(weekOffset*7)); start.setHours(0,0,0,0);
     const end   = new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
 
-    const label = weekOffset===0?'This Week':weekOffset===-1?'Last Week':
+    document.getElementById('weekLabel').textContent =
+        weekOffset===0 ? 'This Week' : weekOffset===-1 ? 'Last Week' :
         `${start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
-    document.getElementById('weekLabel').textContent = label;
 
     const wt = trades.filter(t => { const d=new Date(t.timestamp); return d>=start&&d<=end; });
-    const wins=wt.filter(t=>t.outcome==='WIN').length;
-    const losses=wt.filter(t=>t.outcome==='LOSS').length;
-    const bes=wt.filter(t=>t.outcome==='BREAKEVEN').length;
-    const total=wt.length;
-    const wr=total?Math.round((wins/total)*100):0;
+    const wins = wt.filter(t=>t.outcome==='WIN').length;
+    const losses = wt.filter(t=>t.outcome==='LOSS').length;
+    const bes = wt.filter(t=>t.outcome==='BREAKEVEN').length;
+    const total = wt.length;
+    const wr = total ? Math.round((wins/total)*100) : 0;
 
-    const mindsets=wt.filter(t=>t.mindset).map(t=>t.mindset);
-    const avgMind=mindsets.length?(mindsets.reduce((a,b)=>a+b,0)/mindsets.length).toFixed(1):'—';
-    const ratings=wt.filter(t=>t.executionRating).map(t=>t.executionRating);
-    const avgRate=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):'—';
+    const minds = wt.filter(t=>t.mindset).map(t=>t.mindset);
+    const avgMind = minds.length ? (minds.reduce((a,b)=>a+b,0)/minds.length).toFixed(1) : '—';
+    const rates   = wt.filter(t=>t.executionRating).map(t=>t.executionRating);
+    const avgRate = rates.length ? (rates.reduce((a,b)=>a+b,0)/rates.length).toFixed(1) : '—';
 
-    const rbCounts={};
-    wt.forEach(t=>(t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(rb=>{rbCounts[rb]=(rbCounts[rb]||0)+1;}));
-    const topRB=Object.entries(rbCounts).sort((a,b)=>b[1]-a[1])[0];
-    const withFullCL=wt.filter(t=>(t.checklist||[]).length>=9).length;
-    const compliance=total?Math.round((withFullCL/total)*100):0;
+    const rbCounts = {}; wt.forEach(t=>(t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(rb=>{rbCounts[rb]=(rbCounts[rb]||0)+1;}));
+    const topRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1])[0];
+    const fullCL = wt.filter(t=>(t.checklist||[]).length>=9).length;
+    const compliance = total ? Math.round((fullCL/total)*100) : 0;
 
-    document.getElementById('weeklyGrid').innerHTML = [
-        {title:'TRADES',value:total,sub:`${wins}W · ${losses}L · ${bes}BE`},
-        {title:'WIN RATE',value:wr+'%',color:wr>=50?'#1DB954':'#E22134',sub:`${total} trades`},
-        {title:'AVG MINDSET',value:avgMind,sub:'Pre-trade /5'},
-        {title:'AVG EXECUTION',value:avgRate,sub:'Rated /5'},
-        {title:'CL COMPLIANCE',value:compliance+'%',color:compliance>=70?'#1DB954':compliance>=40?'#ffd600':'#E22134',sub:'Full checklist used'},
-        {title:'TOP RULE BREAK',value:topRB?topRB[0]:'✅ Clean',color:topRB?'#ff6b6b':'#1DB954',sub:topRB?topRB[1]+'x':'No rule breaks'}
-    ].map(card=>`<div class="pattern-card">
-        <div class="pattern-card-title">${card.title}</div>
-        <div class="pattern-card-value" style="${card.color?'color:'+card.color+';font-size:15px;':''}">${card.value}</div>
-        <div class="pattern-card-sub">${card.sub}</div>
+    document.getElementById('weekGrid').innerHTML = [
+        {t:'TRADES',    v:total,           s:`${wins}W · ${losses}L · ${bes}BE`, c:''},
+        {t:'WIN RATE',  v:wr+'%',          s:`${total} total`,  c:wr>=50?'var(--green)':'var(--red)'},
+        {t:'MINDSET',   v:avgMind+'/5',    s:'Pre-trade avg',   c:minds.length&&+avgMind>=4?'var(--green)':minds.length&&+avgMind<3?'var(--red)':''},
+        {t:'EXECUTION', v:avgRate+'/5',    s:'Avg rating',      c:''},
+        {t:'CL COMPLIANCE', v:compliance+'%', s:'Full CL used', c:compliance>=70?'var(--green)':compliance>=40?'var(--gold)':'var(--red)'},
+        {t:'TOP RULE BREAK', v:topRB?topRB[0]:'✅ Clean', s:topRB?topRB[1]+'x this week':'No breaks', c:topRB?'var(--red)':'var(--green)'}
+    ].map(({t,v,s,c}) => `<div class="week-card">
+        <div class="week-card-title">${t}</div>
+        <div class="week-card-val" style="${c?'color:'+c+';font-size:15px;line-height:1.2;':''}">${v}</div>
+        <div class="week-card-sub">${s}</div>
     </div>`).join('');
 
-    const insights = [];
-    if (!total) { insights.push({type:'',text:'No trades recorded this week.'}); }
+    // Mindset vs win rate chart
+    const mindBuckets = {1:[],2:[],3:[],4:[],5:[]};
+    wt.filter(t=>t.mindset).forEach(t => mindBuckets[t.mindset].push(t.outcome==='WIN'?1:0));
+    const mindLabels = ['😤 1','😟 2','😐 3','😊 4','🔥 5'];
+    const mindWRs    = [1,2,3,4,5].map(m => mindBuckets[m].length ? Math.round((mindBuckets[m].reduce((a,b)=>a+b,0)/mindBuckets[m].length)*100) : null);
+    const mindCounts = [1,2,3,4,5].map(m => mindBuckets[m].length);
+
+    const mCtx = document.getElementById('weekMindChart');
+    if (weekMindChartInst) { weekMindChartInst.destroy(); weekMindChartInst=null; }
+    if (mindCounts.some(c=>c>0)) {
+        weekMindChartInst = new Chart(mCtx, {
+            type:'bar',
+            data:{
+                labels:mindLabels,
+                datasets:[
+                    { label:'Win Rate %', data:mindWRs, backgroundColor:mindWRs.map(v=>v===null?'rgba(255,255,255,0.05)':v>=50?'rgba(29,185,84,0.7)':'rgba(226,33,52,0.7)'), borderWidth:0, borderRadius:4, yAxisID:'y' },
+                    { label:'Trades', data:mindCounts, type:'line', borderColor:'rgba(74,144,226,0.6)', backgroundColor:'transparent', pointRadius:4, pointBackgroundColor:'var(--blue)', borderWidth:1.5, yAxisID:'y2' }
+                ]
+            },
+            options:{
+                responsive:true, maintainAspectRatio:false,
+                scales:{
+                    y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'}},
+                    y2:{beginAtZero:true,position:'right',grid:{display:false},ticks:{color:'rgba(74,144,226,0.6)',stepSize:1}}
+                },
+                plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)',font:{size:10},padding:14}}}
+            }
+        });
+    } else { mCtx.parentElement.innerHTML = '<div class="empty-state">No mindset data this week</div>'; }
+
+    // Checklist compliance detail
+    const clEl = document.getElementById('weekCLContent');
+    const allCLItems = ['H4','H1EF','H1EG','M30EF','M30EG','M15EF','M15EG','M5EF','M5EG','ENTRY-M5EG','ENTRY-M1EF'];
+    const clUsage = {}; wt.forEach(t => (t.checklist||[]).forEach(item => { clUsage[item]=(clUsage[item]||0)+1; }));
+    const clRows = allCLItems.filter(item=>clUsage[item]).sort((a,b)=>(clUsage[b]||0)-(clUsage[a]||0));
+    if (!clRows.length || !total) { clEl.innerHTML = '<div class="empty-state">No checklist data this week</div>'; }
     else {
-        const hmT=wt.filter(t=>t.mindset>=4); const hmW=hmT.filter(t=>t.outcome==='WIN').length;
-        if(hmT.length>=2) { const hmWR=Math.round((hmW/hmT.length)*100); insights.push({type:hmWR>=60?'good':'',text:`🧠 High mindset (4–5) → <strong>${hmWR}%</strong> win rate on ${hmT.length} trades.`}); }
-        if(topRB&&topRB[1]>=2) insights.push({type:'warning',text:`🔴 <strong>${topRB[0]}</strong> repeated ${topRB[1]}x this week. Make it your focus next session.`});
-        if(compliance<50&&total>=3) insights.push({type:'warning',text:`📋 Checklist compliance: <strong>${compliance}%</strong>. Low discipline may be costing setups.`});
-        else if(compliance>=80) insights.push({type:'good',text:`✅ Strong checklist compliance at <strong>${compliance}%</strong> this week. Disciplined!`});
+        clEl.innerHTML = `<div style="margin-bottom:12px;font-size:11px;color:var(--muted);">Compliance: <strong style="color:${compliance>=70?'var(--green)':compliance>=40?'var(--gold)':'var(--red)'}">${compliance}%</strong> of trades used full checklist</div>` +
+        clRows.map(item => {
+            const c = clUsage[item]; const pct = Math.round((c/total)*100);
+            return `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${item}</span><span class="bar-val" style="color:var(--blue)">${pct}%</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
+            </div>`;
+        }).join('');
     }
-    document.getElementById('weeklyInsights').innerHTML = insights.map(i=>`<div class="insight-box ${i.type}">${i.text}</div>`).join('');
+
+    // Rule breaks detail
+    const rbEl = document.getElementById('weekRBContent');
+    const sortedRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1]);
+    if (!sortedRB.length) { rbEl.innerHTML = '<div class="empty-state" style="color:var(--green);">✅ No rule breaks this week. Disciplined!</div>'; }
+    else {
+        const maxRB = sortedRB[0][1];
+        rbEl.innerHTML = sortedRB.map(([rb,count]) =>
+            `<div class="bar-item">
+                <div class="bar-header"><span class="bar-label">${rb}</span><span class="bar-val" style="color:var(--red)">${count}x</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/maxRB)*100)}%;background:var(--red);"></div></div>
+            </div>`
+        ).join('');
+    }
+
+    // Insights
+    const insArr = [];
+    if (!total) insArr.push({t:'blue', m:'No trades recorded this week.'});
+    else {
+        if (wr >= 60) insArr.push({t:'green', m:`🔥 Strong week — <strong>${wr}%</strong> win rate on ${total} trades.`});
+        else if (wr < 40 && total >= 3) insArr.push({t:'red', m:`⚠️ Difficult week — <strong>${wr}%</strong> win rate. Review your losses in the Losses tab.`});
+        const hmT = wt.filter(t=>t.mindset>=4); const hmW = hmT.filter(t=>t.outcome==='WIN').length;
+        if (hmT.length >= 2) insArr.push({t:Math.round((hmW/hmT.length)*100)>=60?'green':'blue', m:`🧠 High mindset (4–5): <strong>${Math.round((hmW/hmT.length)*100)}%</strong> win rate on ${hmT.length} trades.`});
+        if (topRB && topRB[1]>=2) insArr.push({t:'red', m:`🔴 <strong>${topRB[0]}</strong> repeated <strong>${topRB[1]}x</strong> this week — make this your single focus next session.`});
+        if (compliance < 50 && total >= 3) insArr.push({t:'red', m:`📋 Checklist compliance at <strong>${compliance}%</strong>. Low discipline costs setups.`});
+        else if (compliance >= 80 && total >= 3) insArr.push({t:'green', m:`✅ <strong>${compliance}%</strong> checklist compliance. That's disciplined trading.`});
+    }
+    document.getElementById('weekInsights').innerHTML = insArr.map(i=>`<div class="insight ${i.t}">${i.m}</div>`).join('');
 }
 
 // ── Exports ───────────────────────────────────────────────────────────────────
@@ -710,58 +988,39 @@ function setupExports() {
     document.getElementById('pdfBtn').addEventListener('click', exportPDF);
     document.getElementById('csvBtn').addEventListener('click', exportCSV);
 }
-
-const rtLabel = t => ({mistake:'Mistake',good:'Good Trade',mixed:'Mixed',be:'Breakeven'}[t]||t);
-
+const rtL = t => ({mistake:'Mistake',good:'Good Trade',mixed:'Mixed',be:'Breakeven'}[t]||t);
 function buildRows() {
-    return reviews.map(r=>({
-        'Review ID':r.id||'N/A','Trade ID':r.tradeId||'N/A','Date':r.date||'N/A',
-        'Review Type':rtLabel(r.reviewType||'mistake'),'Pair':r.tradePair||'N/A',
-        'Direction':r.tradeDirection||'N/A','Outcome':r.tradeOutcome||'N/A',
-        'Trade Reason':r.tradeReason||'N/A','Category':r.category||'N/A',
-        'Severity':r.severity||'N/A','Status':r.resolved?'Resolved':'Active',
-        'Review Notes':r.description||'','Action Plan':r.action||''
-    }));
+    return reviews.map(r=>({'Review ID':r.id,'Trade ID':r.tradeId,'Date':r.date,'Review Type':rtL(r.reviewType),'Pair':r.tradePair,'Direction':r.tradeDirection,'Outcome':r.tradeOutcome,'Trade Reason':r.tradeReason,'Category':r.category,'Severity':r.severity,'Status':r.resolved?'Resolved':'Active','Notes':r.description,'Action Plan':r.action}));
 }
-
 function exportCSV() {
-    const rows = buildRows();
-    if (!rows.length) { showToast('No reviews to export','error'); return; }
-    const headers = Object.keys(rows[0]);
-    const csv = [headers.join(','),...rows.map(r=>headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(','))].join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-    a.download = `xX_Improvement_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+    const rows = buildRows(); if (!rows.length) { showToast('No reviews','error'); return; }
+    const h = Object.keys(rows[0]);
+    const csv = [h.join(','),...rows.map(r=>h.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`xX_Improvement_${new Date().toISOString().split('T')[0]}.csv`; a.click();
     showToast('CSV exported ✓','success');
 }
-
 function exportXLSX() {
-    if (!window.XLSX) { showToast('XLSX loading...','error'); return; }
-    const rows = buildRows();
-    if (!rows.length) { showToast('No reviews to export','error'); return; }
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Reviews');
-    XLSX.writeFile(wb, `xX_Improvement_${new Date().toISOString().split('T')[0]}.xlsx`);
+    if (!window.XLSX) { showToast('XLSX loading','error'); return; }
+    const rows = buildRows(); if (!rows.length) { showToast('No reviews','error'); return; }
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Reviews');
+    XLSX.writeFile(wb,`xX_Improvement_${new Date().toISOString().split('T')[0]}.xlsx`);
     showToast('Excel exported ✓','success');
 }
-
 function exportPDF() {
-    if (!window.jspdf) { showToast('PDF loading...','error'); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(18); doc.setFont(undefined,'bold');
-    doc.text('xX Trading Journal — Improvement Engine', 14, 20);
-    doc.setFontSize(10); doc.setFont(undefined,'normal');
-    doc.text(`Generated: ${new Date().toLocaleDateString()} | Reviews: ${reviews.length}`, 14, 30);
+    if (!window.jspdf) { showToast('PDF loading','error'); return; }
+    const { jsPDF } = window.jspdf; const doc = new jsPDF();
+    doc.setFontSize(16); doc.setFont(undefined,'bold'); doc.text('xX Trading Journal — Improvement',14,18);
+    doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.text(`Generated: ${new Date().toLocaleDateString()} | ${reviews.length} reviews`,14,26);
     const rows = buildRows();
     if (rows.length) {
-        const cols = ['Date','Trade ID','Review Type','Pair','Outcome','Category','Status'];
-        doc.autoTable({startY:36,head:[cols],body:rows.map(r=>cols.map(c=>r[c]||'')),theme:'grid',headStyles:{fillColor:[10,10,10],textColor:255,fontSize:8},bodyStyles:{fontSize:8}});
+        const cols=['Date','Trade ID','Review Type','Pair','Outcome','Category','Status'];
+        doc.autoTable({startY:32,head:[cols],body:rows.map(r=>cols.map(c=>r[c]||'')),theme:'grid',headStyles:{fillColor:[10,10,10],textColor:255,fontSize:7},bodyStyles:{fontSize:7}});
     }
     doc.save(`xX_Improvement_${new Date().toISOString().split('T')[0]}.pdf`);
     showToast('PDF exported ✓','success');
 }
+
+function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 </script>
 </body>
 </html>

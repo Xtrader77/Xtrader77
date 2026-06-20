@@ -120,11 +120,15 @@ export async function saveTrade(tradeId, tradeData) {
         cycle_number: tradeData.cycleNumber || 1
     };
 
-    const { error } = await supabase.from('trades').upsert(row);
-    if (error) return { success: false, error: error.message };
+    const { error: tradeError } = await supabase.from('trades').upsert(row);
+    if (tradeError) {
+        const msg = tradeError.code === '42501'
+            ? 'RLS error on trades table — run the SQL fix in Supabase dashboard'
+            : tradeError.message;
+        return { success: false, error: msg };
+    }
 
     if (tradeData.screenshots?.length > 0) {
-        // Delete old screenshots for this trade first, then re-insert
         await supabase.from('screenshots').delete().eq('trade_id', tradeId).eq('user_id', user.id);
         for (let i = 0; i < tradeData.screenshots.length; i++) {
             const ss = tradeData.screenshots[i];
