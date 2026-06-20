@@ -160,7 +160,7 @@
 </div>
 
 <script type="module">
-import { requireAuth, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 import { deleteTrade as cloudDeleteTrade, saveCycles, loadAllTrades, loadCycles } from '/db.js';
 
 injectBottomNav('dashboard');
@@ -170,10 +170,9 @@ let cycles   = { currentCycle:1, tradesInCurrentCycle:0, completedCycles:[], all
 let calYear, calMonth;
 
 (async () => {
-    const user = await requireAuth('/dashboard.html');
+    const user = await requireAuthFast('/dashboard.html');
     if (!user) return;
     await requirePin();
-    await syncToLocalStorage();
     loadLocal();
     init();
 })();

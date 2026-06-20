@@ -115,13 +115,83 @@ export function downloadFile(content, filename, mimeType) {
 }
 
 // ── Load trades + cycles from Supabase into localStorage cache ────────────────
+const SYNC_THROTTLE_MS = 2 * 60 * 1000; // 2 minutes
+
 export async function syncToLocalStorage() {
     // If backup was just restored, skip cloud overwrite this session
     if (sessionStorage.getItem('xX_skip_sync') === '1') {
         sessionStorage.removeItem('xX_skip_sync');
         return;
     }
-    const { loadAllTrades, loadCycles } = await import('./db.js');
+
+    // Throttle — don't hit Supabase more than once every 2 minutes
+    const lastSync = parseInt(sessionStorage.getItem('xX_last_sync') || '0');
+    const now = Date.now();
+    if (now - lastSync < SYNC_THROTTLE_MS) return;
+    sessionStorage.setItem('xX_last_sync', String(now));
+
+    const { loadAllTrades, loadCycles, saveCycles } = await import('./db.js');
+    try {
+        const tradesResult = await loadAllTrades();
+        if (tradesResult?.journals) {
+            const existing = JSON.parse(localStorage.getItem('xX_journal_data') || '{}');
+            const existingJournals = existing.journals || {};
+
+            const merged = tradesResult.journals;
+            Object.keys(merged).forEach(id => {
+                const cloudTrade = merged[id];
+                const localTrade = existingJournals[id];
+                if (!cloudTrade.screenshots?.length && localTrade?.screenshots?.length) {
+                    cloudTrade.screenshots = localTrade.screenshots;
+                } else if (cloudTrade.screenshots?.length && localTrade?.screenshots?.length) {
+                    cloudTrade.screenshots = cloudTrade.screenshots.map((ss, i) => {
+                        if (ss.data) return ss;
+                        const localSs = localTrade.screenshots[i];
+                        return localSs?.data ? { ...ss, data: localSs.data } : ss;
+                    });
+                }
+            });
+
+            localStorage.setItem('xX_journal_data', JSON.stringify({
+                journals: merged,
+                tradeCounter: tradesResult.tradeCounter || 1,
+                userName: existing.userName || 'Trader'
+            }));
+
+            // Recalculate cycles from actual trade count
+            const allTrades = Object.values(merged).sort((a,b) => new Date(a.timestamp)-new Date(b.timestamp));
+            const allTradeIds = allTrades.map(t => t.tradeId);
+            const totalTrades = allTrades.length;
+            const completedCycles = Math.floor(totalTrades / 20);
+            const tradesInCurrentCycle = totalTrades % 20;
+            const currentCycle = completedCycles + 1;
+
+            const completedCyclesArr = [];
+            for (let i = 0; i < completedCycles; i++) {
+                const lastTradeInCycle = allTrades[(i+1)*20 - 1];
+                completedCyclesArr.push({ cycleNumber: i+1, completedAt: lastTradeInCycle?.timestamp || new Date().toISOString() });
+            }
+
+            const correctedCycles = { currentCycle, tradesInCurrentCycle, completedCycles: completedCyclesArr, allTrades: allTradeIds };
+            localStorage.setItem('xX_cycle_data', JSON.stringify(correctedCycles));
+
+            try { await saveCycles(correctedCycles); } catch(e) {}
+        }
+    } catch(e) { console.warn('sync trades:', e); }
+}
+
+// ── Fast boot helper — render from cache instantly, sync in background ────────
+export async function requireAuthFast(redirectTo) {
+    const user = await getCurrentUser();
+    if (!user) {
+        sessionStorage.setItem('xX_redirect', redirectTo || location.pathname);
+        location.href = '/login.html';
+        return null;
+    }
+    // Kick off background sync — don't await it
+    syncToLocalStorage().catch(e => console.warn('bg sync:', e));
+    return user;
+}
     try {
         const tradesResult = await loadAllTrades();
         if (tradesResult?.journals) {

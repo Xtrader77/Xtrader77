@@ -371,7 +371,7 @@
 </div>
 
 <script type="module">
-import { requireAuth, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 
 injectBottomNav('improvement');
 
@@ -384,10 +384,9 @@ let catChartInst = null, execChartInst = null, weekMindChartInst = null;
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 (async () => {
-    const user = await requireAuth('/improvement.html');
+    const user = await requireAuthFast('/improvement.html');
     if (!user) return;
     await requirePin();
-    await syncToLocalStorage();
     loadData();
     init();
 })();
@@ -654,31 +653,49 @@ function var_c(v) { return getComputedStyle(document.documentElement).getPropert
 
 // ── Form ──────────────────────────────────────────────────────────────────────
 function populateTradeDropdown() {
-    const reviewed = new Set(reviews.map(r=>r.tradeId));
-    const unreviewed = [...trades].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    const reviewed = new Set(reviews.map(r => r.tradeId));
+
+    // Only show UNREVIEWED trades in the picker
+    const unreviewed = [...trades]
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .filter(t => !reviewed.has(t.tradeId));
+
     const sel = document.getElementById('tradePicker');
-    sel.innerHTML = '<option value="">— Select a trade to review —</option>';
+    sel.innerHTML = '<option value="">— Select an unreviewed trade —</option>';
     tradeOptions = [];
 
-    const groups = { WIN:[], LOSS:[], BREAKEVEN:[] };
-    unreviewed.forEach(t => { (groups[t.outcome]||groups.LOSS).push(t); });
+    if (!unreviewed.length) {
+        const opt = document.createElement('option');
+        opt.disabled = true;
+        opt.textContent = `✅ All ${trades.length} trades reviewed`;
+        sel.appendChild(opt);
+        return;
+    }
+
+    const groups = { LOSS:[], WIN:[], BREAKEVEN:[] };
+    unreviewed.forEach(t => { (groups[t.outcome] || groups.LOSS).push(t); });
 
     const labels = { WIN:'🟢 WINS', LOSS:'🔴 LOSSES', BREAKEVEN:'⚪ BREAKEVEN' };
     ['LOSS','WIN','BREAKEVEN'].forEach(out => {
-        const group = groups[out]; if (!group.length) return;
+        const group = groups[out];
+        if (!group.length) return;
         const og = document.createElement('optgroup');
-        og.label = `${labels[out]} (${group.length}) ${reviewed.has ? '' : ''}`;
+        og.label = `${labels[out]} — ${group.length} unreviewed`;
         group.forEach(t => {
             const d = new Date(t.timestamp);
             const opt = document.createElement('option');
             opt.value = t.tradeId;
-            const rev = reviewed.has(t.tradeId) ? ' ✓' : '';
-            opt.textContent = `${t.pair} ${t.direction} — ${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${rev}`;
+            opt.textContent = `${t.pair} ${t.direction} · ${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
             og.appendChild(opt);
             tradeOptions.push(t);
         });
         sel.appendChild(og);
     });
+
+    // Show review count summary
+    document.getElementById('tradePreview').innerHTML = unreviewed.length > 0
+        ? `<span style="color:var(--muted);font-size:11px;">📋 ${unreviewed.length} trades unreviewed · ${reviewed.size} already reviewed</span>`
+        : '';
 }
 
 function setupForm() {
@@ -789,8 +806,16 @@ function saveReview() {
     }
 
     localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
-    showToast('Review saved ✓','success');
-    loadData(); renderOverview(); renderWinAnalysis(); renderLossAnalysis(); populateTradeDropdown(); renderReviews(); clearForm();
+    showToast('Review saved ✓ — trade removed from queue', 'success');
+
+    // Refresh everything — reviewed trade vanishes from dropdown immediately
+    loadData();
+    renderOverview();
+    renderWinAnalysis();
+    renderLossAnalysis();
+    populateTradeDropdown();  // ← rebuilds without the just-reviewed trade
+    renderReviews();
+    clearForm();
 }
 
 function clearForm() {

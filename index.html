@@ -101,7 +101,7 @@
 </div>
 
 <script type="module">
-import { requireAuth, requirePin, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { requireAuth, requireAuthFast, requirePin, syncToLocalStorage, injectBottomNav } from '/shared.js';
 import { getCurrentUser, getProfile } from '/db.js';
 
 injectBottomNav('home');
@@ -128,12 +128,9 @@ document.getElementById('dismissInstall').addEventListener('click', () => {
 });
 
 (async () => {
-    const user = await requireAuth('/');
+    const user = await requireAuthFast('/');
     if (!user) return;
     await requirePin();
-
-    // Sync cloud data
-    await syncToLocalStorage();
 
     // Greeting
     try {

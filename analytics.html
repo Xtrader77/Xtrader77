@@ -129,7 +129,7 @@
 </div>
 
 <script type="module">
-import { requireAuth, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 
 injectBottomNav('analytics');
 
@@ -138,10 +138,9 @@ let perfChartInstance = null;
 let currentChartType = 'bar';
 
 (async () => {
-    const user = await requireAuth('/analytics.html');
+    const user = await requireAuthFast('/analytics.html');
     if (!user) return;
     await requirePin();
-    await syncToLocalStorage();
     loadLocal();
     init();
 })();
