@@ -373,7 +373,12 @@
 <script type="module">
 import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 
-injectBottomNav('improvement');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('improvement'));
+} else {
+    injectBottomNav('improvement');
+}
 
 const IMPROVE_KEY = 'xX_improvement_engine';
 const JOURNAL_KEY = 'xX_journal_data';

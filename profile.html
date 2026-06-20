@@ -307,7 +307,12 @@ import {
     hashPin, signOut, supabase
 } from '/db.js';
 
-injectBottomNav('profile');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('profile'));
+} else {
+    injectBottomNav('profile');
+}
 
 const JOURNAL_KEY = 'xX_journal_data';
 const CYCLE_KEY   = 'xX_cycle_data';

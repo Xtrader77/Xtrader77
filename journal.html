@@ -271,7 +271,12 @@
 import { requireAuth, requirePin, showToast, injectBottomNav } from '/shared.js';
 import { saveTrade, saveCycles, loadAllTrades, loadCycles } from '/db.js';
 
-injectBottomNav('journal');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('journal'));
+} else {
+    injectBottomNav('journal');
+}
 
 const TODAY = new Date().toISOString().split('T')[0];
 let journals  = { journals: {}, tradeCounter: 1 };

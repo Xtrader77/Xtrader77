@@ -104,7 +104,12 @@
 import { requireAuth, requireAuthFast, requirePin, syncToLocalStorage, injectBottomNav } from '/shared.js';
 import { getCurrentUser, getProfile } from '/db.js';
 
-injectBottomNav('home');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('home'));
+} else {
+    injectBottomNav('home');
+}
 
 // PWA install prompt
 let deferredPrompt = null;

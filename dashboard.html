@@ -163,7 +163,12 @@
 import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 import { deleteTrade as cloudDeleteTrade, saveCycles, loadAllTrades, loadCycles } from '/db.js';
 
-injectBottomNav('dashboard');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('dashboard'));
+} else {
+    injectBottomNav('dashboard');
+}
 
 let journals = { journals: {}, tradeCounter: 1 };
 let cycles   = { currentCycle:1, tradesInCurrentCycle:0, completedCycles:[], allTrades:[] };

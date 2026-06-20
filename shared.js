@@ -73,7 +73,16 @@ export function showToast(msg, type = 'info', duration = 3000) {
 
 // ── Bottom nav bar — inject on all main pages ─────────────────────────────────
 export function injectBottomNav(activePage) {
+    // Safety: if body isn't ready yet, wait for it
+    if (!document.body) {
+        document.addEventListener('DOMContentLoaded', () => injectBottomNav(activePage));
+        return;
+    }
+    // Don't inject twice
+    if (document.getElementById('__bottomNav')) return;
+
     const nav = document.createElement('nav');
+    nav.id = '__bottomNav';
     nav.style.cssText = `position:fixed;bottom:0;left:0;right:0;background:#0d0d0d;
         border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-around;
         align-items:center;padding:10px 0 max(10px,env(safe-area-inset-bottom));z-index:1000;`;

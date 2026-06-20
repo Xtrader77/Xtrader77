@@ -131,7 +131,12 @@
 <script type="module">
 import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 
-injectBottomNav('analytics');
+// Inject bottom nav after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => injectBottomNav('analytics'));
+} else {
+    injectBottomNav('analytics');
+}
 
 let trades = [];
 let perfChartInstance = null;
