@@ -1,1054 +1,924 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Improvement | xX Trading</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#000000">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    <style>
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        :root {
-            --bg:#060608; --surface:#0e0e12; --card:#111116;
-            --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.11);
-            --muted:rgba(255,255,255,0.35); --dim:rgba(255,255,255,0.5);
-            --green:#1DB954; --red:#E22134; --blue:#4A90E2; --gold:#F5A623;
-            --green-bg:rgba(29,185,84,0.08); --red-bg:rgba(226,33,52,0.08);
-            --blue-bg:rgba(74,144,226,0.08); --gold-bg:rgba(245,166,35,0.08);
-        }
-        body { font-family:'Inter',sans-serif; background:var(--bg); color:#fff; min-height:100vh; padding:16px 16px 90px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Improvement | xX Trading</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#07070a;--card:#111115;--border:rgba(255,255,255,0.07);
+  --muted:rgba(255,255,255,0.38);--dim:rgba(255,255,255,0.55);
+  --green:#1DB954;--red:#E22134;--blue:#4A90E2;--gold:#F5A623;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#fff;min-height:100vh;padding:0 0 80px;}
 
-        /* ── Header ── */
-        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
-        .header-left h1 { font-size:22px; font-weight:900; letter-spacing:-0.5px; }
-        .header-left p  { font-size:11px; color:var(--muted); margin-top:2px; }
-        .header-right { display:flex; gap:8px; align-items:center; }
-        .sync-btn { background:var(--blue-bg); border:1px solid rgba(74,144,226,0.25); color:var(--blue); padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
-        .back-btn { background:transparent; border:1px solid var(--border2); color:var(--dim); padding:7px 14px; border-radius:20px; font-size:12px; text-decoration:none; }
+/* ── Header ── */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:18px 16px 14px;border-bottom:1px solid var(--border);}
+.hdr-title{font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+.hdr-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.hdr-btns{display:flex;gap:8px;}
+.hbtn{padding:7px 13px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid;touch-action:manipulation;}
+.hbtn.sync{background:rgba(74,144,226,0.1);border-color:rgba(74,144,226,0.3);color:var(--blue);}
+.hbtn.home{background:transparent;border-color:rgba(255,255,255,0.15);color:var(--muted);text-decoration:none;display:flex;align-items:center;}
 
-        /* ── Section tabs ── */
-        .tabs { display:flex; gap:0; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:16px; overflow-x:auto; }
-        .tab { flex:1; min-width:60px; padding:8px 10px; text-align:center; font-size:11px; font-weight:700; letter-spacing:0.5px; color:var(--muted); border-radius:7px; cursor:pointer; white-space:nowrap; transition:all 0.18s; border:none; background:none; font-family:'Inter',sans-serif; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-        .tab.active { background:#fff; color:#000; }
+/* ── Tabs ── */
+.tab-bar{display:flex;overflow-x:auto;gap:0;padding:10px 16px 0;scrollbar-width:none;border-bottom:1px solid var(--border);}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:8px 14px;font-size:12px;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;white-space:nowrap;}
+.tab-btn.on{color:#fff;border-bottom-color:#fff;font-weight:700;}
 
-        /* ── Cards ── */
-        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:12px; }
-        .card-title { font-size:10px; font-weight:700; letter-spacing:1.5px; color:rgba(255,255,255,0.28); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
-        .card-title::before { content:''; display:none; }
-        .badge { background:var(--blue-bg); color:var(--blue); padding:3px 9px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:0.5px; }
-        .badge.green { background:var(--green-bg); color:var(--green); }
-        .badge.red   { background:var(--red-bg);   color:var(--red); }
-        .badge.gold  { background:var(--gold-bg);   color:var(--gold); }
+/* ── Pages ── */
+.page{display:none;padding:16px;}
+.page.on{display:block;}
 
-        /* ── Score cards ── */
-        .score-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
-        .score-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 10px; text-align:center; }
-        .score-val  { font-size:24px; font-weight:800; line-height:1; }
-        .score-lbl  { font-size:9px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-top:5px; }
-        .score-sub  { font-size:10px; color:var(--muted); margin-top:2px; }
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.card-hd{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:0.3px;}
+.badge-g{background:rgba(29,185,84,0.12);color:var(--green);}
+.badge-r{background:rgba(226,33,52,0.12);color:var(--red);}
+.badge-b{background:rgba(74,144,226,0.12);color:var(--blue);}
 
-        /* ── Progress bar ── */
-        .prog-row { margin-bottom:14px; }
-        .prog-label { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-bottom:6px; }
-        .prog-track { height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
-        .prog-fill  { height:100%; border-radius:3px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
-        .prog-fill.green { background:linear-gradient(90deg,#0d7a35,var(--green)); }
-        .prog-fill.red   { background:linear-gradient(90deg,#8b0000,var(--red)); }
-        .prog-fill.blue  { background:linear-gradient(90deg,#1a3d6e,var(--blue)); }
-        .prog-fill.multi { background:linear-gradient(90deg,var(--red),#FF9800,var(--green)); }
+/* ── Stat grid ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 10px;text-align:center;}
+.stat-v{font-size:22px;font-weight:800;line-height:1;}
+.stat-l{font-size:9px;font-weight:600;letter-spacing:0.7px;color:var(--muted);margin-top:5px;}
 
-        /* ── Bar items ── */
-        .bar-item { margin-bottom:10px; }
-        .bar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:12px; }
-        .bar-label { color:rgba(255,255,255,0.8); font-weight:500; }
-        .bar-val   { font-weight:700; font-size:12px; }
-        .bar-track { height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
-        .bar-fill  { height:100%; border-radius:3px; transition:width 0.5s; }
+/* ── Progress ── */
+.prog{margin-bottom:12px;}
+.prog-top{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px;}
+.prog-track{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.5s;}
 
-        /* ── Reason pills ── */
-        .reason-item { display:flex; justify-content:space-between; align-items:center; padding:10px 13px; border-radius:8px; margin-bottom:7px; font-size:12px; border:1px solid; }
-        .reason-item.win  { background:var(--green-bg); border-color:rgba(29,185,84,0.18); }
-        .reason-item.loss { background:var(--red-bg);   border-color:rgba(226,33,52,0.18); }
-        .reason-text  { color:rgba(255,255,255,0.85); flex:1; margin-right:10px; }
-        .reason-count { font-weight:800; font-size:13px; flex-shrink:0; }
+/* ── Bar rows ── */
+.bar{margin-bottom:10px;}
+.bar-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.bar-lbl{color:rgba(255,255,255,0.8);}
+.bar-val{font-weight:700;}
+.bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;transition:width 0.4s;}
 
-        /* ── Insight boxes ── */
-        .insight { border-radius:10px; padding:12px 14px; font-size:12px; line-height:1.7; margin-bottom:8px; border:1px solid; }
-        .insight.blue  { background:var(--blue-bg);  border-color:rgba(74,144,226,0.2); }
-        .insight.green { background:var(--green-bg); border-color:rgba(29,185,84,0.2); }
-        .insight.red   { background:var(--red-bg);   border-color:rgba(226,33,52,0.2); }
-        .insight.gold  { background:var(--gold-bg);  border-color:rgba(245,166,35,0.2); }
+/* ── Reason items ── */
+.reason{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:7px;margin-bottom:6px;font-size:12px;border:1px solid;}
+.reason.w{background:rgba(29,185,84,0.06);border-color:rgba(29,185,84,0.15);}
+.reason.l{background:rgba(226,33,52,0.06);border-color:rgba(226,33,52,0.15);}
+.reason-txt{color:rgba(255,255,255,0.82);flex:1;margin-right:10px;}
+.reason-cnt{font-weight:800;font-size:13px;flex-shrink:0;}
 
-        /* ── Chart ── */
-        .chart-wrap { position:relative; height:200px; }
+/* ── Insight boxes ── */
+.ins{border-radius:9px;padding:12px 14px;font-size:12px;line-height:1.7;margin-bottom:10px;border:1px solid;}
+.ins.b{background:rgba(74,144,226,0.07);border-color:rgba(74,144,226,0.18);}
+.ins.g{background:rgba(29,185,84,0.07);border-color:rgba(29,185,84,0.18);}
+.ins.r{background:rgba(226,33,52,0.07);border-color:rgba(226,33,52,0.18);}
+.ins.o{background:rgba(245,166,35,0.07);border-color:rgba(245,166,35,0.18);}
 
-        /* ── Log Review Form ── */
-        .form-label { font-size:10px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-bottom:7px; display:block; }
-        .form-label.req::after { content:' *'; color:var(--red); }
-        select, input[type=text], textarea {
-            width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
-            border-radius:9px; padding:12px 13px; color:#fff; font-size:13px;
-            font-family:'Inter',sans-serif; transition:border-color 0.2s; margin-bottom:12px; appearance:none;
-            background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-            background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:36px;
-        }
-        input[type=text], textarea { background-image:none; padding-right:13px; }
-        select:focus, input:focus, textarea:focus { outline:none; border-color:rgba(74,144,226,0.5); }
-        option { background:#111; }
-        textarea { min-height:85px; resize:vertical; }
-        .trade-preview { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:9px; padding:12px 13px; margin-bottom:12px; font-size:12px; color:var(--dim); line-height:1.7; min-height:40px; }
-        .btn-save { width:100%; background:var(--blue); color:#fff; border:none; border-radius:10px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; margin-bottom:8px; transition:background 0.2s; touch-action:manipulation; }
-        .btn-save:hover { background:#5a9fe8; }
-        .btn-clear { width:100%; background:transparent; border:1px solid var(--border2); color:var(--muted); border-radius:10px; padding:12px; font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
+/* ── Chart ── */
+.chart-box{position:relative;height:200px;}
 
-        /* ── Review cards ── */
-        .review-card { border-radius:12px; padding:16px; margin-bottom:10px; border-left:3px solid; position:relative; }
-        .review-card.mistake { border-left-color:var(--red);   background:rgba(226,33,52,0.04); }
-        .review-card.good    { border-left-color:var(--green); background:rgba(29,185,84,0.04); }
-        .review-card.mixed   { border-left-color:var(--gold);  background:rgba(245,166,35,0.04); }
-        .review-card.be      { border-left-color:#666;         background:rgba(100,100,100,0.04); }
-        .review-card.resolved { opacity:0.55; }
-        .review-head { margin-bottom:10px; }
-        .review-trade { font-size:13px; font-weight:700; margin-bottom:3px; }
-        .review-meta  { font-size:11px; color:var(--muted); }
-        .review-lbl   { font-size:9px; font-weight:700; letter-spacing:0.8px; color:rgba(255,255,255,0.3); margin-bottom:4px; margin-top:10px; }
-        .review-body  { font-size:12px; line-height:1.6; color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.02); border-radius:7px; padding:9px 11px; }
-        .review-action-body { font-size:12px; line-height:1.6; color:rgba(255,255,255,0.8); background:var(--blue-bg); border-radius:7px; padding:9px 11px; }
-        .review-btns { display:flex; gap:7px; margin-top:10px; }
-        .rbtn { padding:6px 14px; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; border:1px solid; touch-action:manipulation; }
-        .rbtn.resolve { background:var(--green-bg); border-color:rgba(29,185,84,0.3); color:var(--green); }
-        .rbtn.delete  { background:var(--red-bg);   border-color:rgba(226,33,52,0.25); color:var(--red); }
+/* ── Empty ── */
+.empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:12px;line-height:1.8;}
 
-        /* ── Filters ── */
-        .filter-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
-        .filter-btn { background:transparent; border:1px solid var(--border2); color:var(--muted); padding:6px 12px; border-radius:20px; font-size:11px; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-        .filter-btn.active { background:rgba(74,144,226,0.15); border-color:rgba(74,144,226,0.4); color:var(--blue); }
+/* ── Form ── */
+.flbl{font-size:10px;font-weight:700;letter-spacing:0.7px;color:var(--muted);margin-bottom:6px;display:block;}
+.flbl.req::after{content:' *';color:var(--red);}
+select,textarea,input[type=text]{
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  border-radius:8px;padding:11px 12px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;
+  margin-bottom:12px;transition:border-color 0.15s;
+}
+select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:34px;
+  background-color:rgba(255,255,255,0.04);
+}
+select:focus,textarea:focus,input:focus{outline:none;border-color:rgba(74,144,226,0.45);}
+option{background:#111;}
+textarea{min-height:80px;resize:vertical;}
+.trade-prev{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:11px 12px;margin-bottom:12px;font-size:12px;color:var(--dim);line-height:1.7;min-height:38px;}
+.btn-main{width:100%;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px;touch-action:manipulation;}
+.btn-sec{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);border-radius:9px;padding:12px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;touch-action:manipulation;}
 
-        /* ── Weekly summary ── */
-        .week-nav { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-        .week-nav-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-        .week-label { flex:1; text-align:center; font-size:14px; font-weight:700; }
-        .week-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
-        .week-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px; }
-        .week-card-title { font-size:9px; font-weight:700; letter-spacing:0.8px; color:var(--muted); margin-bottom:6px; }
-        .week-card-val   { font-size:20px; font-weight:800; line-height:1.1; }
-        .week-card-sub   { font-size:10px; color:var(--muted); margin-top:3px; }
+/* ── Tracker cards ── */
+.rv-card{border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid;background:rgba(255,255,255,0.02);}
+.rv-card.mistake{border-left-color:var(--red);}
+.rv-card.good{border-left-color:var(--green);}
+.rv-card.mixed{border-left-color:var(--gold);}
+.rv-card.be{border-left-color:#555;}
+.rv-card.resolved{opacity:0.5;}
+.rv-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.rv-meta{font-size:10px;color:var(--muted);margin-bottom:10px;}
+.rv-lbl{font-size:9px;font-weight:700;letter-spacing:0.7px;color:rgba(255,255,255,0.28);margin-top:8px;margin-bottom:3px;}
+.rv-body{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.78);background:rgba(255,255,255,0.02);border-radius:6px;padding:8px 10px;}
+.rv-action{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.78);background:rgba(74,144,226,0.07);border-radius:6px;padding:8px 10px;}
+.rv-btns{display:flex;gap:7px;margin-top:10px;}
+.rv-btn{padding:6px 13px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid;touch-action:manipulation;}
+.rv-btn.res{background:rgba(29,185,84,0.08);border-color:rgba(29,185,84,0.25);color:var(--green);}
+.rv-btn.del{background:rgba(226,33,52,0.08);border-color:rgba(226,33,52,0.22);color:var(--red);}
 
-        /* ── Export row ── */
-        .export-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-        .exp-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:var(--dim); padding:8px 14px; border-radius:50px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; touch-action:manipulation; }
+/* ── Filter row ── */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.fbtn{background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);padding:6px 12px;border-radius:18px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;touch-action:manipulation;}
+.fbtn.on{background:rgba(74,144,226,0.12);border-color:rgba(74,144,226,0.35);color:var(--blue);}
 
-        /* ── Section pages ── */
-        .section-page { display:none; }
-        .section-page.active { display:block; }
+/* ── Weekly ── */
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.wnav-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;touch-action:manipulation;flex-shrink:0;}
+.week-lbl{flex:1;text-align:center;font-size:14px;font-weight:700;}
+.wk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.wk-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.wk-t{font-size:9px;font-weight:700;letter-spacing:0.7px;color:var(--muted);margin-bottom:5px;}
+.wk-v{font-size:19px;font-weight:800;line-height:1.1;}
+.wk-s{font-size:10px;color:var(--muted);margin-top:3px;}
 
-        .empty-state { text-align:center; padding:28px 16px; color:var(--muted); font-size:13px; line-height:1.7; }
-        .divider { height:1px; background:var(--border); margin:14px 0; }
-        .status-bar { font-size:11px; color:var(--muted); margin-bottom:14px; padding:10px 13px; background:var(--surface); border-radius:8px; line-height:1.6; }
-    </style>
+/* ── Export ── */
+.exp-row{display:flex;gap:8px;flex-wrap:wrap;}
+.exp-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--dim);padding:8px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;touch-action:manipulation;}
+
+.status{font-size:11px;color:var(--muted);padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;line-height:1.6;}
+</style>
 </head>
 <body>
 
-<div class="header">
-    <div class="header-left">
-        <h1>IMPROVEMENT</h1>
-        <p>Track. Learn. Get better.</p>
-    </div>
-    <div class="header-right">
-        <button class="sync-btn" id="syncBtn">↺ SYNC</button>
-        <a href="/" class="back-btn">← HOME</a>
-    </div>
+<!-- Header -->
+<div class="hdr">
+  <div>
+    <div class="hdr-title">IMPROVEMENT</div>
+    <div class="hdr-sub">Track · Learn · Get Better</div>
+  </div>
+  <div class="hdr-btns">
+    <button class="hbtn sync" id="syncBtn">↺ Sync</button>
+    <a href="/" class="hbtn home">← Home</a>
+  </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs">
-    <button class="tab active" data-tab="overview">Overview</button>
-    <button class="tab" data-tab="wins">🟢 Wins</button>
-    <button class="tab" data-tab="losses">🔴 Losses</button>
-    <button class="tab" data-tab="log">Log Review</button>
-    <button class="tab" data-tab="tracker">Tracker</button>
-    <button class="tab" data-tab="weekly">Weekly</button>
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn on" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="wins">🟢 Wins</button>
+  <button class="tab-btn" data-tab="losses">🔴 Losses</button>
+  <button class="tab-btn" data-tab="log">Log Review</button>
+  <button class="tab-btn" data-tab="tracker">Tracker</button>
+  <button class="tab-btn" data-tab="weekly">Weekly</button>
 </div>
 
-<!-- ══ OVERVIEW ══════════════════════════════════════════════════════════ -->
-<div class="section-page active" id="tab-overview">
-    <div class="status-bar" id="statusBar">Loading...</div>
+<!-- ═══ OVERVIEW ════════════════════════════════════════════ -->
+<div class="page on" id="page-overview">
+  <div class="status" id="statusBar">Loading...</div>
 
-    <!-- Score cards -->
-    <div class="score-row">
-        <div class="score-card">
-            <div class="score-val" id="ovTotalTrades">—</div>
-            <div class="score-lbl">TRADES</div>
-        </div>
-        <div class="score-card">
-            <div class="score-val" style="color:var(--green)" id="ovWinRate">—</div>
-            <div class="score-lbl">WIN RATE</div>
-        </div>
-        <div class="score-card">
-            <div class="score-val" style="color:var(--blue)" id="ovReviewed">—</div>
-            <div class="score-lbl">REVIEWED</div>
-        </div>
-    </div>
-    <div class="score-row">
-        <div class="score-card">
-            <div class="score-val" style="color:var(--red)" id="ovActiveMistakes">—</div>
-            <div class="score-lbl">ACTIVE MISTAKES</div>
-        </div>
-        <div class="score-card">
-            <div class="score-val" style="color:var(--gold)" id="ovRecovery">—</div>
-            <div class="score-lbl">RECOVERY RATE</div>
-        </div>
-        <div class="score-card">
-            <div class="score-val" style="color:var(--green)" id="ovResolved">—</div>
-            <div class="score-lbl">RESOLVED</div>
-        </div>
-    </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-v" id="s-trades">—</div><div class="stat-l">TRADES</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--green)" id="s-wr">—</div><div class="stat-l">WIN RATE</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--blue)" id="s-rev">—</div><div class="stat-l">REVIEWED</div></div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-v" style="color:var(--red)" id="s-active">—</div><div class="stat-l">ACTIVE MISTAKES</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--gold)" id="s-rec">—</div><div class="stat-l">RECOVERY RATE</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--green)" id="s-done">—</div><div class="stat-l">RESOLVED</div></div>
+  </div>
 
-    <!-- Mistake reduction progress -->
-    <div class="card">
-        <div class="card-title">MISTAKE RESOLUTION PROGRESS</div>
-        <div class="prog-row">
-            <div class="prog-label"><span>Mistakes resolved</span><span id="ovProgLabel">0 / 0</span></div>
-            <div class="prog-track"><div class="prog-fill multi" id="ovProgFill" style="width:0%"></div></div>
-        </div>
-        <div class="prog-row" style="margin-bottom:0;">
-            <div class="prog-label"><span>Trades reviewed</span><span id="ovRevProgLabel">0 / 0</span></div>
-            <div class="prog-track"><div class="prog-fill blue" id="ovRevProgFill" style="width:0%"></div></div>
-        </div>
+  <div class="card">
+    <div class="card-hd">MISTAKE RESOLUTION</div>
+    <div class="prog">
+      <div class="prog-top"><span>Resolved</span><span id="p1-lbl">0/0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="p1-fill" style="width:0%;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));"></div></div>
     </div>
+    <div class="prog" style="margin-bottom:0">
+      <div class="prog-top"><span>Trades reviewed</span><span id="p2-lbl">0/0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="p2-fill" style="width:0%;background:var(--blue);"></div></div>
+    </div>
+  </div>
 
-    <!-- Top patterns -->
-    <div class="card">
-        <div class="card-title">TOP WIN PATTERN <span class="badge green">REPEAT THIS</span></div>
-        <div id="ovTopWin"><div class="empty-state">Review your WIN trades to see patterns</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">TOP LOSS MISTAKE <span class="badge red">FIX THIS</span></div>
-        <div id="ovTopLoss"><div class="empty-state">Review your LOSS trades to see patterns</div></div>
-    </div>
+  <div class="card">
+    <div class="card-hd">TOP WIN PATTERN <span class="badge badge-g">REPEAT THIS</span></div>
+    <div id="ov-top-win"><div class="empty">Review WIN trades to see your edge</div></div>
+  </div>
 
-    <!-- Charts -->
-    <div class="card">
-        <div class="card-title">MISTAKE CATEGORIES</div>
-        <div class="chart-wrap"><canvas id="catChart"></canvas></div>
-    </div>
-    <div class="card">
-        <div class="card-title">LOSSES BY EXECUTION TYPE</div>
-        <div class="chart-wrap"><canvas id="execChart"></canvas></div>
-    </div>
+  <div class="card">
+    <div class="card-hd">TOP LOSS MISTAKE <span class="badge badge-r">FIX THIS</span></div>
+    <div id="ov-top-loss"><div class="empty">Review LOSS trades to expose weaknesses</div></div>
+  </div>
 
-    <div class="export-row">
-        <button class="exp-btn" id="xlsxBtn">📊 Excel</button>
-        <button class="exp-btn" id="pdfBtn">📄 PDF</button>
-        <button class="exp-btn" id="csvBtn">📋 CSV</button>
+  <div class="card">
+    <div class="card-hd">MISTAKE CATEGORIES</div>
+    <div class="chart-box"><canvas id="cat-chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">LOSSES BY EXECUTION</div>
+    <div class="chart-box"><canvas id="exec-chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">EXPORT DATA</div>
+    <div class="exp-row">
+      <button class="exp-btn" id="csvBtn">📋 CSV</button>
+      <button class="exp-btn" id="xlsxBtn">📊 Excel</button>
     </div>
+  </div>
 </div>
 
-<!-- ══ WIN ANALYSIS ══════════════════════════════════════════════════════ -->
-<div class="section-page" id="tab-wins">
-    <div class="card">
-        <div class="card-title">WIN TRADE PATTERNS <span class="badge green">WHAT'S WORKING</span></div>
-        <div id="winPatternsContent"><div class="empty-state">No WIN trades reviewed yet.<br>Go to "Log Review" tab and review your wins.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">MOST COMMON WIN REASONS</div>
-        <div id="winReasonsContent"><div class="empty-state">Win reasons will appear here after logging reviews.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">WIN CHECKLIST ANALYSIS</div>
-        <div id="winChecklistContent"><div class="empty-state">Tracks which checklist items appear most in your wins.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">WIN SESSION BREAKDOWN</div>
-        <div id="winSessionContent"><div class="empty-state">Session data will appear here.</div></div>
-    </div>
-    <div id="winInsightBox"></div>
+<!-- ═══ WINS ════════════════════════════════════════════════ -->
+<div class="page" id="page-wins">
+  <div class="card">
+    <div class="card-hd">WIN PATTERNS <span class="badge badge-g">WHAT'S WORKING</span></div>
+    <div id="win-patterns"><div class="empty">Review WIN trades to see patterns</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">MOST COMMON WIN REASONS</div>
+    <div id="win-reasons"><div class="empty">Win reasons appear here after logging reviews</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">CHECKLIST ITEMS IN WINS</div>
+    <div id="win-cl"><div class="empty">Shows which checklist items appear most in your wins</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">SESSION WIN RATES</div>
+    <div id="win-sess"><div class="empty">Session breakdown will appear here</div></div>
+  </div>
+  <div id="win-insight"></div>
 </div>
 
-<!-- ══ LOSS ANALYSIS ═════════════════════════════════════════════════════ -->
-<div class="section-page" id="tab-losses">
-    <div class="card">
-        <div class="card-title">MISTAKE CATEGORIES <span class="badge red">ROOT CAUSES</span></div>
-        <div id="lossCatContent"><div class="empty-state">No LOSS trades reviewed yet.<br>Go to "Log Review" and review your losses.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">MOST REPEATED LOSS REASONS</div>
-        <div id="lossReasonsContent"><div class="empty-state">Loss reasons appear after logging reviews.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">SEVERITY BREAKDOWN</div>
-        <div id="lossSeverityContent"><div class="empty-state">Severity data will appear here.</div></div>
-    </div>
-    <div class="card">
-        <div class="card-title">LOSS RULE BREAK PATTERNS</div>
-        <div id="lossRuleContent"><div class="empty-state">Tracks rule breaks across your loss trades.</div></div>
-    </div>
-    <div id="lossInsightBox"></div>
+<!-- ═══ LOSSES ══════════════════════════════════════════════ -->
+<div class="page" id="page-losses">
+  <div class="card">
+    <div class="card-hd">MISTAKE CATEGORIES <span class="badge badge-r">ROOT CAUSES</span></div>
+    <div id="loss-cats"><div class="empty">Review LOSS trades to see patterns</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">REPEATED LOSS REASONS</div>
+    <div id="loss-reasons"><div class="empty">Loss reasons appear after logging reviews</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">SEVERITY BREAKDOWN</div>
+    <div id="loss-sev"><div class="empty">Severity data appears here</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">RULE BREAKS IN LOSSES</div>
+    <div id="loss-rb"><div class="empty">Rule break patterns from your loss trades</div></div>
+  </div>
+  <div id="loss-insight"></div>
 </div>
 
-<!-- ══ LOG REVIEW ════════════════════════════════════════════════════════ -->
-<div class="section-page" id="tab-log">
-    <div class="card">
-        <div class="card-title">LOG A TRADE REVIEW <span class="badge">EVERY TRADE TEACHES</span></div>
+<!-- ═══ LOG REVIEW ══════════════════════════════════════════ -->
+<div class="page" id="page-log">
+  <div class="card">
+    <div class="card-hd">LOG A TRADE REVIEW <span class="badge badge-b">EVERY TRADE TEACHES</span></div>
 
-        <label class="form-label req">SELECT TRADE</label>
-        <select id="tradePicker"></select>
-        <div class="trade-preview" id="tradePreview"></div>
+    <label class="flbl req">SELECT TRADE</label>
+    <select id="tradePicker"></select>
+    <div class="trade-prev" id="tradePreview"></div>
 
-        <label class="form-label req">REVIEW TYPE</label>
-        <select id="reviewType"></select>
+    <label class="flbl req">REVIEW TYPE</label>
+    <select id="reviewType"></select>
 
-        <div id="catWrap">
-            <label class="form-label req" id="catLabel">ROOT CAUSE / PATTERN</label>
-            <select id="mistakeCat"></select>
-        </div>
-
-        <div id="sevWrap">
-            <label class="form-label" id="sevLabel">SEVERITY / CONFIDENCE</label>
-            <select id="severity"></select>
-        </div>
-
-        <label class="form-label req" id="descLabel">REVIEW NOTES</label>
-        <textarea id="reviewDesc" placeholder="Be specific and honest..."></textarea>
-
-        <label class="form-label req" id="actionLabel">WHAT TO DO NEXT TIME</label>
-        <textarea id="reviewAction" placeholder="Exact action to repeat or avoid..."></textarea>
-
-        <button class="btn-save" id="saveBtn">SAVE REVIEW</button>
-        <button class="btn-clear" id="clearBtn">CLEAR FORM</button>
+    <div id="catWrap">
+      <label class="flbl req" id="catLabel">ROOT CAUSE / PATTERN</label>
+      <select id="mistakeCat"></select>
     </div>
+
+    <label class="flbl" id="sevLabel">SEVERITY / CONFIDENCE</label>
+    <select id="severity"></select>
+
+    <label class="flbl req" id="descLabel">REVIEW NOTES</label>
+    <textarea id="reviewDesc" placeholder="Be specific and honest..."></textarea>
+
+    <label class="flbl req" id="actionLabel">WHAT TO DO NEXT TIME</label>
+    <textarea id="reviewAction" placeholder="Exact action to repeat or avoid..."></textarea>
+
+    <button class="btn-main" id="saveBtn">SAVE REVIEW</button>
+    <button class="btn-sec" id="clearBtn">CLEAR FORM</button>
+  </div>
 </div>
 
-<!-- ══ TRACKER ═══════════════════════════════════════════════════════════ -->
-<div class="section-page" id="tab-tracker">
-    <div class="filter-row">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="mistake">🔴 Mistakes</button>
-        <button class="filter-btn" data-filter="good">🟢 Wins</button>
-        <button class="filter-btn" data-filter="mixed">🟡 Mixed</button>
-        <button class="filter-btn" data-filter="be">⚪ BE</button>
-        <button class="filter-btn" data-filter="active">⏳ Active</button>
-        <button class="filter-btn" data-filter="resolved">✅ Resolved</button>
-    </div>
-    <div id="reviewsContainer"></div>
+<!-- ═══ TRACKER ═════════════════════════════════════════════ -->
+<div class="page" id="page-tracker">
+  <div class="filters">
+    <button class="fbtn on" data-f="all">All</button>
+    <button class="fbtn" data-f="mistake">🔴 Mistakes</button>
+    <button class="fbtn" data-f="good">🟢 Wins</button>
+    <button class="fbtn" data-f="mixed">🟡 Mixed</button>
+    <button class="fbtn" data-f="be">⚪ BE</button>
+    <button class="fbtn" data-f="active">⏳ Active</button>
+    <button class="fbtn" data-f="resolved">✅ Resolved</button>
+  </div>
+  <div id="rv-list"></div>
 </div>
 
-<!-- ══ WEEKLY ════════════════════════════════════════════════════════════ -->
-<div class="section-page" id="tab-weekly">
-    <div class="week-nav">
-        <button class="week-nav-btn" id="weekPrev">‹</button>
-        <div class="week-label" id="weekLabel">This Week</div>
-        <button class="week-nav-btn" id="weekNext">›</button>
-    </div>
-
-    <div class="card">
-        <div class="card-title">WEEK AT A GLANCE</div>
-        <div class="week-grid" id="weekGrid"></div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">MINDSET vs WIN RATE</div>
-        <div class="chart-wrap"><canvas id="weekMindChart"></canvas></div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">CHECKLIST COMPLIANCE</div>
-        <div id="weekCLContent"></div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">RULE BREAKS THIS WEEK</div>
-        <div id="weekRBContent"></div>
-    </div>
-
-    <div id="weekInsights"></div>
+<!-- ═══ WEEKLY ══════════════════════════════════════════════ -->
+<div class="page" id="page-weekly">
+  <div class="week-nav">
+    <button class="wnav-btn" id="wkPrev">‹</button>
+    <div class="week-lbl" id="wkLabel">This Week</div>
+    <button class="wnav-btn" id="wkNext">›</button>
+  </div>
+  <div class="card">
+    <div class="card-hd">WEEK AT A GLANCE</div>
+    <div class="wk-grid" id="wk-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">MINDSET vs WIN RATE</div>
+    <div class="chart-box"><canvas id="mind-chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">CHECKLIST COMPLIANCE</div>
+    <div id="wk-cl"></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">RULE BREAKS THIS WEEK</div>
+    <div id="wk-rb"></div>
+  </div>
+  <div id="wk-insights"></div>
 </div>
 
 <script type="module">
-import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
+import { requireAuthFast, requirePin, showToast, injectBottomNav } from '/shared.js';
 
-// Inject bottom nav after DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => injectBottomNav('improvement'));
-} else {
-    injectBottomNav('improvement');
-}
+const IMP_KEY = 'xX_improvement_engine';
+const JNL_KEY = 'xX_journal_data';
 
-const IMPROVE_KEY = 'xX_improvement_engine';
-const JOURNAL_KEY = 'xX_journal_data';
+let reviews = [], trades = [], tradeOpts = [];
+let curFilter = 'all', wkOffset = 0;
+let catCh = null, execCh = null, mindCh = null;
 
-let reviews = [], trades = [], tradeOptions = [];
-let currentFilter = 'all', weekOffset = 0;
-let catChartInst = null, execChartInst = null, weekMindChartInst = null;
+// ── Boot ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  injectBottomNav('improvement');
+});
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
 (async () => {
-    const user = await requireAuthFast('/improvement.html');
-    if (!user) return;
-    await requirePin();
-    loadData();
-    init();
+  const user = await requireAuthFast('/improvement.html');
+  if (!user) return;
+  await requirePin();
+  loadData();
+  initTabs();
+  render();
+  wireEvents();
 })();
 
 function loadData() {
-    try { reviews = JSON.parse(localStorage.getItem(IMPROVE_KEY) || '[]'); if (!Array.isArray(reviews)) reviews = []; } catch(e) { reviews = []; }
-    try { const j = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '{}'); trades = Object.values(j.journals || {}); } catch(e) { trades = []; }
+  try { reviews = JSON.parse(localStorage.getItem(IMP_KEY) || '[]'); if (!Array.isArray(reviews)) reviews = []; } catch { reviews = []; }
+  try { const j = JSON.parse(localStorage.getItem(JNL_KEY) || '{}'); trades = Object.values(j.journals || {}); } catch { trades = []; }
 }
 
-function init() {
-    setupTabs();
-    renderOverview();
-    renderWinAnalysis();
-    renderLossAnalysis();
-    populateTradeDropdown();
-    setupForm();
-    renderReviews();
-    renderWeekly();
-    setupFilters();
-    setupExports();
-    document.getElementById('syncBtn').addEventListener('click', () => { loadData(); init(); showToast('Synced ✓','success'); });
-    document.getElementById('weekPrev').addEventListener('click', () => { weekOffset--; renderWeekly(); });
-    document.getElementById('weekNext').addEventListener('click', () => { weekOffset++; renderWeekly(); });
+function render() {
+  renderOverview();
+  renderWins();
+  renderLosses();
+  buildDropdown();
+  renderTracker();
+  renderWeekly();
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function setupTabs() {
-    document.querySelectorAll('.tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        });
+// ── Tabs ──────────────────────────────────────────────────
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+      this.classList.add('on');
+      document.getElementById('page-' + this.dataset.tab).classList.add('on');
     });
+  });
 }
 
-// ── Overview ──────────────────────────────────────────────────────────────────
+// ── Wire all events ───────────────────────────────────────
+function wireEvents() {
+  document.getElementById('syncBtn').addEventListener('click', () => {
+    loadData(); render(); showToast('Synced ✓', 'success');
+  });
+
+  // Form
+  document.getElementById('tradePicker').addEventListener('change', onTradeChange);
+  document.getElementById('reviewType').addEventListener('change', onTypeChange);
+  document.getElementById('saveBtn').addEventListener('click', saveReview);
+  document.getElementById('clearBtn').addEventListener('click', clearForm);
+
+  // Filters
+  document.querySelectorAll('.fbtn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+      this.classList.add('on');
+      curFilter = this.dataset.f;
+      renderTracker();
+    });
+  });
+
+  // Weekly nav
+  document.getElementById('wkPrev').addEventListener('click', () => { wkOffset--; renderWeekly(); });
+  document.getElementById('wkNext').addEventListener('click', () => { wkOffset++; renderWeekly(); });
+
+  // Exports
+  document.getElementById('csvBtn').addEventListener('click', expCSV);
+  document.getElementById('xlsxBtn').addEventListener('click', expXLSX);
+
+  // Init form state
+  initFormOptions();
+}
+
+// ── Overview ──────────────────────────────────────────────
 function renderOverview() {
-    const total   = trades.length;
-    const wins    = trades.filter(t => t.outcome === 'WIN').length;
-    const losses  = trades.filter(t => t.outcome === 'LOSS').length;
-    const wr      = total > 0 ? Math.round((wins/total)*100) : 0;
+  const total  = trades.length;
+  const wins   = trades.filter(t => t.outcome === 'WIN').length;
+  const losses = trades.filter(t => t.outcome === 'LOSS').length;
+  const wr     = total ? Math.round((wins/total)*100) : 0;
 
-    const mistakeRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
-    const goodRevs    = reviews.filter(r => r.reviewType === 'good');
-    const active   = mistakeRevs.filter(r => !r.resolved).length;
-    const resolved = mistakeRevs.filter(r =>  r.resolved).length;
-    const improvPct = mistakeRevs.length ? Math.round((resolved/mistakeRevs.length)*100) : 0;
-    const reviewedPct = total ? Math.round((reviews.length/total)*100) : 0;
+  const mRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
+  const gRevs = reviews.filter(r => r.reviewType === 'good');
+  const active   = mRevs.filter(r => !r.resolved).length;
+  const resolved = mRevs.filter(r =>  r.resolved).length;
+  const p1pct = mRevs.length ? Math.round((resolved/mRevs.length)*100) : 0;
+  const p2pct = total ? Math.round((reviews.length/total)*100) : 0;
 
-    // Recovery rate
-    let recW = 0, recT = 0;
-    const sorted = [...trades].sort((a,b) => new Date(a.timestamp)-new Date(b.timestamp));
-    for (let i=0;i<sorted.length-1;i++) { if (sorted[i].outcome==='LOSS'){recT++;if(sorted[i+1].outcome==='WIN')recW++;} }
-    const recRate = recT > 0 ? Math.round((recW/recT)*100) : 0;
+  let recW = 0, recT = 0;
+  const sorted = [...trades].sort((a,b) => +new Date(a.timestamp) - +new Date(b.timestamp));
+  for (let i = 0; i < sorted.length-1; i++) {
+    if (sorted[i].outcome === 'LOSS') { recT++; if (sorted[i+1].outcome === 'WIN') recW++; }
+  }
+  const recRate = recT ? Math.round((recW/recT)*100) : 0;
 
-    // Top win pattern
-    const winPats = {}; goodRevs.forEach(r => { if (r.category && r.category !== 'N/A') winPats[r.category] = (winPats[r.category]||0)+1; });
-    const topWin = Object.entries(winPats).sort((a,b)=>b[1]-a[1])[0];
+  const winPats = {}; gRevs.forEach(r => { if (r.category && r.category !== 'N/A') winPats[r.category] = (winPats[r.category]||0)+1; });
+  const topWin  = Object.entries(winPats).sort((a,b) => b[1]-a[1])[0];
 
-    // Top loss mistake
-    const lossCats = {}; mistakeRevs.forEach(r => { if (r.category && r.category !== 'N/A') lossCats[r.category] = (lossCats[r.category]||0)+1; });
-    const topLoss = Object.entries(lossCats).sort((a,b)=>b[1]-a[1])[0];
+  const lossCats = {}; mRevs.forEach(r => { if (r.category && r.category !== 'N/A') lossCats[r.category] = (lossCats[r.category]||0)+1; });
+  const topLoss  = Object.entries(lossCats).sort((a,b) => b[1]-a[1])[0];
 
-    document.getElementById('ovTotalTrades').textContent   = total;
-    document.getElementById('ovWinRate').textContent       = wr + '%';
-    document.getElementById('ovReviewed').textContent      = reviews.length;
-    document.getElementById('ovActiveMistakes').textContent= active;
-    document.getElementById('ovRecovery').textContent      = recRate + '%';
-    document.getElementById('ovResolved').textContent      = resolved;
-    document.getElementById('ovProgLabel').textContent     = `${resolved} / ${mistakeRevs.length}`;
-    document.getElementById('ovProgFill').style.width      = improvPct + '%';
-    document.getElementById('ovRevProgLabel').textContent  = `${reviews.length} / ${total}`;
-    document.getElementById('ovRevProgFill').style.width   = reviewedPct + '%';
-    document.getElementById('statusBar').innerHTML =
-        `${total} total trades &nbsp;·&nbsp; ${wins}W ${losses}L &nbsp;·&nbsp; ${wr}% win rate &nbsp;·&nbsp; ${reviews.length} reviews logged`;
+  setText('s-trades', total);
+  setText('s-wr',    wr+'%');
+  setText('s-rev',   reviews.length);
+  setText('s-active',active);
+  setText('s-rec',   recRate+'%');
+  setText('s-done',  resolved);
+  setText('p1-lbl',  `${resolved}/${mRevs.length}`);
+  setText('p2-lbl',  `${reviews.length}/${total}`);
+  setStyle('p1-fill','width', p1pct+'%');
+  setStyle('p2-fill','width', p2pct+'%');
 
-    // Top win card
-    const topWinEl = document.getElementById('ovTopWin');
-    if (topWin) {
-        topWinEl.innerHTML = `
-            <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:4px;">${topWin[0]}</div>
-            <div style="font-size:12px;color:var(--muted);">Appears in ${topWin[1]} of your reviewed wins</div>`;
-    } else topWinEl.innerHTML = '<div class="empty-state">Review WIN trades to see your edge</div>';
+  document.getElementById('statusBar').innerHTML =
+    `${total} trades · ${wins}W ${losses}L · ${wr}% win rate · ${reviews.length} reviews logged`;
 
-    // Top loss card
-    const topLossEl = document.getElementById('ovTopLoss');
-    if (topLoss) {
-        topLossEl.innerHTML = `
-            <div style="font-size:20px;font-weight:800;color:var(--red);margin-bottom:4px;">${topLoss[0]}</div>
-            <div style="font-size:12px;color:var(--muted);">Root cause in ${topLoss[1]} reviewed losses · ${active} still unresolved</div>`;
-    } else topLossEl.innerHTML = '<div class="empty-state">Review LOSS trades to expose your weaknesses</div>';
+  const twEl = document.getElementById('ov-top-win');
+  twEl.innerHTML = topWin
+    ? `<div style="font-size:19px;font-weight:800;color:var(--green);margin-bottom:4px;">${topWin[0]}</div>
+       <div style="font-size:11px;color:var(--muted);">In ${topWin[1]} of your reviewed wins</div>`
+    : `<div class="empty">Review WIN trades to see your edge</div>`;
 
-    renderCharts();
+  const tlEl = document.getElementById('ov-top-loss');
+  tlEl.innerHTML = topLoss
+    ? `<div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:4px;">${topLoss[0]}</div>
+       <div style="font-size:11px;color:var(--muted);">Root cause in ${topLoss[1]} losses · ${active} unresolved</div>`
+    : `<div class="empty">Review LOSS trades to expose weaknesses</div>`;
+
+  renderOvCharts(mRevs);
 }
 
-function renderCharts() {
-    // Category chart
-    const mistakeRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
-    const catCounts = {}; mistakeRevs.forEach(r => { if (r.category && r.category !== 'N/A') catCounts[r.category] = (catCounts[r.category]||0)+1; });
-    const cats = Object.keys(catCounts).sort((a,b) => catCounts[b]-catCounts[a]);
-    const catCtx = document.getElementById('catChart');
-    if (catChartInst) { catChartInst.destroy(); catChartInst = null; }
-    if (cats.length) {
-        catChartInst = new Chart(catCtx, {
-            type:'bar',
-            data:{ labels:cats, datasets:[{ data:cats.map(c=>catCounts[c]), backgroundColor:cats.map((_,i)=>`hsl(${i*40+0},65%,55%)`), borderWidth:0, borderRadius:4 }] },
-            options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',stepSize:1}}, x:{ticks:{color:'rgba(255,255,255,0.6)',maxRotation:40,font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}} }, plugins:{legend:{display:false}} }
-        });
-    } else { catCtx.parentElement.innerHTML = '<div class="empty-state">No mistake categories logged yet</div>'; }
-
-    // Exec chart
-    const losses = trades.filter(t => t.outcome === 'LOSS');
-    const lim = losses.filter(t=>t.execution==='limit').length;
-    const ins = losses.filter(t=>t.execution==='instant').length;
-    const oth = losses.length - lim - ins;
-    const exCtx = document.getElementById('execChart');
-    if (execChartInst) { execChartInst.destroy(); execChartInst = null; }
-    if (losses.length) {
-        execChartInst = new Chart(exCtx, {
-            type:'doughnut',
-            data:{ labels:['Limit','Instant','Other'], datasets:[{ data:[lim,ins,oth], backgroundColor:['#4A90E2','#E22134','#666'], borderWidth:0, hoverOffset:6 }] },
-            options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.7)', font:{size:11}, padding:16 } } } }
-        });
-    } else { exCtx.parentElement.innerHTML = '<div class="empty-state">No losses recorded yet</div>'; }
-}
-
-// ── WIN Analysis ──────────────────────────────────────────────────────────────
-function renderWinAnalysis() {
-    const winRevs = reviews.filter(r => r.reviewType === 'good');
-    const winTrades = trades.filter(t => t.outcome === 'WIN');
-
-    // Patterns
-    const patCounts = {}; winRevs.forEach(r => { const k = r.category && r.category !== 'N/A' ? r.category : 'Untagged'; patCounts[k] = (patCounts[k]||0)+1; });
-    const sortedPats = Object.entries(patCounts).sort((a,b)=>b[1]-a[1]);
-    const patEl = document.getElementById('winPatternsContent');
-    if (!sortedPats.length) {
-        patEl.innerHTML = '<div class="empty-state">Review WIN trades to see your patterns</div>';
-    } else {
-        const max = sortedPats[0][1];
-        patEl.innerHTML = sortedPats.map(([pat, count]) => {
-            const pct = Math.round((count/winRevs.length)*100);
-            return `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${pat}</span><span class="bar-val" style="color:var(--green)">${count}x · ${pct}%</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/max)*100)}%;background:var(--green);"></div></div>
-            </div>`;
-        }).join('');
-    }
-
-    // Reasons
-    const reasonCounts = {}; winRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) { const k=t.reason.trim(); reasonCounts[k]=(reasonCounts[k]||0)+1; } });
-    const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const reasonEl = document.getElementById('winReasonsContent');
-    reasonEl.innerHTML = sortedReasons.length
-        ? sortedReasons.map(([r,c]) => `<div class="reason-item win"><span class="reason-text">"${esc(r)}"</span><span class="reason-count" style="color:var(--green)">${c}x</span></div>`).join('')
-        : '<div class="empty-state">Trade reasons from your WIN entries appear here</div>';
-
-    // Checklist items in wins
-    const clCounts = {}; winTrades.forEach(t => (t.checklist||[]).forEach(item => { clCounts[item]=(clCounts[item]||0)+1; }));
-    const sortedCL = Object.entries(clCounts).sort((a,b)=>b[1]-a[1]);
-    const clEl = document.getElementById('winChecklistContent');
-    if (!sortedCL.length || !winTrades.length) {
-        clEl.innerHTML = '<div class="empty-state">No checklist data found in win trades</div>';
-    } else {
-        const maxCL = winTrades.length;
-        clEl.innerHTML = sortedCL.slice(0,8).map(([item, count]) => {
-            const pct = Math.round((count/maxCL)*100);
-            return `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${item}</span><span class="bar-val" style="color:var(--blue)">${pct}% of wins</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
-            </div>`;
-        }).join('');
-    }
-
-    // Session breakdown for wins
-    const sessCounts = { asia:0, london:0, newyork:0 };
-    const sessWins   = { asia:0, london:0, newyork:0 };
-    trades.forEach(t => { const s=t.tradeSession?.session; if(s&&sessCounts[s]!==undefined) { sessCounts[s]++; if(t.outcome==='WIN') sessWins[s]++; } });
-    const sessEl = document.getElementById('winSessionContent');
-    const sessRows = [['asia','Asia'],['london','London'],['newyork','New York']].filter(([k])=>sessCounts[k]).map(([k,label]) => {
-        const wr2 = sessCounts[k] ? Math.round((sessWins[k]/sessCounts[k])*100) : 0;
-        return `<div class="bar-item">
-            <div class="bar-header"><span class="bar-label">${label}</span><span class="bar-val" style="color:${wr2>=50?'var(--green)':'var(--red)'}">${wr2}% (${sessWins[k]}W/${sessCounts[k]}T)</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width:${wr2}%;background:${wr2>=50?'var(--green)':'var(--red)'};"></div></div>
-        </div>`;
+function renderOvCharts(mRevs) {
+  // Category bar chart
+  const catCounts = {};
+  mRevs.forEach(r => { if (r.category && r.category !== 'N/A') catCounts[r.category] = (catCounts[r.category]||0)+1; });
+  const cats = Object.keys(catCounts).sort((a,b) => catCounts[b]-catCounts[a]);
+  const ccEl = document.getElementById('cat-chart');
+  if (catCh) { catCh.destroy(); catCh = null; }
+  if (cats.length) {
+    catCh = new Chart(ccEl, {
+      type:'bar',
+      data:{ labels:cats, datasets:[{ data:cats.map(c=>catCounts[c]), backgroundColor:cats.map((_,i)=>`hsl(${i*45},65%,55%)`), borderWidth:0, borderRadius:4 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ y:{beginAtZero:true,ticks:{color:'rgba(255,255,255,0.45)',stepSize:1},grid:{color:'rgba(255,255,255,0.04)'}},
+                 x:{ticks:{color:'rgba(255,255,255,0.55)',maxRotation:40,font:{size:9}},grid:{display:false}} } }
     });
-    sessEl.innerHTML = sessRows.length ? sessRows.join('') : '<div class="empty-state">No session data</div>';
+  } else { ccEl.parentElement.innerHTML = '<div class="empty">No mistake categories logged yet</div>'; }
 
-    // Insight
-    const insEl = document.getElementById('winInsightBox');
-    if (sortedPats[0]) {
-        insEl.innerHTML = `<div class="insight green">🏆 <strong>${sortedPats[0][0]}</strong> is your strongest edge — shows up in <strong>${Math.round((sortedPats[0][1]/winRevs.length)*100)}%</strong> of your reviewed wins.${sortedReasons[0]?`<br>Most repeated win reason: <em>"${esc(sortedReasons[0][0])}"</em>`:''}  Keep doing this.</div>`;
-    } else insEl.innerHTML = '';
-}
-
-// ── LOSS Analysis ─────────────────────────────────────────────────────────────
-function renderLossAnalysis() {
-    const lossRevs = reviews.filter(r => r.reviewType === 'mistake' || r.reviewType === 'mixed');
-    const lossTrades = trades.filter(t => t.outcome === 'LOSS');
-    const active = lossRevs.filter(r=>!r.resolved).length;
-
-    // Categories
-    const catCounts = {}; lossRevs.forEach(r => { const k = r.category && r.category !== 'N/A' ? r.category : 'Untagged'; catCounts[k] = (catCounts[k]||0)+1; });
-    const sortedCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
-    const catEl = document.getElementById('lossCatContent');
-    if (!sortedCats.length) {
-        catEl.innerHTML = '<div class="empty-state">No LOSS trades reviewed yet</div>';
-    } else {
-        const max = sortedCats[0][1];
-        catEl.innerHTML = sortedCats.map(([cat,count]) => {
-            const pct = Math.round((count/lossRevs.length)*100);
-            return `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${cat}</span><span class="bar-val" style="color:var(--red)">${count}x · ${pct}%</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/max)*100)}%;background:var(--red);"></div></div>
-            </div>`;
-        }).join('');
-    }
-
-    // Loss reasons
-    const reasonCounts = {}; lossRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) { const k=t.reason.trim(); reasonCounts[k]=(reasonCounts[k]||0)+1; } });
-    const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const reasonEl = document.getElementById('lossReasonsContent');
-    reasonEl.innerHTML = sortedReasons.length
-        ? sortedReasons.map(([r,c]) => `<div class="reason-item loss"><span class="reason-text">"${esc(r)}"</span><span class="reason-count" style="color:var(--red)">${c}x</span></div>`).join('')
-        : '<div class="empty-state">Trade reasons from LOSS entries appear here</div>';
-
-    // Severity
-    const sevCounts = { High:0, Medium:0, Low:0 }; lossRevs.forEach(r => { if(r.severity&&sevCounts[r.severity]!==undefined) sevCounts[r.severity]++; });
-    const sevEl = document.getElementById('lossSeverityContent');
-    const totalSev = lossRevs.length;
-    sevEl.innerHTML = totalSev ? [['High','🔥',var_c('--red')],['Medium','⚠️','#FF9800'],['Low','💡',var_c('--blue')]].map(([k,icon,col]) => {
-        const c = sevCounts[k]; const pct = totalSev ? Math.round((c/totalSev)*100) : 0;
-        return `<div class="bar-item">
-            <div class="bar-header"><span class="bar-label">${icon} ${k}</span><span class="bar-val" style="color:${col}">${c}x · ${pct}%</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col};"></div></div>
-        </div>`;
-    }).join('') : '<div class="empty-state">No severity data</div>';
-
-    // Rule breaks in loss trades
-    const rbCounts = {}; lossTrades.forEach(t => (t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(rb=>{ rbCounts[rb]=(rbCounts[rb]||0)+1; }));
-    const sortedRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1]);
-    const rbEl = document.getElementById('lossRuleContent');
-    if (!sortedRB.length) { rbEl.innerHTML = '<div class="empty-state">No rule break data in loss trades</div>'; }
-    else {
-        const maxRB = sortedRB[0][1];
-        rbEl.innerHTML = sortedRB.slice(0,8).map(([rb,count]) => {
-            return `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${rb}</span><span class="bar-val" style="color:var(--red)">${count}x</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/maxRB)*100)}%;background:var(--red);"></div></div>
-            </div>`;
-        }).join('');
-    }
-
-    // Insight
-    const insEl = document.getElementById('lossInsightBox');
-    if (sortedCats[0]) {
-        insEl.innerHTML = `<div class="insight red" style="margin-top:0;">🔴 Fix <strong>${sortedCats[0][0]}</strong> first — it's your #1 mistake, accounting for <strong>${Math.round((sortedCats[0][1]/lossRevs.length)*100)}%</strong> of reviewed losses. ${active} still unresolved.</div>`;
-    } else insEl.innerHTML = '';
-}
-
-function var_c(v) { return getComputedStyle(document.documentElement).getPropertyValue(v) || '#888'; }
-
-// ── Form ──────────────────────────────────────────────────────────────────────
-function populateTradeDropdown() {
-    const reviewed = new Set(reviews.map(r => r.tradeId));
-
-    // Only show UNREVIEWED trades in the picker
-    const unreviewed = [...trades]
-        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .filter(t => !reviewed.has(t.tradeId));
-
-    const sel = document.getElementById('tradePicker');
-    sel.innerHTML = '<option value="">— Select an unreviewed trade —</option>';
-    tradeOptions = [];
-
-    if (!unreviewed.length) {
-        const opt = document.createElement('option');
-        opt.disabled = true;
-        opt.textContent = `✅ All ${trades.length} trades reviewed`;
-        sel.appendChild(opt);
-        return;
-    }
-
-    const groups = { LOSS:[], WIN:[], BREAKEVEN:[] };
-    unreviewed.forEach(t => { (groups[t.outcome] || groups.LOSS).push(t); });
-
-    const labels = { WIN:'🟢 WINS', LOSS:'🔴 LOSSES', BREAKEVEN:'⚪ BREAKEVEN' };
-    ['LOSS','WIN','BREAKEVEN'].forEach(out => {
-        const group = groups[out];
-        if (!group.length) return;
-        const og = document.createElement('optgroup');
-        og.label = `${labels[out]} — ${group.length} unreviewed`;
-        group.forEach(t => {
-            const d = new Date(t.timestamp);
-            const opt = document.createElement('option');
-            opt.value = t.tradeId;
-            opt.textContent = `${t.pair} ${t.direction} · ${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
-            og.appendChild(opt);
-            tradeOptions.push(t);
-        });
-        sel.appendChild(og);
+  // Exec doughnut
+  const lss = trades.filter(t => t.outcome === 'LOSS');
+  const exEl = document.getElementById('exec-chart');
+  if (execCh) { execCh.destroy(); execCh = null; }
+  if (lss.length) {
+    const lim = lss.filter(t=>t.execution==='limit').length;
+    const ins = lss.filter(t=>t.execution==='instant').length;
+    const oth = lss.length - lim - ins;
+    execCh = new Chart(exEl, {
+      type:'doughnut',
+      data:{ labels:['Limit','Instant','Other'], datasets:[{ data:[lim,ins,oth], backgroundColor:['#4A90E2','#E22134','#555'], borderWidth:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
+        plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.65)', font:{size:11}, padding:14 } } } }
     });
-
-    // Show review count summary
-    document.getElementById('tradePreview').innerHTML = unreviewed.length > 0
-        ? `<span style="color:var(--muted);font-size:11px;">📋 ${unreviewed.length} trades unreviewed · ${reviewed.size} already reviewed</span>`
-        : '';
+  } else { exEl.parentElement.innerHTML = '<div class="empty">No losses yet</div>'; }
 }
 
-function setupForm() {
-    document.getElementById('tradePicker').addEventListener('change', onTradeChange);
-    document.getElementById('reviewType').addEventListener('change', onTypeChange);
-    document.getElementById('saveBtn').addEventListener('click', saveReview);
-    document.getElementById('clearBtn').addEventListener('click', clearForm);
-    onTypeChange();
+// ── Wins ──────────────────────────────────────────────────
+function renderWins() {
+  const gRevs = reviews.filter(r => r.reviewType === 'good');
+  const wTrades = trades.filter(t => t.outcome === 'WIN');
+
+  // Patterns
+  const pats = {}; gRevs.forEach(r => { const k = r.category && r.category!=='N/A' ? r.category : 'Untagged'; pats[k]=(pats[k]||0)+1; });
+  const sPats = Object.entries(pats).sort((a,b)=>b[1]-a[1]);
+  const pEl = document.getElementById('win-patterns');
+  pEl.innerHTML = sPats.length ? bars(sPats, gRevs.length, 'var(--green)') : '<div class="empty">Review WIN trades to see patterns</div>';
+
+  // Reasons
+  const reasons = {}; gRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) reasons[t.reason.trim()]=(reasons[t.reason.trim()]||0)+1; });
+  const sReasons = Object.entries(reasons).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('win-reasons').innerHTML = sReasons.length
+    ? sReasons.map(([r,c]) => `<div class="reason w"><span class="reason-txt">"${esc(r)}"</span><span class="reason-cnt" style="color:var(--green)">${c}x</span></div>`).join('')
+    : '<div class="empty">Win reasons appear after logging reviews</div>';
+
+  // Checklist items
+  const cl = {}; wTrades.forEach(t => (t.checklist||[]).forEach(item => { cl[item]=(cl[item]||0)+1; }));
+  const sCL = Object.entries(cl).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const clEl = document.getElementById('win-cl');
+  clEl.innerHTML = sCL.length && wTrades.length
+    ? bars(sCL, wTrades.length, 'var(--blue)')
+    : '<div class="empty">No checklist data in win trades</div>';
+
+  // Sessions
+  const sc = {asia:0,london:0,newyork:0}, sw = {asia:0,london:0,newyork:0};
+  trades.forEach(t => { const s=t.tradeSession?.session; if(s&&sc[s]!==undefined){sc[s]++;if(t.outcome==='WIN')sw[s]++;} });
+  const sessEl = document.getElementById('win-sess');
+  const sRows = [['asia','Asia'],['london','London'],['newyork','New York']].filter(([k])=>sc[k]).map(([k,lbl])=>{
+    const w2 = sc[k] ? Math.round((sw[k]/sc[k])*100) : 0;
+    return `<div class="bar">
+      <div class="bar-top"><span class="bar-lbl">${lbl}</span><span class="bar-val" style="color:${w2>=50?'var(--green)':'var(--red)'}">${w2}% (${sw[k]}W/${sc[k]}T)</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w2}%;background:${w2>=50?'var(--green)':'var(--red)'}"></div></div>
+    </div>`;
+  });
+  sessEl.innerHTML = sRows.length ? sRows.join('') : '<div class="empty">No session data</div>';
+
+  // Insight
+  document.getElementById('win-insight').innerHTML = sPats[0]
+    ? `<div class="ins g">🏆 <strong>${sPats[0][0]}</strong> is your strongest edge — in <strong>${Math.round((sPats[0][1]/gRevs.length)*100)}%</strong> of reviewed wins.${sReasons[0]?`<br>Most repeated reason: <em>"${esc(sReasons[0][0])}"</em>`:''}</div>`
+    : '';
+}
+
+// ── Losses ────────────────────────────────────────────────
+function renderLosses() {
+  const mRevs = reviews.filter(r => r.reviewType==='mistake'||r.reviewType==='mixed');
+  const lTrades = trades.filter(t => t.outcome==='LOSS');
+  const active = mRevs.filter(r=>!r.resolved).length;
+
+  // Categories
+  const cats = {}; mRevs.forEach(r => { const k=r.category&&r.category!=='N/A'?r.category:'Untagged'; cats[k]=(cats[k]||0)+1; });
+  const sCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('loss-cats').innerHTML = sCats.length
+    ? bars(sCats, mRevs.length, 'var(--red)')
+    : '<div class="empty">No LOSS trades reviewed yet</div>';
+
+  // Reasons
+  const reasons = {}; mRevs.forEach(r => { const t=trades.find(x=>x.tradeId===r.tradeId); if(t?.reason?.trim()) reasons[t.reason.trim()]=(reasons[t.reason.trim()]||0)+1; });
+  const sReasons = Object.entries(reasons).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('loss-reasons').innerHTML = sReasons.length
+    ? sReasons.map(([r,c]) => `<div class="reason l"><span class="reason-txt">"${esc(r)}"</span><span class="reason-cnt" style="color:var(--red)">${c}x</span></div>`).join('')
+    : '<div class="empty">Loss reasons appear after logging reviews</div>';
+
+  // Severity
+  const sev = {High:0,Medium:0,Low:0}; mRevs.forEach(r => { if(r.severity&&sev[r.severity]!==undefined) sev[r.severity]++; });
+  const sevEl = document.getElementById('loss-sev');
+  sevEl.innerHTML = mRevs.length
+    ? [['High','🔥','#E22134'],['Medium','⚠️','#FF9800'],['Low','💡','#4A90E2']].map(([k,ic,col])=>{
+        const c=sev[k]; const pct=mRevs.length?Math.round((c/mRevs.length)*100):0;
+        return `<div class="bar"><div class="bar-top"><span class="bar-lbl">${ic} ${k}</span><span class="bar-val" style="color:${col}">${c}x · ${pct}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+      }).join('')
+    : '<div class="empty">No severity data</div>';
+
+  // Rule breaks
+  const rb = {}; lTrades.forEach(t => (t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(r=>{rb[r]=(rb[r]||0)+1;}));
+  const sRB = Object.entries(rb).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('loss-rb').innerHTML = sRB.length
+    ? bars(sRB, sRB[0]?.[1]||1, 'var(--red)', true)
+    : '<div class="empty">No rule break data in losses</div>';
+
+  // Insight
+  document.getElementById('loss-insight').innerHTML = sCats[0]
+    ? `<div class="ins r" style="margin-top:0">🔴 Fix <strong>${sCats[0][0]}</strong> first — accounts for <strong>${Math.round((sCats[0][1]/mRevs.length)*100)}%</strong> of reviewed losses. ${active} still unresolved.</div>`
+    : '';
+}
+
+// ── Log Review Form ───────────────────────────────────────
+function buildDropdown() {
+  const reviewed = new Set(reviews.map(r => r.tradeId));
+  const unrev = [...trades].sort((a,b)=>+new Date(b.timestamp)-+new Date(a.timestamp)).filter(t=>!reviewed.has(t.tradeId));
+  const sel = document.getElementById('tradePicker');
+  sel.innerHTML = '<option value="">— Select an unreviewed trade —</option>';
+  tradeOpts = [];
+
+  if (!unrev.length) {
+    sel.innerHTML += `<option disabled>✅ All ${trades.length} trades reviewed</option>`;
+    document.getElementById('tradePreview').innerHTML = `<span style="color:var(--muted);font-size:11px;">✅ All trades reviewed</span>`;
+    return;
+  }
+
+  document.getElementById('tradePreview').innerHTML =
+    `<span style="color:var(--muted);font-size:11px;">📋 ${unrev.length} unreviewed · ${reviewed.size} reviewed</span>`;
+
+  const grps = {LOSS:[],WIN:[],BREAKEVEN:[]};
+  unrev.forEach(t => (grps[t.outcome]||grps.LOSS).push(t));
+  const lbls = {WIN:'🟢 WINS',LOSS:'🔴 LOSSES',BREAKEVEN:'⚪ BREAKEVEN'};
+  ['LOSS','WIN','BREAKEVEN'].forEach(out => {
+    const g = grps[out]; if (!g.length) return;
+    const og = document.createElement('optgroup');
+    og.label = `${lbls[out]} — ${g.length} unreviewed`;
+    g.forEach(t => {
+      const d = new Date(t.timestamp);
+      const opt = document.createElement('option');
+      opt.value = t.tradeId;
+      opt.textContent = `${t.pair} ${t.direction} · ${d.toLocaleDateString('en-GB')} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+      og.appendChild(opt);
+      tradeOpts.push(t);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function initFormOptions() {
+  const sel = document.getElementById('reviewType');
+  sel.innerHTML = '<option value="mistake">🔴 Mistake / rule break</option><option value="good">🟢 Good trade</option><option value="mixed">🟡 Mixed</option><option value="be">⚪ Breakeven</option>';
+  updateFormLabels();
 }
 
 function onTradeChange() {
-    const id = document.getElementById('tradePicker').value;
-    const t  = tradeOptions.find(x => x.tradeId === id);
-    const preview = document.getElementById('tradePreview');
-    const rtEl    = document.getElementById('reviewType');
-    if (!t) { preview.innerHTML = ''; setReviewOptions('all'); return; }
+  const id = document.getElementById('tradePicker').value;
+  const t  = tradeOpts.find(x => x.tradeId === id);
+  const prev = document.getElementById('tradePreview');
+  const rt   = document.getElementById('reviewType');
+  if (!t) { prev.innerHTML = ''; initFormOptions(); return; }
 
-    const ocColor = t.outcome==='WIN'?'var(--green)':t.outcome==='LOSS'?'var(--red)':'#aaa';
-    const mEmoji  = ['','😤','😟','😐','😊','🔥'][t.mindset] || '';
-    preview.innerHTML = `
-        <div style="margin-bottom:6px;"><strong style="color:${ocColor}">${t.outcome}</strong> — <strong>${t.pair} ${t.direction}</strong> · ${new Date(t.timestamp).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
-        <div style="color:var(--muted);">${mEmoji}${t.mindset?` Mindset ${t.mindset}/5`:''} ${t.executionRating?`· Exec ${t.executionRating}/5`:''} ${(t.ruleBreaks||[]).length?`· Breaks: ${t.ruleBreaks.join(', ')}`:''}</div>
-        ${t.reason?`<div style="margin-top:5px;font-style:italic;color:var(--dim);">"${esc(t.reason)}"</div>`:''}`;
+  const oc = t.outcome==='WIN'?'var(--green)':t.outcome==='LOSS'?'var(--red)':'#aaa';
+  const me = ['','😤','😟','😐','😊','🔥'][t.mindset]||'';
+  prev.innerHTML =
+    `<div style="margin-bottom:5px"><strong style="color:${oc}">${t.outcome}</strong> — <strong>${t.pair} ${t.direction}</strong> · ${new Date(t.timestamp).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>` +
+    `<div style="color:var(--muted)">${me}${t.mindset?` Mindset ${t.mindset}/5`:''}${t.executionRating?` · Exec ${t.executionRating}/5`:''}${(t.ruleBreaks||[]).length?` · ${t.ruleBreaks.join(', ')}`:''}</div>` +
+    (t.reason?`<div style="margin-top:4px;font-style:italic;color:var(--dim)">"${esc(t.reason)}"</div>`:'');
 
-    if (t.outcome==='WIN')       { setReviewOptions('win'); rtEl.value='good'; }
-    else if (t.outcome==='LOSS') { setReviewOptions('loss'); rtEl.value='mistake'; }
-    else                         { setReviewOptions('be');  rtEl.value='be'; }
-    onTypeChange();
+  if (t.outcome==='WIN')  { rt.innerHTML='<option value="good">🟢 Good trade — what worked well</option>'; rt.value='good'; }
+  else if (t.outcome==='LOSS') { rt.innerHTML='<option value="mistake">🔴 Mistake / rule break</option><option value="mixed">🟡 Mixed</option>'; rt.value='mistake'; }
+  else { rt.innerHTML='<option value="be">⚪ Breakeven</option><option value="mixed">🟡 Mixed</option>'; rt.value='be'; }
+  updateFormLabels();
 }
 
-function setReviewOptions(mode) {
-    const el = document.getElementById('reviewType');
-    if      (mode==='win')  el.innerHTML = '<option value="good">🟢 Good trade — what worked well</option>';
-    else if (mode==='loss') el.innerHTML = '<option value="mistake">🔴 Mistake / rule break</option><option value="mixed">🟡 Mixed — some good, some bad</option>';
-    else if (mode==='be')   el.innerHTML = '<option value="be">⚪ Breakeven review</option><option value="mixed">🟡 Mixed</option>';
-    else                    el.innerHTML = '<option value="mistake">🔴 Mistake</option><option value="good">🟢 Good Trade</option><option value="mixed">🟡 Mixed</option><option value="be">⚪ Breakeven</option>';
-}
+function onTypeChange() { updateFormLabels(); }
 
-function onTypeChange() {
-    const type  = document.getElementById('reviewType').value || 'mistake';
-    const catEl = document.getElementById('mistakeCat');
-    const sevEl = document.getElementById('severity');
-    document.getElementById('catWrap').style.display = type === 'be' ? 'none' : 'block';
+function updateFormLabels() {
+  const type = document.getElementById('reviewType').value||'mistake';
+  const catEl = document.getElementById('mistakeCat');
+  const sevEl = document.getElementById('severity');
+  document.getElementById('catWrap').style.display = type==='be'?'none':'block';
 
-    if (type === 'good') {
-        document.getElementById('catLabel').textContent = 'WIN PATTERN';
-        document.getElementById('catLabel').classList.remove('req');
-        catEl.innerHTML = '<option value="">Select pattern (optional)</option><option>Clean Setup</option><option>Patience Paid</option><option>Good RR</option><option>Trend Follow</option><option>Level Respect</option><option>Session Edge</option><option>Confirmation Entry</option><option>Full Checklist</option><option>Mindset Peak</option><option>Plan Followed</option><option>Disciplined Hold</option>';
-        document.getElementById('sevLabel').textContent = 'CONFIDENCE LEVEL';
-        sevEl.innerHTML = '<option value="High">🔥 A+ — textbook setup</option><option value="Medium">✅ Solid — good execution</option><option value="Low">💡 Won but hesitated</option>';
-        document.getElementById('descLabel').textContent = 'WHAT WENT WELL';
-        document.getElementById('actionLabel').textContent = 'HOW TO REPEAT THIS';
-        document.getElementById('reviewDesc').placeholder = 'What made this trade work? Be specific.';
-        document.getElementById('reviewAction').placeholder = 'What exact conditions to look for to repeat this win?';
-    } else if (type === 'be') {
-        document.getElementById('sevLabel').textContent = 'TRADE QUALITY';
-        sevEl.innerHTML = '<option value="High">🔍 Should have been a win</option><option value="Medium">⚖️ Correct exit at BE</option><option value="Low">💡 Should have been avoided</option>';
-        document.getElementById('descLabel').textContent = 'WHAT HAPPENED';
-        document.getElementById('actionLabel').textContent = 'WHAT WOULD CHANGE THE OUTCOME';
-        document.getElementById('reviewDesc').placeholder = 'Walk through the trade in detail...';
-        document.getElementById('reviewAction').placeholder = 'What would you need to hold longer or enter better?';
-    } else {
-        document.getElementById('catLabel').textContent = 'ROOT CAUSE CATEGORY';
-        document.getElementById('catLabel').classList.add('req');
-        catEl.innerHTML = '<option value="">Select Root Cause</option><option>Overtrading</option><option>FOMO</option><option>Early Entry</option><option>Late Entry</option><option>Risk Violation</option><option>Plan Deviation</option><option>Emotional Execution</option><option>Revenge Trading</option><option>Ignoring SL</option><option>Poor RR</option><option>Wrong Setup</option><option>Lack of Patience</option><option>Distraction</option><option>Overconfidence</option>';
-        document.getElementById('sevLabel').textContent = 'SEVERITY';
-        sevEl.innerHTML = '<option value="High">🔥 High — costly, must fix</option><option value="Medium">⚠️ Medium — needs correction</option><option value="Low">💡 Low — awareness needed</option>';
-        document.getElementById('descLabel').textContent = type === 'mixed' ? 'WHAT HAPPENED (GOOD & BAD)' : 'WHAT WENT WRONG';
-        document.getElementById('actionLabel').textContent = 'WHAT TO DO NEXT TIME';
-        document.getElementById('reviewDesc').placeholder = 'Be brutally honest. What exactly happened?';
-        document.getElementById('reviewAction').placeholder = 'Specific rule or action to apply next time.';
-    }
+  if (type==='good') {
+    document.getElementById('catLabel').textContent='WIN PATTERN';
+    document.getElementById('catLabel').className='flbl';
+    catEl.innerHTML='<option value="">Pattern (optional)</option><option>Clean Setup</option><option>Patience Paid</option><option>Good RR</option><option>Trend Follow</option><option>Level Respect</option><option>Session Edge</option><option>Confirmation Entry</option><option>Full Checklist</option><option>Mindset Peak</option><option>Plan Followed</option><option>Disciplined Hold</option>';
+    document.getElementById('sevLabel').textContent='CONFIDENCE LEVEL';
+    sevEl.innerHTML='<option value="High">🔥 A+ — textbook setup</option><option value="Medium">✅ Solid execution</option><option value="Low">💡 Won but hesitated</option>';
+    document.getElementById('descLabel').textContent='WHAT WENT WELL';
+    document.getElementById('actionLabel').textContent='HOW TO REPEAT THIS';
+    document.getElementById('reviewDesc').placeholder='What made this trade work?';
+    document.getElementById('reviewAction').placeholder='What exact conditions to look for next time?';
+  } else if (type==='be') {
+    document.getElementById('sevLabel').textContent='TRADE QUALITY';
+    sevEl.innerHTML='<option value="High">🔍 Should have been a win</option><option value="Medium">⚖️ Correct BE exit</option><option value="Low">💡 Should have been avoided</option>';
+    document.getElementById('descLabel').textContent='WHAT HAPPENED';
+    document.getElementById('actionLabel').textContent='WHAT WOULD CHANGE THE OUTCOME';
+    document.getElementById('reviewDesc').placeholder='Walk through the trade...';
+    document.getElementById('reviewAction').placeholder='What would you need to hold or enter better?';
+  } else {
+    document.getElementById('catLabel').textContent='ROOT CAUSE CATEGORY';
+    document.getElementById('catLabel').className='flbl req';
+    catEl.innerHTML='<option value="">Select Root Cause</option><option>Overtrading</option><option>FOMO</option><option>Early Entry</option><option>Late Entry</option><option>Risk Violation</option><option>Plan Deviation</option><option>Emotional Execution</option><option>Revenge Trading</option><option>Ignoring SL</option><option>Poor RR</option><option>Wrong Setup</option><option>Lack of Patience</option><option>Distraction</option><option>Overconfidence</option>';
+    document.getElementById('sevLabel').textContent='SEVERITY';
+    sevEl.innerHTML='<option value="High">🔥 High — costly, must fix</option><option value="Medium">⚠️ Medium — needs correction</option><option value="Low">💡 Low — awareness needed</option>';
+    document.getElementById('descLabel').textContent = type==='mixed'?'WHAT HAPPENED (GOOD & BAD)':'WHAT WENT WRONG';
+    document.getElementById('actionLabel').textContent='WHAT TO DO NEXT TIME';
+    document.getElementById('reviewDesc').placeholder='Be honest. What exactly happened?';
+    document.getElementById('reviewAction').placeholder='Specific rule to apply next time.';
+  }
 }
 
 function saveReview() {
-    const tradeId    = document.getElementById('tradePicker').value;
-    const reviewType = document.getElementById('reviewType').value;
-    const category   = document.getElementById('mistakeCat')?.value || '';
-    const severity   = document.getElementById('severity').value;
-    const desc       = document.getElementById('reviewDesc').value.trim();
-    const action     = document.getElementById('reviewAction').value.trim();
+  const tradeId    = document.getElementById('tradePicker').value;
+  const reviewType = document.getElementById('reviewType').value;
+  const category   = document.getElementById('mistakeCat').value||'';
+  const severity   = document.getElementById('severity').value;
+  const desc       = document.getElementById('reviewDesc').value.trim();
+  const action     = document.getElementById('reviewAction').value.trim();
 
-    if (!tradeId) { showToast('Select a trade','error'); return; }
-    if (!desc)    { showToast('Fill in review notes','error'); return; }
-    if (!action)  { showToast('Fill in action plan','error'); return; }
-    if ((reviewType==='mistake'||reviewType==='mixed') && !category) { showToast('Select a root cause category','error'); return; }
+  if (!tradeId) { showToast('Select a trade','error'); return; }
+  if (!desc)    { showToast('Fill in review notes','error'); return; }
+  if (!action)  { showToast('Fill in action plan','error'); return; }
+  if ((reviewType==='mistake'||reviewType==='mixed') && !category) { showToast('Select a root cause category','error'); return; }
 
-    const t = tradeOptions.find(x=>x.tradeId===tradeId);
-    if (t?.outcome==='WIN' && reviewType==='mistake') { showToast('WIN trades cannot be logged as mistakes','error'); return; }
-    if (t?.outcome==='LOSS' && reviewType==='good')   { showToast('LOSS trades cannot be logged as good trades','error'); return; }
+  const t = tradeOpts.find(x => x.tradeId===tradeId);
+  if (t?.outcome==='WIN'  && reviewType==='mistake') { showToast('WIN trades cannot be logged as mistakes','error'); return; }
+  if (t?.outcome==='LOSS' && reviewType==='good')    { showToast('LOSS trades cannot be logged as good trades','error'); return; }
 
-    const existing = reviews.findIndex(r=>r.tradeId===tradeId);
-    const review = {
-        id: existing > -1 ? reviews[existing].id : `REV_${Date.now()}`,
-        tradeId, reviewType, category:category||'N/A', severity, description:desc, action,
-        resolved: existing > -1 ? reviews[existing].resolved : false,
-        timestamp: new Date().toISOString(),
-        date: new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}),
-        tradeReason: t?.reason||'N/A', tradePair:t?.pair||'N/A',
-        tradeDirection:t?.direction||'N/A', tradeOutcome:t?.outcome||'N/A'
-    };
+  const review = {
+    id:`REV_${Date.now()}`, tradeId, reviewType,
+    category:category||'N/A', severity, description:desc, action,
+    resolved:false, timestamp:new Date().toISOString(),
+    date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}),
+    tradeReason:t?.reason||'N/A', tradePair:t?.pair||'N/A',
+    tradeDirection:t?.direction||'N/A', tradeOutcome:t?.outcome||'N/A'
+  };
 
-    if (existing > -1) {
-        if (!confirm(`Trade ${tradeId} already reviewed. Update it?`)) return;
-        reviews[existing] = review;
-    } else {
-        reviews.unshift(review);
-    }
+  const existIdx = reviews.findIndex(r => r.tradeId===tradeId);
+  if (existIdx>-1) {
+    if (!confirm('Already reviewed. Update?')) return;
+    reviews[existIdx] = {...review, id:reviews[existIdx].id, resolved:reviews[existIdx].resolved};
+  } else {
+    reviews.unshift(review);
+  }
 
-    localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
-    showToast('Review saved ✓ — trade removed from queue', 'success');
-
-    // Refresh everything — reviewed trade vanishes from dropdown immediately
-    loadData();
-    renderOverview();
-    renderWinAnalysis();
-    renderLossAnalysis();
-    populateTradeDropdown();  // ← rebuilds without the just-reviewed trade
-    renderReviews();
-    clearForm();
+  localStorage.setItem(IMP_KEY, JSON.stringify(reviews));
+  showToast('Review saved ✓','success');
+  loadData(); render(); clearForm();
 }
 
 function clearForm() {
-    document.getElementById('tradePicker').value  = '';
-    document.getElementById('tradePreview').innerHTML = '';
-    document.getElementById('reviewDesc').value   = '';
-    document.getElementById('reviewAction').value = '';
-    setReviewOptions('all');
-    document.getElementById('reviewType').value = 'mistake';
-    onTypeChange();
-    if (document.getElementById('mistakeCat')) document.getElementById('mistakeCat').value = '';
-    document.getElementById('severity').value = 'High';
+  document.getElementById('tradePicker').value='';
+  document.getElementById('tradePreview').innerHTML='';
+  document.getElementById('reviewDesc').value='';
+  document.getElementById('reviewAction').value='';
+  document.getElementById('mistakeCat').value='';
+  document.getElementById('severity').value='High';
+  initFormOptions();
 }
 
-// ── Tracker ───────────────────────────────────────────────────────────────────
-function renderReviews() {
-    let filtered = [...reviews];
-    if (currentFilter === 'active')   filtered = filtered.filter(r=>!r.resolved);
-    else if (currentFilter === 'resolved') filtered = filtered.filter(r=>r.resolved);
-    else if (['mistake','good','mixed','be'].includes(currentFilter)) filtered = filtered.filter(r=>(r.reviewType||'mistake')===currentFilter);
+// ── Tracker ───────────────────────────────────────────────
+function renderTracker() {
+  let list = [...reviews];
+  if (curFilter==='active')   list=list.filter(r=>!r.resolved);
+  else if(curFilter==='resolved') list=list.filter(r=>r.resolved);
+  else if(['mistake','good','mixed','be'].includes(curFilter)) list=list.filter(r=>r.reviewType===curFilter);
 
-    const container = document.getElementById('reviewsContainer');
-    if (!filtered.length) { container.innerHTML = '<div class="empty-state">No reviews match this filter</div>'; return; }
+  const el = document.getElementById('rv-list');
+  if (!list.length) { el.innerHTML='<div class="empty">No reviews match this filter</div>'; return; }
 
-    const typeLabels = { mistake:'🔴 MISTAKE', good:'🟢 GOOD TRADE', mixed:'🟡 MIXED', be:'⚪ BREAKEVEN' };
-    const ocColor = o => o==='WIN'?'var(--green)':o==='LOSS'?'var(--red)':'#aaa';
+  const tLbls = {mistake:'🔴 MISTAKE',good:'🟢 GOOD TRADE',mixed:'🟡 MIXED',be:'⚪ BREAKEVEN'};
+  const oc = o => o==='WIN'?'var(--green)':o==='LOSS'?'var(--red)':'#aaa';
 
-    container.innerHTML = filtered.map(r => {
-        const cls = r.resolved ? r.reviewType+' resolved' : r.reviewType||'mistake';
-        return `<div class="review-card ${cls}">
-            <div class="review-head">
-                <div class="review-trade">${r.tradeId} — <span style="color:${ocColor(r.tradeOutcome)}">${r.tradeOutcome}</span> ${r.tradePair} ${r.tradeDirection}</div>
-                <div class="review-meta">${typeLabels[r.reviewType||'mistake']} ${r.category!=='N/A'?'· '+r.category:''} · ${r.severity} · ${r.date}${r.resolved?' · ✅ RESOLVED':''}</div>
-            </div>
-            ${r.reviewType!=='good'&&r.tradeReason&&r.tradeReason!=='N/A'?`<div class="review-lbl">TRADE REASON</div><div class="review-body" style="font-style:italic;">"${esc(r.tradeReason)}"</div>`:''}
-            <div class="review-lbl">${r.reviewType==='good'?'WHAT WENT WELL':r.reviewType==='be'?'WHAT HAPPENED':'WHAT WENT WRONG'}</div>
-            <div class="review-body">${esc(r.description)}</div>
-            <div class="review-lbl">${r.reviewType==='good'?'HOW TO REPEAT':r.reviewType==='be'?'WHAT WOULD CHANGE IT':'ACTION PLAN'}</div>
-            <div class="review-action-body">${esc(r.action)}</div>
-            <div class="review-btns">
-                <button class="rbtn resolve" onclick="toggleResolve('${r.id}')">${r.resolved?'Mark Active':'Mark Resolved'}</button>
-                <button class="rbtn delete"  onclick="delReview('${r.id}')">Delete</button>
-            </div>
-        </div>`;
-    }).join('');
+  el.innerHTML = list.map(r => {
+    const cls = (r.reviewType||'mistake') + (r.resolved?' resolved':'');
+    return `<div class="rv-card ${cls}">
+      <div class="rv-title">${r.tradeId} — <span style="color:${oc(r.tradeOutcome)}">${r.tradeOutcome}</span> ${r.tradePair} ${r.tradeDirection}</div>
+      <div class="rv-meta">${tLbls[r.reviewType||'mistake']}${r.category!=='N/A'?' · '+r.category:''} · ${r.severity} · ${r.date}${r.resolved?' · ✅ RESOLVED':''}</div>
+      ${r.reviewType!=='good'&&r.tradeReason&&r.tradeReason!=='N/A'?`<div class="rv-lbl">TRADE REASON</div><div class="rv-body" style="font-style:italic">"${esc(r.tradeReason)}"</div>`:''}
+      <div class="rv-lbl">${r.reviewType==='good'?'WHAT WENT WELL':r.reviewType==='be'?'WHAT HAPPENED':'WHAT WENT WRONG'}</div>
+      <div class="rv-body">${esc(r.description)}</div>
+      <div class="rv-lbl">${r.reviewType==='good'?'HOW TO REPEAT':r.reviewType==='be'?'WHAT WOULD CHANGE IT':'ACTION PLAN'}</div>
+      <div class="rv-action">${esc(r.action)}</div>
+      <div class="rv-btns">
+        <button class="rv-btn res" onclick="toggleRes('${r.id}')">${r.resolved?'Mark Active':'Mark Resolved'}</button>
+        <button class="rv-btn del" onclick="delRev('${r.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-window.toggleResolve = id => {
-    const r = reviews.find(x=>x.id===id);
-    if (!r) return;
-    r.resolved = !r.resolved;
-    localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
-    renderOverview(); renderReviews();
-    showToast(r.resolved ? 'Marked resolved ✓' : 'Marked active','success');
+window.toggleRes = id => {
+  const r = reviews.find(x=>x.id===id);
+  if (!r) return;
+  r.resolved = !r.resolved;
+  localStorage.setItem(IMP_KEY, JSON.stringify(reviews));
+  renderOverview(); renderTracker();
+  showToast(r.resolved?'Resolved ✓':'Marked active','success');
 };
-window.delReview = id => {
-    if (!confirm('Delete this review?')) return;
-    reviews = reviews.filter(x=>x.id!==id);
-    localStorage.setItem(IMPROVE_KEY, JSON.stringify(reviews));
-    loadData(); renderOverview(); renderWinAnalysis(); renderLossAnalysis(); populateTradeDropdown(); renderReviews();
-    showToast('Deleted','success');
+window.delRev = id => {
+  if (!confirm('Delete this review?')) return;
+  reviews = reviews.filter(x=>x.id!==id);
+  localStorage.setItem(IMP_KEY, JSON.stringify(reviews));
+  loadData(); render(); showToast('Deleted','success');
 };
 
-function setupFilters() {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderReviews();
-        });
-    });
-}
-
-// ── Weekly ────────────────────────────────────────────────────────────────────
+// ── Weekly ────────────────────────────────────────────────
 function renderWeekly() {
-    const now   = new Date();
-    const start = new Date(now); start.setDate(now.getDate()-now.getDay()+(weekOffset*7)); start.setHours(0,0,0,0);
-    const end   = new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
+  const now   = new Date();
+  const start = new Date(now); start.setDate(now.getDate()-now.getDay()+(wkOffset*7)); start.setHours(0,0,0,0);
+  const end   = new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
 
-    document.getElementById('weekLabel').textContent =
-        weekOffset===0 ? 'This Week' : weekOffset===-1 ? 'Last Week' :
-        `${start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
+  document.getElementById('wkLabel').textContent =
+    wkOffset===0?'This Week':wkOffset===-1?'Last Week':
+    `${start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
 
-    const wt = trades.filter(t => { const d=new Date(t.timestamp); return d>=start&&d<=end; });
-    const wins = wt.filter(t=>t.outcome==='WIN').length;
-    const losses = wt.filter(t=>t.outcome==='LOSS').length;
-    const bes = wt.filter(t=>t.outcome==='BREAKEVEN').length;
-    const total = wt.length;
-    const wr = total ? Math.round((wins/total)*100) : 0;
+  const wt = trades.filter(t => { const d=new Date(t.timestamp); return d>=start&&d<=end; });
+  const W=wt.filter(t=>t.outcome==='WIN').length, L=wt.filter(t=>t.outcome==='LOSS').length, BE=wt.filter(t=>t.outcome==='BREAKEVEN').length;
+  const total=wt.length, wr=total?Math.round((W/total)*100):0;
 
-    const minds = wt.filter(t=>t.mindset).map(t=>t.mindset);
-    const avgMind = minds.length ? (minds.reduce((a,b)=>a+b,0)/minds.length).toFixed(1) : '—';
-    const rates   = wt.filter(t=>t.executionRating).map(t=>t.executionRating);
-    const avgRate = rates.length ? (rates.reduce((a,b)=>a+b,0)/rates.length).toFixed(1) : '—';
+  const minds=wt.filter(t=>t.mindset).map(t=>t.mindset);
+  const avgM=minds.length?(minds.reduce((a,b)=>a+b,0)/minds.length).toFixed(1):'—';
+  const rates=wt.filter(t=>t.executionRating).map(t=>t.executionRating);
+  const avgR=rates.length?(rates.reduce((a,b)=>a+b,0)/rates.length).toFixed(1):'—';
 
-    const rbCounts = {}; wt.forEach(t=>(t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(rb=>{rbCounts[rb]=(rbCounts[rb]||0)+1;}));
-    const topRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1])[0];
-    const fullCL = wt.filter(t=>(t.checklist||[]).length>=9).length;
-    const compliance = total ? Math.round((fullCL/total)*100) : 0;
+  const rbC={}; wt.forEach(t=>(t.ruleBreaks||[]).filter(r=>r!=='No Rule Break').forEach(r=>{rbC[r]=(rbC[r]||0)+1;}));
+  const topRB=Object.entries(rbC).sort((a,b)=>b[1]-a[1])[0];
+  const fullCL=wt.filter(t=>(t.checklist||[]).length>=9).length;
+  const comp=total?Math.round((fullCL/total)*100):0;
 
-    document.getElementById('weekGrid').innerHTML = [
-        {t:'TRADES',    v:total,           s:`${wins}W · ${losses}L · ${bes}BE`, c:''},
-        {t:'WIN RATE',  v:wr+'%',          s:`${total} total`,  c:wr>=50?'var(--green)':'var(--red)'},
-        {t:'MINDSET',   v:avgMind+'/5',    s:'Pre-trade avg',   c:minds.length&&+avgMind>=4?'var(--green)':minds.length&&+avgMind<3?'var(--red)':''},
-        {t:'EXECUTION', v:avgRate+'/5',    s:'Avg rating',      c:''},
-        {t:'CL COMPLIANCE', v:compliance+'%', s:'Full CL used', c:compliance>=70?'var(--green)':compliance>=40?'var(--gold)':'var(--red)'},
-        {t:'TOP RULE BREAK', v:topRB?topRB[0]:'✅ Clean', s:topRB?topRB[1]+'x this week':'No breaks', c:topRB?'var(--red)':'var(--green)'}
-    ].map(({t,v,s,c}) => `<div class="week-card">
-        <div class="week-card-title">${t}</div>
-        <div class="week-card-val" style="${c?'color:'+c+';font-size:15px;line-height:1.2;':''}">${v}</div>
-        <div class="week-card-sub">${s}</div>
-    </div>`).join('');
+  document.getElementById('wk-grid').innerHTML = [
+    {t:'TRADES',        v:total,          s:`${W}W · ${L}L · ${BE}BE`, c:''},
+    {t:'WIN RATE',      v:wr+'%',         s:`${total} trades`,          c:wr>=50?'var(--green)':'var(--red)'},
+    {t:'AVG MINDSET',   v:avgM+'/5',      s:'Pre-trade',                c:+avgM>=4?'var(--green)':+avgM<3?'var(--red)':''},
+    {t:'AVG EXECUTION', v:avgR+'/5',      s:'Rating',                   c:''},
+    {t:'CL COMPLIANCE', v:comp+'%',       s:'Full checklist',           c:comp>=70?'var(--green)':comp>=40?'var(--gold)':'var(--red)'},
+    {t:'TOP RULE BREAK',v:topRB?topRB[0]:'✅ Clean', s:topRB?topRB[1]+'x':'No breaks', c:topRB?'var(--red)':'var(--green)'}
+  ].map(({t,v,s,c})=>`<div class="wk-card"><div class="wk-t">${t}</div><div class="wk-v" style="${c?'color:'+c+';font-size:14px;line-height:1.3;':''}">${v}</div><div class="wk-s">${s}</div></div>`).join('');
 
-    // Mindset vs win rate chart
-    const mindBuckets = {1:[],2:[],3:[],4:[],5:[]};
-    wt.filter(t=>t.mindset).forEach(t => mindBuckets[t.mindset].push(t.outcome==='WIN'?1:0));
-    const mindLabels = ['😤 1','😟 2','😐 3','😊 4','🔥 5'];
-    const mindWRs    = [1,2,3,4,5].map(m => mindBuckets[m].length ? Math.round((mindBuckets[m].reduce((a,b)=>a+b,0)/mindBuckets[m].length)*100) : null);
-    const mindCounts = [1,2,3,4,5].map(m => mindBuckets[m].length);
+  // Mindset chart
+  const mb={1:[],2:[],3:[],4:[],5:[]};
+  wt.filter(t=>t.mindset).forEach(t=>mb[t.mindset].push(t.outcome==='WIN'?1:0));
+  const mWRs=[1,2,3,4,5].map(m=>mb[m].length?Math.round((mb[m].reduce((a,b)=>a+b,0)/mb[m].length)*100):null);
+  const mCtx=document.getElementById('mind-chart');
+  if(mindCh){mindCh.destroy();mindCh=null;}
+  if([1,2,3,4,5].some(m=>mb[m].length)){
+    mindCh=new Chart(mCtx,{
+      type:'bar',
+      data:{labels:['😤1','😟2','😐3','😊4','🔥5'],datasets:[
+        {label:'Win%',data:mWRs,backgroundColor:mWRs.map(v=>v===null?'rgba(255,255,255,0.04)':v>=50?'rgba(29,185,84,0.65)':'rgba(226,33,52,0.65)'),borderWidth:0,borderRadius:4,yAxisID:'y'},
+        {label:'Trades',data:[1,2,3,4,5].map(m=>mb[m].length),type:'line',borderColor:'rgba(74,144,226,0.6)',backgroundColor:'transparent',pointRadius:4,pointBackgroundColor:'var(--blue)',borderWidth:1.5,yAxisID:'y2'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        scales:{
+          y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.45)',callback:v=>v+'%'}},
+          y2:{beginAtZero:true,position:'right',grid:{display:false},ticks:{color:'rgba(74,144,226,0.6)',stepSize:1}}
+        },
+        plugins:{legend:{labels:{color:'rgba(255,255,255,0.55)',font:{size:10},padding:12}}}}
+    });
+  } else { mCtx.parentElement.innerHTML='<div class="empty">No mindset data this week</div>'; }
 
-    const mCtx = document.getElementById('weekMindChart');
-    if (weekMindChartInst) { weekMindChartInst.destroy(); weekMindChartInst=null; }
-    if (mindCounts.some(c=>c>0)) {
-        weekMindChartInst = new Chart(mCtx, {
-            type:'bar',
-            data:{
-                labels:mindLabels,
-                datasets:[
-                    { label:'Win Rate %', data:mindWRs, backgroundColor:mindWRs.map(v=>v===null?'rgba(255,255,255,0.05)':v>=50?'rgba(29,185,84,0.7)':'rgba(226,33,52,0.7)'), borderWidth:0, borderRadius:4, yAxisID:'y' },
-                    { label:'Trades', data:mindCounts, type:'line', borderColor:'rgba(74,144,226,0.6)', backgroundColor:'transparent', pointRadius:4, pointBackgroundColor:'var(--blue)', borderWidth:1.5, yAxisID:'y2' }
-                ]
-            },
-            options:{
-                responsive:true, maintainAspectRatio:false,
-                scales:{
-                    y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'}},
-                    y2:{beginAtZero:true,position:'right',grid:{display:false},ticks:{color:'rgba(74,144,226,0.6)',stepSize:1}}
-                },
-                plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)',font:{size:10},padding:14}}}
-            }
-        });
-    } else { mCtx.parentElement.innerHTML = '<div class="empty-state">No mindset data this week</div>'; }
+  // CL
+  const clU={}; wt.forEach(t=>(t.checklist||[]).forEach(i=>{clU[i]=(clU[i]||0)+1;}));
+  const clR=Object.entries(clU).sort((a,b)=>b[1]-a[1]);
+  const clEl=document.getElementById('wk-cl');
+  clEl.innerHTML = clR.length&&total
+    ? `<div style="font-size:10px;color:var(--muted);margin-bottom:10px;">Compliance: <strong style="color:${comp>=70?'var(--green)':comp>=40?'var(--gold)':'var(--red)'}">${comp}%</strong> used full checklist</div>`
+      + bars(clR,total,'var(--blue)',true)
+    : '<div class="empty">No checklist data this week</div>';
 
-    // Checklist compliance detail
-    const clEl = document.getElementById('weekCLContent');
-    const allCLItems = ['H4','H1EF','H1EG','M30EF','M30EG','M15EF','M15EG','M5EF','M5EG','ENTRY-M5EG','ENTRY-M1EF'];
-    const clUsage = {}; wt.forEach(t => (t.checklist||[]).forEach(item => { clUsage[item]=(clUsage[item]||0)+1; }));
-    const clRows = allCLItems.filter(item=>clUsage[item]).sort((a,b)=>(clUsage[b]||0)-(clUsage[a]||0));
-    if (!clRows.length || !total) { clEl.innerHTML = '<div class="empty-state">No checklist data this week</div>'; }
-    else {
-        clEl.innerHTML = `<div style="margin-bottom:12px;font-size:11px;color:var(--muted);">Compliance: <strong style="color:${compliance>=70?'var(--green)':compliance>=40?'var(--gold)':'var(--red)'}">${compliance}%</strong> of trades used full checklist</div>` +
-        clRows.map(item => {
-            const c = clUsage[item]; const pct = Math.round((c/total)*100);
-            return `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${item}</span><span class="bar-val" style="color:var(--blue)">${pct}%</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
-            </div>`;
-        }).join('');
-    }
+  // Rule breaks
+  const rbEl=document.getElementById('wk-rb');
+  const sRB=Object.entries(rbC).sort((a,b)=>b[1]-a[1]);
+  rbEl.innerHTML = sRB.length
+    ? bars(sRB,sRB[0]?.[1]||1,'var(--red)',true)
+    : '<div class="empty" style="color:var(--green)">✅ No rule breaks this week!</div>';
 
-    // Rule breaks detail
-    const rbEl = document.getElementById('weekRBContent');
-    const sortedRB = Object.entries(rbCounts).sort((a,b)=>b[1]-a[1]);
-    if (!sortedRB.length) { rbEl.innerHTML = '<div class="empty-state" style="color:var(--green);">✅ No rule breaks this week. Disciplined!</div>'; }
-    else {
-        const maxRB = sortedRB[0][1];
-        rbEl.innerHTML = sortedRB.map(([rb,count]) =>
-            `<div class="bar-item">
-                <div class="bar-header"><span class="bar-label">${rb}</span><span class="bar-val" style="color:var(--red)">${count}x</span></div>
-                <div class="bar-track"><div class="bar-fill" style="width:${Math.round((count/maxRB)*100)}%;background:var(--red);"></div></div>
-            </div>`
-        ).join('');
-    }
-
-    // Insights
-    const insArr = [];
-    if (!total) insArr.push({t:'blue', m:'No trades recorded this week.'});
-    else {
-        if (wr >= 60) insArr.push({t:'green', m:`🔥 Strong week — <strong>${wr}%</strong> win rate on ${total} trades.`});
-        else if (wr < 40 && total >= 3) insArr.push({t:'red', m:`⚠️ Difficult week — <strong>${wr}%</strong> win rate. Review your losses in the Losses tab.`});
-        const hmT = wt.filter(t=>t.mindset>=4); const hmW = hmT.filter(t=>t.outcome==='WIN').length;
-        if (hmT.length >= 2) insArr.push({t:Math.round((hmW/hmT.length)*100)>=60?'green':'blue', m:`🧠 High mindset (4–5): <strong>${Math.round((hmW/hmT.length)*100)}%</strong> win rate on ${hmT.length} trades.`});
-        if (topRB && topRB[1]>=2) insArr.push({t:'red', m:`🔴 <strong>${topRB[0]}</strong> repeated <strong>${topRB[1]}x</strong> this week — make this your single focus next session.`});
-        if (compliance < 50 && total >= 3) insArr.push({t:'red', m:`📋 Checklist compliance at <strong>${compliance}%</strong>. Low discipline costs setups.`});
-        else if (compliance >= 80 && total >= 3) insArr.push({t:'green', m:`✅ <strong>${compliance}%</strong> checklist compliance. That's disciplined trading.`});
-    }
-    document.getElementById('weekInsights').innerHTML = insArr.map(i=>`<div class="insight ${i.t}">${i.m}</div>`).join('');
+  // Insights
+  const ins=[];
+  if(!total) ins.push({c:'b',m:'No trades this week.'});
+  else {
+    if(wr>=60) ins.push({c:'g',m:`🔥 Strong week — <strong>${wr}%</strong> win rate on ${total} trades.`});
+    else if(wr<40&&total>=3) ins.push({c:'r',m:`⚠️ Tough week — <strong>${wr}%</strong> win rate. Review losses.`});
+    const hmT=wt.filter(t=>t.mindset>=4), hmW=hmT.filter(t=>t.outcome==='WIN').length;
+    if(hmT.length>=2) ins.push({c:Math.round((hmW/hmT.length)*100)>=60?'g':'b',m:`🧠 High mindset: <strong>${Math.round((hmW/hmT.length)*100)}%</strong> win rate (${hmT.length} trades).`});
+    if(topRB&&topRB[1]>=2) ins.push({c:'r',m:`🔴 <strong>${topRB[0]}</strong> repeated <strong>${topRB[1]}x</strong> — single focus for next session.`});
+    if(comp<50&&total>=3) ins.push({c:'r',m:`📋 CL compliance <strong>${comp}%</strong>. Discipline costs setups.`});
+    else if(comp>=80&&total>=3) ins.push({c:'g',m:`✅ <strong>${comp}%</strong> checklist compliance. Disciplined!`});
+  }
+  document.getElementById('wk-insights').innerHTML = ins.map(i=>`<div class="ins ${i.c}">${i.m}</div>`).join('');
 }
 
-// ── Exports ───────────────────────────────────────────────────────────────────
-function setupExports() {
-    document.getElementById('xlsxBtn').addEventListener('click', exportXLSX);
-    document.getElementById('pdfBtn').addEventListener('click', exportPDF);
-    document.getElementById('csvBtn').addEventListener('click', exportCSV);
-}
-const rtL = t => ({mistake:'Mistake',good:'Good Trade',mixed:'Mixed',be:'Breakeven'}[t]||t);
-function buildRows() {
-    return reviews.map(r=>({'Review ID':r.id,'Trade ID':r.tradeId,'Date':r.date,'Review Type':rtL(r.reviewType),'Pair':r.tradePair,'Direction':r.tradeDirection,'Outcome':r.tradeOutcome,'Trade Reason':r.tradeReason,'Category':r.category,'Severity':r.severity,'Status':r.resolved?'Resolved':'Active','Notes':r.description,'Action Plan':r.action}));
-}
-function exportCSV() {
-    const rows = buildRows(); if (!rows.length) { showToast('No reviews','error'); return; }
-    const h = Object.keys(rows[0]);
-    const csv = [h.join(','),...rows.map(r=>h.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))].join('\n');
-    const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`xX_Improvement_${new Date().toISOString().split('T')[0]}.csv`; a.click();
-    showToast('CSV exported ✓','success');
-}
-function exportXLSX() {
-    if (!window.XLSX) { showToast('XLSX loading','error'); return; }
-    const rows = buildRows(); if (!rows.length) { showToast('No reviews','error'); return; }
-    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Reviews');
-    XLSX.writeFile(wb,`xX_Improvement_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('Excel exported ✓','success');
-}
-function exportPDF() {
-    if (!window.jspdf) { showToast('PDF loading','error'); return; }
-    const { jsPDF } = window.jspdf; const doc = new jsPDF();
-    doc.setFontSize(16); doc.setFont(undefined,'bold'); doc.text('xX Trading Journal — Improvement',14,18);
-    doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.text(`Generated: ${new Date().toLocaleDateString()} | ${reviews.length} reviews`,14,26);
-    const rows = buildRows();
-    if (rows.length) {
-        const cols=['Date','Trade ID','Review Type','Pair','Outcome','Category','Status'];
-        doc.autoTable({startY:32,head:[cols],body:rows.map(r=>cols.map(c=>r[c]||'')),theme:'grid',headStyles:{fillColor:[10,10,10],textColor:255,fontSize:7},bodyStyles:{fontSize:7}});
-    }
-    doc.save(`xX_Improvement_${new Date().toISOString().split('T')[0]}.pdf`);
-    showToast('PDF exported ✓','success');
+// ── Helpers ───────────────────────────────────────────────
+function bars(entries, total, color, rawCount=false) {
+  const max = entries[0]?.[1]||1;
+  return entries.map(([lbl,cnt])=>{
+    const pct = rawCount ? Math.round((cnt/max)*100) : Math.round((cnt/total)*100);
+    const disp = rawCount ? `${cnt}x` : `${cnt}x · ${pct}%`;
+    return `<div class="bar">
+      <div class="bar-top"><span class="bar-lbl">${lbl}</span><span class="bar-val" style="color:${color}">${disp}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
 }
 
-function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+function setStyle(id,p,v){ const e=document.getElementById(id); if(e) e.style[p]=v; }
+function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+// ── Exports ───────────────────────────────────────────────
+function buildRows(){
+  const rtL={mistake:'Mistake',good:'Good Trade',mixed:'Mixed',be:'Breakeven'};
+  return reviews.map(r=>({'Review ID':r.id,'Trade ID':r.tradeId,'Date':r.date,'Type':rtL[r.reviewType]||r.reviewType,'Pair':r.tradePair,'Direction':r.tradeDirection,'Outcome':r.tradeOutcome,'Trade Reason':r.tradeReason,'Category':r.category,'Severity':r.severity,'Status':r.resolved?'Resolved':'Active','Notes':r.description,'Action Plan':r.action}));
+}
+function expCSV(){
+  const rows=buildRows(); if(!rows.length){showToast('No reviews','error');return;}
+  const h=Object.keys(rows[0]);
+  const csv=[h.join(','),...rows.map(r=>h.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','))].join('\n');
+  dl(new Blob([csv],{type:'text/csv'}),`xX_Improvement_${new Date().toISOString().split('T')[0]}.csv`);
+  showToast('CSV exported ✓','success');
+}
+function expXLSX(){
+  if(!window.XLSX){showToast('Loading...','info');return;}
+  const rows=buildRows(); if(!rows.length){showToast('No reviews','error');return;}
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Reviews');
+  XLSX.writeFile(wb,`xX_Improvement_${new Date().toISOString().split('T')[0]}.xlsx`);
+  showToast('Excel exported ✓','success');
+}
+function dl(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
 </script>
 </body>
 </html>
