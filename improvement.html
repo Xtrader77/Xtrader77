@@ -349,19 +349,18 @@ let curFilter = 'all', wkOffset = 0;
 let catCh = null, execCh = null, mindCh = null;
 
 // ── Boot ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   injectBottomNav('improvement');
-});
 
-(async () => {
   const user = await requireAuthFast('/improvement.html');
   if (!user) return;
   await requirePin();
+
   loadData();
   initTabs();
   render();
   wireEvents();
-})();
+});
 
 function loadData() {
   try { reviews = JSON.parse(localStorage.getItem(IMP_KEY) || '[]'); if (!Array.isArray(reviews)) reviews = []; } catch { reviews = []; }

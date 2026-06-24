@@ -144,7 +144,7 @@ export async function saveTrade(tradeId, tradeData) {
     return { success: true };
 }
 
-export async function loadAllTrades() {
+export async function loadAllTrades(includeScreenshots = false) {
     const user = await getCurrentUser();
     if (!user) return { journals: {}, tradeCounter: 1 };
 
@@ -152,25 +152,30 @@ export async function loadAllTrades() {
         .from('trades').select('*').eq('user_id', user.id).order('timestamp', { ascending: true });
     if (error || !trades) return { journals: {}, tradeCounter: 1 };
 
-    const { data: screenshots } = await supabase
-        .from('screenshots').select('trade_id, id, name, annotation, data').eq('user_id', user.id);
-
-    const ssByTrade = {};
-    (screenshots || []).forEach(ss => {
-        if (!ssByTrade[ss.trade_id]) ssByTrade[ss.trade_id] = [];
-        ssByTrade[ss.trade_id].push({ id: ss.id, name: ss.name, annotation: ss.annotation, data: ss.data });
-    });
+    // Only fetch screenshots if explicitly requested (slower but complete)
+    let ssByTrade = {};
+    if (includeScreenshots) {
+        const { data: screenshots } = await supabase
+            .from('screenshots').select('trade_id, id, name, annotation, data').eq('user_id', user.id);
+        (screenshots || []).forEach(ss => {
+            if (!ssByTrade[ss.trade_id]) ssByTrade[ss.trade_id] = [];
+            ssByTrade[ss.trade_id].push({ id: ss.id, name: ss.name, annotation: ss.annotation, data: ss.data });
+        });
+    }
 
     const journals = {};
     let maxCounter = 1;
     trades.forEach(t => {
         const num = parseInt((t.id || '').replace('TRADE_', '')) || 0;
         if (num >= maxCounter) maxCounter = num + 1;
+        // Use local screenshots if we have them (avoids re-fetching base64 blobs)
+        const localData = JSON.parse(localStorage.getItem('xX_journal_data') || '{}');
+        const localSS = localData.journals?.[t.id]?.screenshots || [];
         journals[t.id] = {
             text: t.journal_text, checklist: safeJSON(t.checklist, []),
             ruleBreaks: safeJSON(t.rule_breaks, []),
             tradeSession: { session: t.session, time: t.trade_time },
-            execution: t.execution, screenshots: ssByTrade[t.id] || [],
+            execution: t.execution, screenshots: ssByTrade[t.id] || localSS,
             pair: t.pair, direction: t.direction, reason: t.reason,
             outcome: t.outcome, timestamp: t.timestamp,
             tradeDate: t.trade_date, tradeTime: t.trade_time,
