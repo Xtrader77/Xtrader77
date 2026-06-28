@@ -131,24 +131,18 @@
 <script type="module">
 import { requireAuth, requireAuthFast, requirePin, showToast, syncToLocalStorage, injectBottomNav } from '/shared.js';
 
-// Inject bottom nav after DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => injectBottomNav('analytics'));
-} else {
-    injectBottomNav('analytics');
-}
-
 let trades = [];
 let perfChartInstance = null;
 let currentChartType = 'bar';
 
-(async () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    injectBottomNav('analytics');
     const user = await requireAuthFast('/analytics.html');
     if (!user) return;
     await requirePin();
     loadLocal();
     init();
-})();
+});
 
 function loadLocal() {
     try {

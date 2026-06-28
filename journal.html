@@ -271,17 +271,13 @@
 import { requireAuth, requirePin, showToast, injectBottomNav } from '/shared.js';
 import { saveTrade, saveCycles, loadAllTrades, loadCycles } from '/db.js';
 
-// Inject bottom nav after DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => injectBottomNav('journal'));
-} else {
-    injectBottomNav('journal');
-}
-
 const TODAY = new Date().toISOString().split('T')[0];
 let journals  = { journals: {}, tradeCounter: 1 };
 let cycles    = { currentCycle:1, tradesInCurrentCycle:0, completedCycles:[], allTrades:[] };
 let screenshots = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    injectBottomNav('journal');
 
 function makeSingleSelect(selector) {
     document.querySelectorAll(selector).forEach(el => {
@@ -517,7 +513,7 @@ function prefill() {
     }
 }
 
-(async () => {
+
     const user = await requireAuth('/journal.html');
     if (!user) return;
     await requirePin();
@@ -531,7 +527,8 @@ function prefill() {
     } catch(e) {}
 
     init();
-})();
+
+});
 </script>
 </body>
 </html>

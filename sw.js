@@ -1,5 +1,5 @@
-// xX Trading Journal — Service Worker v4 (Optimized)
-const CACHE = 'xx-v4';
+// xX Trading Journal — Service Worker v3 (cache-first, fast)
+const CACHE = 'xx-v3';
 const PRECACHE = [
     '/',
     '/index.html',
@@ -36,31 +36,21 @@ self.addEventListener('activate', e => {
     );
 });
 
-// Fetch strategy with network-first for critical paths
+// Fetch strategy:
+// - Supabase API: network only (always fresh data)
+// - Google Fonts: cache first
+// - CDN scripts (Chart.js etc): cache first
+// - App shell (html/js): cache first, update in background
 self.addEventListener('fetch', e => {
     const url = e.request.url;
 
     // Supabase — always network
     if (url.includes('supabase.co')) {
-        e.respondWith(
-            fetch(e.request)
-                .then(res => {
-                    // Cache successful responses for offline
-                    if (res.ok && url.includes('/trades') || url.includes('/cycles')) {
-                        const clone = res.clone();
-                        caches.open(CACHE + '-api').then(c => c.put(e.request, clone));
-                    }
-                    return res;
-                })
-                .catch(() => {
-                    // Try cache for API
-                    return caches.match(e.request);
-                })
-        );
+        e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
         return;
     }
 
-    // CDN resources — cache first
+    // CDN resources — cache first (they rarely change)
     if (url.includes('cdn.jsdelivr') || url.includes('fonts.googleapis') ||
         url.includes('fonts.gstatic') || url.includes('cdnjs.cloudflare') ||
         url.includes('unpkg.com')) {
@@ -77,22 +67,28 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // App shell — stale-while-revalidate with immediate response
-    e.respondWith(
-        caches.open(CACHE).then(async cache => {
-            const cached = await cache.match(e.request);
-            const fetchPromise = fetch(e.request).then(res => {
-                if (res.ok) cache.put(e.request, res.clone());
-                return res;
-            }).catch(() => cached);
+    // App shell — cache first, refresh in background (stale-while-revalidate)
+    if (e.request.destination === 'document' ||
+        url.endsWith('.js') || url.endsWith('.html') ||
+        url.endsWith('.css') || url.endsWith('.png') ||
+        url.endsWith('.json')) {
+        e.respondWith(
+            caches.open(CACHE).then(async cache => {
+                const cached = await cache.match(e.request);
+                const fetchPromise = fetch(e.request).then(res => {
+                    if (res.ok) cache.put(e.request, res.clone());
+                    return res;
+                }).catch(() => cached);
 
-            // Return cached immediately if available
-            if (cached) {
-                // Update in background
-                fetchPromise.catch(() => {});
-                return cached;
-            }
-            return fetchPromise;
-        })
+                // Return cached immediately, update in background
+                return cached || fetchPromise;
+            })
+        );
+        return;
+    }
+
+    // Everything else — network with cache fallback
+    e.respondWith(
+        fetch(e.request).catch(() => caches.match(e.request))
     );
 });

@@ -307,13 +307,6 @@ import {
     hashPin, signOut, supabase
 } from '/db.js';
 
-// Inject bottom nav after DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => injectBottomNav('profile'));
-} else {
-    injectBottomNav('profile');
-}
-
 const JOURNAL_KEY = 'xX_journal_data';
 const CYCLE_KEY   = 'xX_cycle_data';
 const PIN_KEY     = 'xX_app_pin';
@@ -321,16 +314,15 @@ const RECOVERY_KEY= 'xX_recovery';
 
 let currentUser = null;
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-(async () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    injectBottomNav('profile');
     currentUser = await requireAuth('/profile.html');
     if (!currentUser) return;
     await requirePin();
-    await syncToLocalStorage();
     await loadCloudProfile();
     loadStats();
     setupHandlers();
-})();
+});
 
 async function loadCloudProfile() {
     document.getElementById('displayEmail').textContent = currentUser.email || '';
